@@ -265,7 +265,7 @@ export function renderAuthGateway(container) {
         <div class="auth-card" id="auth-card" tabindex="-1">
           <div class="login-brand-header">
             <div class="login-brand-logos">
-              <img src="${LOGOS.seal}" alt="NEMSU Seal" class="login-seal-img" width="48" height="48" fetchpriority="high" />
+              <img src="${LOGOS.seal}" alt="InternMS logo" class="login-seal-img" width="48" height="48" fetchpriority="high" />
               <img src="${LOGOS.mark}" alt="NEMSU Mark" class="login-mark-img" width="30" height="44" fetchpriority="high" />
             </div>
             <div>
@@ -451,23 +451,23 @@ export function renderAuthGateway(container) {
                 required
                 autocomplete="off"
                 spellcheck="false"
-                value="HTE-CSL-2026"
-                placeholder="HTE-CSL-2026…"
+                value=""
+                placeholder="Enter your invitation token"
                 aria-describedby="hte-token-hint hte-token-err"
                 aria-errormessage="hte-token-err"
               />
-              <span id="hte-token-hint" class="form-hint">Demo tokens: <code>HTE-CSL-2026</code>, <code>HTE-GHH-2026</code>, <code>HTE-DICT-2026</code></span>
+              <span id="hte-token-hint" class="form-hint">Use the invitation token provided by your NEMSU OJT Coordinator.</span>
               <span id="hte-token-err" class="field-error-msg">Enter a valid partner invite token from your OJT Coordinator.</span>
             </div>
 
             <div class="grid-2" style="gap: 0.75rem;">
               <div class="form-group">
                 <label class="form-label" for="hte-sup-name">Supervisor Name</label>
-                <input type="text" id="hte-sup-name" name="supervisorName" class="form-input" autocomplete="name" value="Engr. Elena Rostova" required />
+                <input type="text" id="hte-sup-name" name="supervisorName" class="form-input" autocomplete="name" value="" required />
               </div>
               <div class="form-group">
                 <label class="form-label" for="hte-sup-email">Work Email</label>
-                <input type="email" id="hte-sup-email" name="supervisorEmail" class="form-input" autocomplete="email" spellcheck="false" value="supervisor@hte.com" required />
+                <input type="email" id="hte-sup-email" name="supervisorEmail" class="form-input" autocomplete="email" spellcheck="false" value="" required />
               </div>
             </div>
 
@@ -476,27 +476,6 @@ export function renderAuthGateway(container) {
             </button>
           </form>
 
-          <!-- DEMO ACCESS PILLS -->
-          <div class="demo-pills-box">
-            <div class="demo-pills-label">Quick demo sign-in</div>
-            <div class="demo-pills-grid">
-              <button type="button" class="demo-pill-btn" data-demo-id="student" data-demo-pass="student123">
-                ${icon('graduationCap', { size: 14 })} Student (CITE)
-              </button>
-              <button type="button" class="demo-pill-btn" data-demo-id="coordinator.cite@nemsu.edu.ph" data-demo-pass="coord123">
-                ${icon('building', { size: 14 })} CITE Coordinator
-              </button>
-              <button type="button" class="demo-pill-btn" data-demo-id="coordinator.cbm@nemsu.edu.ph" data-demo-pass="coord123">
-                ${icon('building', { size: 14 })} CBM Coordinator
-              </button>
-              <button type="button" class="demo-pill-btn" data-demo-id="supervisor" data-demo-pass="super123">
-                ${icon('briefcase', { size: 14 })} Partner Supervisor
-              </button>
-              <button type="button" class="demo-pill-btn" data-demo-id="admin" data-demo-pass="admin123">
-                ${icon('shieldCheck', { size: 14 })} System Admin
-              </button>
-            </div>
-          </div>
         </div>
       </section>
     </main>
@@ -611,16 +590,6 @@ export function renderAuthGateway(container) {
       return;
     }
     performLogin(idVal, passVal);
-  });
-
-  container.querySelectorAll('.demo-pill-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const demoId = btn.getAttribute('data-demo-id');
-      const demoPass = btn.getAttribute('data-demo-pass');
-      if (idInput) idInput.value = demoId;
-      if (passInput) passInput.value = demoPass;
-      performLogin(demoId, demoPass);
-    });
   });
 
   const regForm = container.querySelector('#panel-register');

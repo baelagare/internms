@@ -1,0 +1,62 @@
+[
+    {
+        "ProcessId":  15988,
+        "ParentProcessId":  18620,
+        "CommandLine":  "\"C:\\Program Files\\nodejs\\\\node.exe\"  \"C:\\Program Files\\nodejs\\\\node_modules\\npm\\bin\\npm-cli.js\" run dev"
+    },
+    {
+        "ProcessId":  8368,
+        "ParentProcessId":  13820,
+        "CommandLine":  "\"node\"   \"C:\\projects\\internms\\node_modules\\.bin\\\\..\\vite\\bin\\vite.js\" "
+    },
+    {
+        "ProcessId":  18768,
+        "ParentProcessId":  2416,
+        "CommandLine":  "\"C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe\" --source-shortcut-location=start-menu"
+    },
+    {
+        "ProcessId":  16584,
+        "ParentProcessId":  18768,
+        "CommandLine":  "\"C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe\" --type=crashpad-handler \"--user-data-dir=C:\\Users\\Berto\\AppData\\Local\\Google\\Chrome\\User Data\" /prefetch:4 --monitor-self-annotation=ptype=crashpad-handler --user-stream-region=252,65568 \"--database=C:\\Users\\Berto\\AppData\\Local\\Google\\Chrome\\User Data\\Crashpad\" --url=https://clients2.google.com/cr/report --annotation=channel= --annotation=plat=Win64 --annotation=prod=Chrome --annotation=ver=156.0.8078.81 --initial-client-data=0x140,0x144,0x148,0x11c,0x14c,0x7ff9b8558f40,0x7ff9b8558f50,0x7ff9b8558f60"
+    },
+    {
+        "ProcessId":  11736,
+        "ParentProcessId":  18768,
+        "CommandLine":  "\"C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe\" --type=gpu-process --gpu-recent-crash-count=0 --no-pre-read-main-dll --gpu-preferences=WAAAAAAAAADgAAAEAAAAAAAAAAAAAGAAQAAAAAAAAAADAAAAAAAAADgAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAKAAAAAAAAAAoAAAAAAAAAAgAAAAAAAAAEAAAAAIAAAABAAAAAAAAAAgAAAAAAAAACAAAAAAAAAA= --metrics-shmem-handle=1940,i,7370827127207674425,47873165010172058,262144 --field-trial-handle=1976,i,7042338498699354599,8927528249281440869,262144 --variations-seed-version=20261107-030038.770000-production --pseudonymization-salt-handle=1980,i,14431596414254329842,266983024701088383,4 --trace-process-track-uuid=3190708988185955192 --mojo-platform-channel-handle=1972 /prefetch:2"
+    },
+    {
+        "ProcessId":  18104,
+        "ParentProcessId":  18768,
+        "CommandLine":  "\"C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe\" --type=utility --utility-sub-type=network.mojom.NetworkService --lang=en-US --service-sandbox-type=none --no-pre-read-main-dll --metrics-shmem-handle=2392,i,18001600945089885975,16373178427725234572,524288 --field-trial-handle=1976,i,7042338498699354599,8927528249281440869,262144 --variations-seed-version=20261107-030038.770000-production --pseudonymization-salt-handle=1980,i,14431596414254329842,266983024701088383,4 --trace-process-track-uuid=3190708989122997041 --mojo-platform-channel-handle=2400 /prefetch:11"
+    },
+    {
+        "ProcessId":  12112,
+        "ParentProcessId":  18768,
+        "CommandLine":  "\"C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe\" --type=utility --utility-sub-type=storage.mojom.StorageService --lang=en-US --service-sandbox-type=service --no-pre-read-main-dll --metrics-shmem-handle=2500,i,1712010634745991245,12997556101895496097,524288 --field-trial-handle=1976,i,7042338498699354599,8927528249281440869,262144 --variations-seed-version=20261107-030038.770000-production --pseudonymization-salt-handle=1980,i,14431596414254329842,266983024701088383,4 --trace-process-track-uuid=3190708990060038890 --mojo-platform-channel-handle=2512 /prefetch:13"
+    },
+    {
+        "ProcessId":  19912,
+        "ParentProcessId":  18768,
+        "CommandLine":  "\"C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe\" --type=renderer --top-chrome-webui --no-pre-read-main-dll --video-capture-use-gpu-memory-buffer --lang=en-US --device-scale-factor=1.5 --num-raster-threads=4 --enable-main-frame-before-activation --renderer-client-id=7 --launch-time-ticks=34819764217 --metrics-shmem-handle=4720,i,8994939555422438474,4677730462778905481,1572864 --field-trial-handle=1976,i,7042338498699354599,8927528249281440869,262144 --variations-seed-version=20261107-030038.770000-production --pseudonymization-salt-handle=1980,i,14431596414254329842,266983024701088383,4 --trace-process-track-uuid=3190708992871164437 --mojo-platform-channel-handle=4588 /prefetch:1"
+    },
+    {
+        "ProcessId":  20468,
+        "ParentProcessId":  18768,
+        "CommandLine":  "\"C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe\" --type=renderer --no-pre-read-main-dll --video-capture-use-gpu-memory-buffer --lang=en-US --device-scale-factor=1.5 --num-raster-threads=4 --enable-main-frame-before-activation --renderer-client-id=11 --launch-time-ticks=34820886099 --metrics-shmem-handle=3336,i,10887206510736329130,6774971718157507046,1572864 --field-trial-handle=1976,i,7042338498699354599,8927528249281440869,262144 --variations-seed-version=20261107-030038.770000-production --pseudonymization-salt-handle=1980,i,14431596414254329842,266983024701088383,4 --trace-process-track-uuid=3190708996619331833 --mojo-platform-channel-handle=3352 /prefetch:1"
+    },
+    {
+        "ProcessId":  18284,
+        "ParentProcessId":  18768,
+        "CommandLine":  "\"C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe\" --type=renderer --no-pre-read-main-dll --video-capture-use-gpu-memory-buffer --lang=en-US --device-scale-factor=1.5 --num-raster-threads=4 --enable-main-frame-before-activation --renderer-client-id=12 --launch-time-ticks=34821840188 --metrics-shmem-handle=5496,i,12925914322042700063,14605367596029128296,1572864 --field-trial-handle=1976,i,7042338498699354599,8927528249281440869,262144 --variations-seed-version=20261107-030038.770000-production --pseudonymization-salt-handle=1980,i,14431596414254329842,266983024701088383,4 --trace-process-track-uuid=3190708997556373682 --mojo-platform-channel-handle=5472 /prefetch:1"
+    },
+    {
+        "ProcessId":  4424,
+        "ParentProcessId":  16412,
+        "CommandLine":  "\"node\"   \"C:\\Users\\Berto\\AppData\\Roaming\\npm\\\\node_modules\\omniroute\\bin\\omniroute.mjs\" "
+    },
+    {
+        "ProcessId":  3172,
+        "ParentProcessId":  4424,
+        "CommandLine":  "\"C:\\Program Files\\nodejs\\node.exe\" --dns-result-order=ipv4first --max-old-space-size=4096 C:\\Users\\Berto\\AppData\\Roaming\\npm\\node_modules\\omniroute\\dist\\server-ws.mjs"
+    }
+]

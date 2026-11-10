@@ -1,0 +1,22 @@
+﻿[
+    {
+        "ProcessId":  6584,
+        "CommandLine":  "\"C:\\Program Files\\nodejs\\\\node.exe\"  \"C:\\Program Files\\nodejs\\\\node_modules\\npm\\bin\\npm-cli.js\" run dev"
+    },
+    {
+        "ProcessId":  18136,
+        "CommandLine":  "\"node\"   \"C:\\projects\\internms\\node_modules\\.bin\\\\..\\vite\\bin\\vite.js\" "
+    },
+    {
+        "ProcessId":  20648,
+        "CommandLine":  "\"node\"   \"C:\\Users\\Berto\\AppData\\Roaming\\npm\\\\node_modules\\omniroute\\bin\\omniroute.mjs\" "
+    },
+    {
+        "ProcessId":  20840,
+        "CommandLine":  "\"C:\\Program Files\\nodejs\\node.exe\" --dns-result-order=ipv4first --max-old-space-size=4096 C:\\Users\\Berto\\AppData\\Roaming\\npm\\node_modules\\omniroute\\dist\\server-ws.mjs"
+    },
+    {
+        "ProcessId":  20336,
+        "CommandLine":  "\"C:\\Program Files\\nodejs\\node.exe\" node_modules/vite/bin/vite.js build "
+    }
+]

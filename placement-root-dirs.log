@@ -1,0 +1,12 @@
+﻿.taste-skill
+.vscode
+browser-results
+chrome-cdp-test
+chrome-smoke-profile
+design-system
+dist
+node_modules
+src
+src-react
+styles
+tests

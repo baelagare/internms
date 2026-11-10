@@ -1,0 +1,21 @@
+{
+  "results": [
+    "Profile loads with existing academic data, read-only clearance, and one shared demo notice",
+    "No horizontal overflow and all inputs labeled at 1440px",
+    "No horizontal overflow and all inputs labeled at 1024px",
+    "No horizontal overflow and all inputs labeled at 768px",
+    "No horizontal overflow and all inputs labeled at 390px",
+    "No horizontal overflow and all inputs labeled at 320px",
+    "Sidebar collapse/expand and mobile drawer/Escape remain operational",
+    "Field-level validation/focus, unsafe URL rejection, failed-save value preservation, successful local save and dirty reset",
+    "skills: blank/duplicate validation, trimmed add, removal cancellation, confirmed remove and undo",
+    "coursework: blank/duplicate validation, trimmed add, removal cancellation, confirmed remove and undo",
+    "File format validation, metadata-only save, saved-data generated preview, résumé removal and undo",
+    "Achievement expanded focus, required fields, creation, confirmed deletion and cancel",
+    "Missing academic records and all collection/document empty states render without fabricated values",
+    "Session-expiration event returns to sign-in",
+    "Corrupted retrieval shows recoverable workspace error without resetting data",
+    "No browser console errors"
+  ],
+  "errors": []
+}

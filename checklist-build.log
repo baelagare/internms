@@ -1,0 +1,11 @@
+[36mvite v5.4.10 [32mbuilding for production...[36m[39m
+transforming...
+[32m✓[39m 75 modules transformed.
+rendering chunks...
+computing gzip size...
+[2mdist/[22m[32mindex.html                         [39m[1m[2m  0.67 kB[22m[1m[22m[2m │ gzip:   0.41 kB[22m
+[2mdist/[22m[32massets/internms-logo-DWCX8_D_.svg  [39m[1m[2m  2.79 kB[22m[1m[22m[2m │ gzip:   1.06 kB[22m
+[2mdist/[22m[32minternms-logo.svg                  [39m[1m[2m  2.79 kB[22m[1m[22m[2m │ gzip:   1.06 kB[22m
+[2mdist/[22m[35massets/index-Ct8quRVJ.css          [39m[1m[2m 57.27 kB[22m[1m[22m[2m │ gzip:  11.83 kB[22m
+[2mdist/[22m[36massets/index-Bm_WsKVM.js           [39m[1m[2m380.97 kB[22m[1m[22m[2m │ gzip: 119.46 kB[22m
+[32m✓ built in 13.41s[39m

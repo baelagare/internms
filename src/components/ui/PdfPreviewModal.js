@@ -7,7 +7,7 @@ import { esc, LOGOS } from '../../utils/html.js';
 export function renderLetterhead(subtitle = 'Office of On-the-Job Training · A.Y. 2026–2027') {
   return `
     <header class="letterhead">
-      <img src="${LOGOS.seal}" alt="NEMSU seal" width="64" height="64" />
+      <img src="${LOGOS.seal}" alt="InternMS logo" width="64" height="64" />
       <div>
         <div class="letterhead-sup">Republic of the Philippines</div>
         <div class="letterhead-name">North Eastern Mindanao State University</div>

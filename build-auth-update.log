@@ -1,0 +1,58 @@
+
+> internms-frontend@1.0.0 build
+> vite build
+
+[36mvite v5.4.10 [32mbuilding for production...[36m[39m
+transforming...
+[32m✓[39m 24 modules transformed.
+[31mx[39m Build failed in 3.15s
+[31merror during build:
+[31m[vite:esbuild] Transform failed with 4 errors:
+C:/projects/internms/src-react/components/auth.jsx:41:8: ERROR: Unexpected closing "section" tag does not match opening "div" tag
+C:/projects/internms/src-react/components/auth.jsx:42:6: ERROR: Unexpected closing "div" tag does not match opening "section" tag
+C:/projects/internms/src-react/components/auth.jsx:43:4: ERROR: Unexpected closing "main" tag does not match opening "div" tag
+C:/projects/internms/src-react/components/auth.jsx:45:36: ERROR: Unexpected "return"[31m
+file: [36mC:/projects/internms/src-react/components/auth.jsx:41:8[31m
+[33m
+[33mUnexpected closing "section" tag does not match opening "div" tag[33m
+39 |            <footer className="auth-entry-footer"><span>© {new Date().getFullYear()} NEMSU · InternMS</span><span>Built for better OJT coordination</span></footer>
+40 |          </div>
+41 |        </section>
+   |          ^
+42 |      </div>
+43 |    </main>;
+
+[33mUnexpected closing "div" tag does not match opening "section" tag[33m
+40 |          </div>
+41 |        </section>
+42 |      </div>
+   |        ^
+43 |    </main>;
+44 |  }
+
+[33mUnexpected closing "main" tag does not match opening "div" tag[33m
+41 |        </section>
+42 |      </div>
+43 |    </main>;
+   |      ^
+44 |  }
+45 |  function Brand({ light = false }) { return <div className={`auth-brand ${light ? 'is-light' : ''}`}><img src="/nemsu-seal-512.png" alt="NEMSU seal" /><div><strong>InternMS</strong><span>NEMSU Main Campus</span></div></div>; }
+
+[33mUnexpected "return"[33m
+43 |    </main>;
+44 |  }
+45 |  function Brand({ light = false }) { return <div className={`auth-brand ${light ? 'is-light' : ''}`}><img src="/nemsu-seal-512.png" alt="NEMSU seal" /><div><strong>InternMS</strong><span>NEMSU Main Campus</span></div></div>; }
+   |                                      ^
+46 |  function Field({ label, hint, type = 'text', ...props }) { return <label className="auth-field"><span className="auth-field-label">{label}</span>{hint && <span className="auth-field-hint">{hint}</span>}<input type={type} {...props} /></label>; }
+47 |  function DemoAccounts({ onSelect }) { return <div className="auth-demos"><div className="auth-demo-heading"><span>Quick demo access</span><em>Local only</em></div><div className="auth-demo-grid">{demos.map(([label, id, password, detail]) => <button key={label} type="button" onClick={() => onSelect(id, password)}><span className="auth-demo-avatar">{label[0]}</span><span className="auth-demo-copy"><strong>{label}</strong><small>{detail}</small></span><Icon name="arrow" size={15} /></button>)}</div></div>; }
+[31m
+    at failureErrorWithLog (C:\projects\internms\node_modules\esbuild\lib\main.js:1472:15)
+    at C:\projects\internms\node_modules\esbuild\lib\main.js:755:50
+    at responseCallbacks.<computed> (C:\projects\internms\node_modules\esbuild\lib\main.js:622:9)
+    at handleIncomingPacket (C:\projects\internms\node_modules\esbuild\lib\main.js:677:12)
+    at Socket.readFromStdout (C:\projects\internms\node_modules\esbuild\lib\main.js:600:7)
+    at Socket.emit (node:events:514:28)
+    at addChunk (node:internal/streams/readable:568:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:519:3)
+    at Readable.push (node:internal/streams/readable:399:5)
+    at Pipe.onStreamRead (node:internal/stream_base_commons:189:23)[39m

@@ -1,0 +1,43 @@
+✔ local reads are isolated and transactions survive repository recreation (2.55ms)
+✔ failed mutations do not commit partial updates (0.9142ms)
+✔ storage failure and corrupted data are reported rather than silently reset (1.3163ms)
+✔ student, coordinator, supervisor and admin scopes are distinct (2.3208ms)
+✔ profile updates validate fields and cannot change identity, role or clearance (3.8948ms)
+✔ skills, coursework and achievements support validated add/remove (8.3297ms)
+✔ messages enforce legacy contact scopes and reject blank text (36.2289ms)
+✔ route allowlists do not grant student or supervisor management privileges (3.3758ms)
+✔ dashboard uses verified hours and separate milestone progress (5.6047ms)
+✔ missing collections are not fabricated zero progress (1.5568ms)
+✔ known zero progress and returned documents are distinct (0.8542ms)
+✔ student IDs take precedence over matching names for evaluations and advisories (2.0867ms)
+✔ passing evaluation never grants clearance and hour completion is dynamic (4.7623ms)
+✔ placement preference retains deployed assignment and records audit (84.2288ms)
+✔ placement prevents cross-college and supervisor mutation (4.3217ms)
+✔ repeated deployment does not increment occupied slots (11.0366ms)
+✔ attendance derives hours and times from shift rather than caller hours (2.4126ms)
+✔ attendance rejects invalid date (1.7189ms)
+✔ attendance rejects invalid shift (1.2311ms)
+✔ attendance rejects blank summary (1.1234ms)
+✔ weekly report preserves competency and validates hour range (1.7808ms)
+✔ adjustment lifecycle requires supervisor then coordinator and credits once (2.444ms)
+✔ review returns reports with reason and rejects unauthorized reviewer (1.993ms)
+✔ checklist verification and return preserve feedback (3.2154ms)
+✔ evaluation uses exact 19-item 95-point scale (1.4426ms)
+✔ evaluation upsert and coordinator certification update related records (2.6152ms)
+✔ partner rename maintains company relationships and rejects capacity reduction (2.2705ms)
+✔ staff creation is admin-only and preserves subsequent login (2.1103ms)
+✔ settings validate bounds and college scope (3.4604ms)
+✔ policy clauses require unique IDs and administrator authorization (1.8983ms)
+✔ governance dispatch creates a local message and audit; dismissal does not send (37.949ms)
+✔ registration initializes all five documents, college coursework and usable login (2.9992ms)
+✔ onboarding validates partner token, updates supervisor and preserves login (2.7557ms)
+✔ Laravel client honors verified routes, payload and bearer restoration/logout (1.5145ms)
+✔ Laravel validation errors and expired tokens are surfaced (0.9875ms)
+ℹ tests 35
+ℹ suites 0
+ℹ pass 35
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 606.321

@@ -1,0 +1,14 @@
+{
+  "results": [
+    "Page title is Attendance & DTR",
+    "Single workspace notice (no duplicate notice in view)",
+    "Overview displays 48 / 324 hours",
+    "Live Camera Attendance section and tracker rendered",
+    "DTR logs table rendered with 4 rows",
+    "Competency accomplishment has dashes for punch times without fake times",
+    "Row details expansion functions properly",
+    "DTR Export modal renders letterhead and signatures",
+    "Tested 1440, 1024, 768, 390, 320px viewports without horizontal overflow; captured screenshots"
+  ],
+  "errors": []
+}

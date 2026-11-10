@@ -1293,57 +1293,6 @@ dialog.drawer-dialog {
   border: 1px solid var(--border-subtle);
 }
 
-.demo-pills-box {
-  margin-top: 1.25rem;
-  padding-top: 1rem;
-  border-top: 1px solid var(--border-subtle);
-}
-
-.demo-pills-label {
-  font-size: 0.76rem;
-  font-weight: 600;
-  color: var(--text-muted);
-}
-
-.demo-pills-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.45rem;
-  margin-top: 0.5rem;
-}
-
-.demo-pill-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  font-size: 0.75rem;
-  font-weight: 600;
-  min-height: 32px;
-  padding: 0.34rem 0.68rem;
-  border-radius: var(--radius-full);
-  background: var(--surface-canvas);
-  color: var(--nemsu-blue-900);
-  border: 1px solid var(--border-strong);
-  cursor: pointer;
-  transition:
-    background-color var(--transition-fast),
-    color var(--transition-fast),
-    border-color var(--transition-fast),
-    transform 100ms var(--press-ease);
-}
-
-.demo-pill-btn:active {
-  transform: scale(0.97);
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .demo-pill-btn:hover {
-    background: var(--nemsu-blue-900);
-    border-color: var(--nemsu-blue-900);
-    color: var(--surface-white);
-  }
-}
-
 @media (max-width: 960px) {
   .landing-hero-section {
     grid-template-columns: 1fr;

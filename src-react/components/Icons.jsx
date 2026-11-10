@@ -1,0 +1,41 @@
+const paths = {
+  grid: 'M4 4h6v6H4V4Zm10 0h6v6h-6V4ZM4 14h6v6H4v-6Zm10 0h6v6h-6v-6Z',
+  user: 'M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm-7 8a7 7 0 0 1 14 0H5Z',
+  check: 'm5 12 4 4L19 6',
+  compass: 'm12 3 2.4 6.6L21 12l-6.6 2.4L12 21l-2.4-6.6L3 12l6.6-2.4L12 3Z',
+  clock: 'M12 7v5l3 2m6-2a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z',
+  file: 'M6 3h8l4 4v14H6V3Zm8 0v5h4',
+  chat: 'M5 5h14v10H9l-4 4V5Z',
+  building: 'M4 21h16M6 21V5h8v16M14 9h4v12M9 8h2m-2 4h2m4 0h1m-1 4h1',
+  alert: 'M12 9v4m0 4h.01M10.3 4.2 2.8 17a2 2 0 0 0 1.7 3h15a2 2 0 0 0 1.7-3l-7.5-12.8a2 2 0 0 0-3.4 0Z',
+  users: 'M16 20v-1a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v1m6-9a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm7-7a3 3 0 0 1 0 6m4 10v-1a4 4 0 0 0-3-3.87',
+  settings: 'M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Zm0-12v2m0 13v2m9-8h-2M5 12H3m15.4-6.4-1.4 1.4M7 17l-1.4 1.4m12.8 0L17 17M7 7 5.6 5.6',
+  menu: 'M4 6h16M4 12h16M4 18h16',
+  close: 'M6 6l12 12M18 6 6 18',
+  arrow: 'M5 12h14m-6-6 6 6-6 6',
+  logout: 'M10 5H5v14h5m5-4 4-3-4-3m4 3H9',
+  lock: 'M6 10h12v10H6V10Zm3 0V7a3 3 0 0 1 6 0v3',
+  chevron: 'm7 10 5 5 5-5',
+  panelClose: 'M4 3h16a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Zm5 0v18m8-13-4 4 4 4',
+  panelOpen: 'M4 3h16a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Zm5 0v18m4-13 4 4-4 4',
+  document: 'M6 3h8l4 4v14H6V3Zm8 0v5h4M9 13h6m-6 4h4',
+  briefcase: 'M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2m-9 0h12a2 2 0 0 1 2 2v9H4V9a2 2 0 0 1 2-2Zm-2 5h16m-8-2v4',
+  shield: 'M12 3 5 6v5c0 4.5 2.9 8.5 7 10 4.1-1.5 7-5.5 7-10V6l-7-3Zm-3 9 2 2 4-4',
+  camera: 'M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z M12 17a4 4 0 1 0 0-8 4 4 0 0 0 0 8z',
+  printer: 'M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2M6 14h12v8H6z',
+  download: 'M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3',
+  refresh: 'M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15',
+  calendar: 'M19 4H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zM16 2v4M8 2v4M3 10h18',
+  search: 'm21 21-4.35-4.35M19 11a8 8 0 1 1-16 0 8 8 0 0 1 16 0z',
+  eye: 'M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z',
+  help: 'M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20Zm-1.5-8.5c0-1.5 3-1.5 3-3.5a1.5 1.5 0 1 0-3 0m1.5 7h.01',
+  award: 'M12 15a6 6 0 1 0 0-12 6 6 0 0 0 0 12Zm-3.8 4.4L7 23l5-3 5 3-1.2-3.6',
+  clipboard: 'M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2M9 2h6v4H9V2Z',
+  x: 'M6 6l12 12M18 6 6 18',
+  plus: 'M12 5v14M5 12h14',
+  send: 'm22 2-7 20-4-9-9-4 20-7ZM22 2 11 13'
+};
+
+export function Icon({ name, size = 18, className = '' }) {
+  return <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" width={size} height={size} fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className={className}><path d={paths[name] || paths.grid} /></svg>;
+}

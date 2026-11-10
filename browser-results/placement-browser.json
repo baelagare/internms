@@ -1,0 +1,14 @@
+{
+  "results": [
+    "Real seed assignment, original ranks/scores, occupied capacity semantics, assigned-host disabled action, single shared notice",
+    "1440/1024/768/390/320: page, expanded cards and dialogs have no horizontal overflow; all student controls >=44px; Escape restores focus",
+    "Keyboard disclosure, actual skill tags/gaps/coursework, transparent formula, combined filters/sorts retaining original ranks",
+    "Native modal keyboard containment, persisted preference update without deployment changes, duplicate action disabled, dashboard remains consistent",
+    "Request failures visible in modal: stale capacity revalidated, storage failure leaves persisted preference unchanged",
+    "Unplaced submission records pending endorsement, not approval or deployment",
+    "Missing skills/coursework/GPA/clearance/checklist/capacity, unmet gates, full hosts, empty filters, empty hosts and failed recommendation calculations",
+    "Unchanged shared mobile drawer, expired-auth event and recoverable failed workspace retrieval",
+    "No browser console errors"
+  ],
+  "errors": []
+}

@@ -1,0 +1,9 @@
+{
+  "passed": true,
+  "checks": [
+    "No old logo references in application source",
+    "Vite production build",
+    "SVG logo emitted in dist",
+    "SVG favicon MIME type"
+  ]
+}

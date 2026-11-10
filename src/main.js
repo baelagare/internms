@@ -183,7 +183,7 @@ function renderApplicationRoute(route) {
         <div class="sidebar-brand">
           <img
             src="${LOGOS.seal}"
-            alt="NEMSU Seal"
+            alt="InternMS logo"
             class="sidebar-brand-seal"
             width="36"
             height="36"

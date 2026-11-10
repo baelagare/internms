@@ -1,0 +1,15 @@
+import { useState } from 'react';
+import { Button } from '../components/ui.jsx';
+import { DataTable, Field, Modal, WorkspacePage, useMutation } from '../components/workflow.jsx';
+import { scopedStudents } from '../services/localRepository.js';
+import { approvedHours } from '../services/training.js';
+import { grantClearance } from '../services/applicationService.js';
+import { EvaluationDetails } from './Evaluations.jsx';
+export function Interns({ user, db, onChange }) {
+  const [college, setCollege] = useState('ALL');
+  const [selected, setSelected] = useState(null);
+  const [confirm, setConfirm] = useState(null);
+  const { run, busy, notice } = useMutation(onChange);
+  const students = scopedStudents(db, user, college);
+  return <WorkspacePage title="Intern directory">{notice}{user.role === 'admin' && <Field label="College" options={['ALL', ...Object.keys(db.collegeSettings)]} value={college} onChange={event => setCollege(event.target.value)}/>}<DataTable title="Interns" rows={students} columns={[{ key: 'name', label: 'Intern' }, { key: 'studentNumber', label: 'Student number' }, { key: 'program', label: 'Program' }, { key: 'college', label: 'College' }, { key: 'company', label: 'Host' }, { key: 'placementStatus', label: 'Placement' }, { key: 'hours', label: 'Hours', render: student => `${approvedHours(db, student)} / ${db.collegeSettings?.[student.college]?.requiredHours || 324}` }, { key: 'clearanceStatus', label: 'Clearance' }, { key: 'actions', label: 'Actions', render: student => { const evaluation = db.evaluations.find(item => item.studentId === student.id || item.studentName === student.name); return <div className="space-y-2"><Button variant="secondary" onClick={() => setSelected({ student, evaluation })}>View details</Button>{evaluation && user.role !== 'supervisor' && student.clearanceStatus !== 'Cleared & Certified' && <Button onClick={() => setConfirm(student)}>Certify clearance</Button>}</div>; } }]}/>{selected && <Modal title={selected.student.name} onClose={() => setSelected(null)}><p>{selected.student.email} · {selected.student.program} · {selected.student.assignedRole}</p><p>{selected.student.portfolioData?.bio}</p><p>Skills: {(selected.student.portfolioData?.skills || []).join(', ')}</p>{selected.evaluation ? <EvaluationDetails evaluation={selected.evaluation}/> : <p>No evaluation recorded.</p>}</Modal>}{confirm && <Modal title="Certify final OJT clearance?" onClose={() => setConfirm(null)}><p>Confirm that {confirm.name} has completed all {confirm.college} hours, checklist documents, and evaluation requirements. This is a human certification, not an automatic eligibility decision.</p><Button disabled={busy} onClick={async () => { if (await run(() => grantClearance(user, confirm.id))) setConfirm(null); }}>Certify clearance</Button>{notice}</Modal>}</WorkspacePage>;
+}

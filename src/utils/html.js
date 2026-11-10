@@ -90,6 +90,6 @@ export function confirmInPlace(btnEl, confirmedHtml = 'Saved', holdMs = 1350) {
 }
 
 export const LOGOS = {
-  seal: './nemsu-seal-512.png',
-  mark: './nemsu-sis-logo.png'
+  seal: './internms-logo.svg',
+  mark: './internms-logo.svg'
 };

@@ -1,0 +1,13 @@
+﻿[36mvite v5.4.10 [32mbuilding for production...[36m[39m
+transforming...
+[32mΓ£ô[39m 64 modules transformed.
+rendering chunks...
+computing gzip size...
+[2mdist/[22m[32mindex.html                         [39m[1m[2m    0.67 kB[22m[1m[22m[2m Γöé gzip:   0.41 kB[22m
+[2mdist/[22m[32massets/favicon-96x96-C6x93m2Z.png  [39m[1m[2m    5.25 kB[22m[1m[22m
+[2mdist/[22m[32mnemsu-sis-logo.png                 [39m[1m[2m   37.13 kB[22m[1m[22m
+[2mdist/[22m[32mnemsu-seal-512.png                 [39m[1m[2m  221.95 kB[22m[1m[22m
+[2mdist/[22m[32mnemsu-seal.png                     [39m[1m[2m4,109.66 kB[22m[1m[22m
+[2mdist/[22m[35massets/index-WjUrT6HJ.css          [39m[1m[2m   22.64 kB[22m[1m[22m[2m Γöé gzip:   5.19 kB[22m
+[2mdist/[22m[36massets/index-DDoPkkOQ.js           [39m[1m[2m  343.85 kB[22m[1m[22m[2m Γöé gzip: 108.45 kB[22m
+[32mΓ£ô built in 5.66s[39m

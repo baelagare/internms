@@ -1,0 +1,42 @@
+﻿
+> internms-frontend@1.0.0 test
+> node --test tests/*.test.js
+
+Γ£ö local reads are isolated and transactions survive repository recreation (1.2351ms)
+Γ£ö failed mutations do not commit partial updates (0.4586ms)
+Γ£ö storage failure and corrupted data are reported rather than silently reset (0.5553ms)
+Γ£ö student, coordinator, supervisor and admin scopes are distinct (1.2296ms)
+Γ£ö profile updates validate fields and cannot change identity, role or clearance (0.6988ms)
+Γ£ö skills, coursework and achievements support validated add/remove (3.6799ms)
+Γ£ö messages enforce legacy contact scopes and reject blank text (24.062ms)
+Γ£ö route allowlists do not grant student or supervisor management privileges (0.3748ms)
+Γ£ö placement preference retains deployed assignment and records audit (15.9524ms)
+Γ£ö placement prevents cross-college and supervisor mutation (1.8127ms)
+Γ£ö repeated deployment does not increment occupied slots (8.5286ms)
+Γ£ö attendance derives hours and times from shift rather than caller hours (2.0659ms)
+Γ£ö attendance rejects invalid date (1.0491ms)
+Γ£ö attendance rejects invalid shift (0.792ms)
+Γ£ö attendance rejects blank summary (0.7242ms)
+Γ£ö weekly report preserves competency and validates hour range (1.1759ms)
+Γ£ö adjustment lifecycle requires supervisor then coordinator and credits once (1.7693ms)
+Γ£ö review returns reports with reason and rejects unauthorized reviewer (1.3218ms)
+Γ£ö checklist verification and return preserve feedback (2.3701ms)
+Γ£ö evaluation uses exact 19-item 95-point scale (0.663ms)
+Γ£ö evaluation upsert and coordinator certification update related records (1.2902ms)
+Γ£ö partner rename maintains company relationships and rejects capacity reduction (1.2106ms)
+Γ£ö staff creation is admin-only and preserves subsequent login (1.3597ms)
+Γ£ö settings validate bounds and college scope (2.1053ms)
+Γ£ö policy clauses require unique IDs and administrator authorization (0.766ms)
+Γ£ö governance dispatch creates a local message and audit; dismissal does not send (20.4158ms)
+Γ£ö registration initializes all five documents, college coursework and usable login (1.2757ms)
+Γ£ö onboarding validates partner token, updates supervisor and preserves login (0.9172ms)
+Γ£ö Laravel client honors verified routes, payload and bearer restoration/logout (0.8985ms)
+Γ£ö Laravel validation errors and expired tokens are surfaced (0.7286ms)
+Γä╣ tests 30
+Γä╣ suites 0
+Γä╣ pass 30
+Γä╣ fail 0
+Γä╣ cancelled 0
+Γä╣ skipped 0
+Γä╣ todo 0
+Γä╣ duration_ms 213.7787

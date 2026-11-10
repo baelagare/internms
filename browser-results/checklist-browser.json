@@ -1,0 +1,13 @@
+{
+  "results": [
+    "Existing assigned requirements, dynamic summary, one shared notice, and hidden single-page pagination",
+    "1440/1024/768/390/320: no page or dialog horizontal overflow, 44px controls, metadata preview, Escape and focus restoration",
+    "Search across issuer, no-results/reset, full original remarks, native modal keyboard focus containment",
+    "Invalid format, cancel without mutation, storage failure preserves original, successful replacement and exact service status/remarks, combined filtering",
+    "Dashboard updates to 4/5, session reload persistence, missing/revision/rejected/pending presentation, first upload, no invented size cap (12 MB metadata)",
+    "Multi-page navigation and search page reset, empty/unavailable states, shared mobile navigation unchanged",
+    "Expired-session event and failed retrieval use existing sign-in/recoverable workspace errors",
+    "No browser console errors"
+  ],
+  "errors": []
+}

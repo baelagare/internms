@@ -1,0 +1,12 @@
+﻿{
+    "passed": true,
+    "checks": [
+        "Registration 201",
+        "Bearer \/me 200",
+        "Logout 200",
+        "Revoked token rejected 401",
+        "Identifier login 200",
+        "Wrong password 422"
+    ],
+    "persistence": "Rolled back"
+}

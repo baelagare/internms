@@ -1,0 +1,20 @@
+{
+  "results": [
+    "Student values and milestone count",
+    "Desktop collapse, content width, preference and expand",
+    "No horizontal overflow at 1440px",
+    "No horizontal overflow at 1024px",
+    "No horizontal overflow at 768px",
+    "No horizontal overflow at 390px",
+    "No horizontal overflow at 320px",
+    "Mobile initial focus, background inertness, scroll lock, Escape and route close",
+    "Keyboard focus wraps inside drawer; backdrop closes",
+    "Evaluation modal and complete advisory retained",
+    "All student routes render",
+    "All coordinator routes render",
+    "All supervisor routes render",
+    "All admin routes render",
+    "Persistence across reload, role guard and sign-out"
+  ],
+  "errors": []
+}
