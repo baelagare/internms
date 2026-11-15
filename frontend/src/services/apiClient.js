@@ -16,7 +16,8 @@ const emptyDatabase = () => ({
   documents: []
 });
 
-const API_BASE_URL = ((typeof import.meta !== 'undefined' && import.meta.env?.VITE_API_BASE_URL) || 'http://localhost:8000/api/v1').replace(/\/$/, '');
+const rawBaseUrl = ((typeof import.meta !== 'undefined' && import.meta.env?.VITE_API_BASE_URL) || 'http://localhost:8000/api/v1').replace(/\/$/, '');
+const API_BASE_URL = rawBaseUrl.endsWith('/api/v1') ? rawBaseUrl : `${rawBaseUrl}/api/v1`;
 const TOKEN_KEY = 'internms_access_token';
 const USER_KEY = 'internms_user';
 
