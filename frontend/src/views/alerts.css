@@ -1,0 +1,2 @@
+.alert-summary { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-3); }
+@media (min-width: 640px) { .alert-summary { grid-template-columns: repeat(3, minmax(0, 1fr)); } }

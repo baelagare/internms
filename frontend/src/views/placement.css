@@ -1,0 +1,6 @@
+.coordinator-placement { display: grid; gap: var(--space-5); min-width: 0; }
+.coordinator-placement .ds-page-header { margin: 0; }
+.coordinator-placement .ds-page-header p { max-width: 56rem; }
+.coordinator-placement .ds-table th, .coordinator-placement .ds-table td { vertical-align: middle; }
+.coordinator-placement .placement-review-summary { grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 640px) { .coordinator-placement .placement-review-summary { grid-template-columns: repeat(3, minmax(0, 1fr)); } }

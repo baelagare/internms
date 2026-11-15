@@ -1,0 +1,41 @@
+.evaluations-page { display: grid; gap: var(--space-6); min-width: 0; }
+.evaluations-header { margin-bottom: 0; }
+
+.evaluation-score-card {
+  padding: var(--space-4);
+  border-radius: var(--radius-panel);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-subtle);
+}
+.evaluation-score-card--complete {
+  border-color: #bbf7d0;
+  background: var(--color-success-surface);
+}
+
+.evaluation-rubric-fieldset {
+  padding: var(--space-5);
+  border-radius: var(--radius-panel);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+}
+.evaluation-rubric-legend {
+  padding: 0 var(--space-2);
+  font-size: var(--text-base);
+  font-weight: 600;
+  color: var(--color-text);
+}
+.evaluation-criteria-list {
+  display: grid;
+  gap: var(--space-4);
+  margin-top: var(--space-3);
+}
+
+.evaluation-details-print {
+  padding: var(--space-4);
+  background: var(--color-surface);
+}
+@media print {
+  .evaluation-details-print { padding: 0; font-size: 11pt; }
+  .evaluation-details-print button,
+  .evaluation-details-print nav { display: none !important; }
+}
