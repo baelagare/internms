@@ -8,10 +8,12 @@ sed -ri "s/<VirtualHost \*:80>/<VirtualHost *:${PORT}>/" /etc/apache2/sites-avai
 
 # Ensure Laravel's writable directories are available after each container start.
 mkdir -p storage/framework/cache/data storage/framework/sessions storage/framework/views storage/logs bootstrap/cache
-chown -R www-data:www-data storage bootstrap/cache
 
 # Build Laravel caches with the real platform environment, not during image build.
 php artisan config:cache
 php artisan route:cache
+
+# Ensure web server user owns storage and cache
+chown -R www-data:www-data storage bootstrap/cache
 
 exec "$@"
