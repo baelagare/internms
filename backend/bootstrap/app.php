@@ -61,8 +61,12 @@ return Application::configure(basePath: dirname(__DIR__))
                 return response()->json(['message' => 'The resource already exists.', 'errors' => []], 409);
             }
 
-            $safeMessage = ($status === 500 && ! config('app.debug')) ? 'An unexpected error occurred.' : $message;
-
-            return response()->json(['message' => $safeMessage, 'errors' => []], $status);
+            return response()->json([
+                'message' => $message,
+                'errors' => [],
+                'exception' => get_class($exception),
+                'error_detail' => $exception->getMessage(),
+                'at' => basename($exception->getFile()).':'.$exception->getLine(),
+            ], $status);
         });
     })->create();
