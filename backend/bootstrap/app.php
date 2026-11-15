@@ -61,7 +61,7 @@ return Application::configure(basePath: dirname(__DIR__))
                 return response()->json(['message' => 'The resource already exists.', 'errors' => []], 409);
             }
 
-            $safeMessage = $status === 500 ? 'An unexpected error occurred.' : $message;
+            $safeMessage = ($status === 500 && ! config('app.debug')) ? 'An unexpected error occurred.' : $message;
 
             return response()->json(['message' => $safeMessage, 'errors' => []], $status);
         });
