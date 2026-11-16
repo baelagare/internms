@@ -3,16 +3,57 @@ import { Button, Card, Notice, PageHeader, ProgressBar, Skeleton, StatusBadge } 
 import { Modal } from '../components/workflow.jsx';
 import { EvaluationDetails } from './Evaluations.jsx';
 import { studentDashboardModel } from '../services/studentDashboard.js';
+import { StudentOnboardingModal } from '../components/StudentOnboardingModal.jsx';
 import './studentDashboard.css';
 
-export function StudentDashboard({ user, db, loading = false, error = '', onRetry }) {
+export function StudentDashboard({ user, db, onChange, loading = false, error = '', onRetry }) {
   const [preview, setPreview] = useState(false);
+  const [onboardingOpen, setOnboardingOpen] = useState(false);
   const model = studentDashboardModel(user, db);
   let body;
   if (loading) body = <div className="student-dashboard-loading"><Skeleton label="Loading internship overview" lines={3} /><Skeleton label="Loading internship records" lines={5} /></div>;
   else if (error) body = <Notice tone="danger" title="Dashboard could not be loaded" action={onRetry && <Button variant="secondary" onClick={onRetry}>Try again</Button>}>{typeof error === 'string' ? error : 'Your records could not be loaded.'}</Notice>;
   else if (!model.available) body = <Card className="student-dashboard-unavailable"><h2>Dashboard unavailable</h2><p>Student records are not connected yet. Your internship overview will appear here when they are available.</p><p>No progress or placement status has been assumed.</p></Card>;
   else body = <>
+    {(!user?.college || user?.enrollmentStatus === 'PENDING_ONBOARDING') && (
+      <Notice
+        tone="warning"
+        title="Academic Onboarding Required"
+        action={
+          <Button variant="primary" size="sm" onClick={() => setOnboardingOpen(true)}>
+            Complete Academic Declaration
+          </Button>
+        }
+      >
+        You are signed in with your institutional account. Please declare your college, degree program, and student ID to connect with your coordinator and begin OJT.
+      </Notice>
+    )}
+    {user?.enrollmentStatus === 'PENDING_APPROVAL' && (
+      <Notice
+        tone="info"
+        title="Enrollment Pending Coordinator Review"
+        action={
+          <Button variant="secondary" size="sm" onClick={() => setOnboardingOpen(true)}>
+            Review Declaration
+          </Button>
+        }
+      >
+        Your academic declaration for <strong>{user.college} · {user.program}</strong> is under review by your College OJT Coordinator.
+      </Notice>
+    )}
+    {user?.enrollmentStatus === 'REJECTED' && (
+      <Notice
+        tone="danger"
+        title="Enrollment Revision Requested"
+        action={
+          <Button variant="danger" size="sm" onClick={() => setOnboardingOpen(true)}>
+            Update Academic Information
+          </Button>
+        }
+      >
+        {user.rejectionReason || 'Your coordinator requested revisions to your college or student identification number.'}
+      </Notice>
+    )}
     {model.action && <section className="student-dashboard-action" aria-labelledby="dashboard-action-heading"><div><h2 id="dashboard-action-heading">{model.action.title}</h2><p>{model.action.description}</p></div><Destination route={model.action.route} primary>{model.action.label}</Destination></section>}
     {model.clearanceStatus === 'Cleared & Certified' && <Notice tone="success" title="Clearance recorded">Your record is marked cleared and certified.</Notice>}
     <section aria-labelledby="dashboard-overview-heading"><h2 id="dashboard-overview-heading" className="student-dashboard-section-title">Internship overview</h2>
@@ -44,6 +85,14 @@ export function StudentDashboard({ user, db, loading = false, error = '', onRetr
     </Card>
     {preview && model.evaluation && <Modal title="Supervisor evaluation" onClose={() => setPreview(false)}><EvaluationDetails evaluation={model.evaluation} /><Button variant="secondary" onClick={() => window.print()}>Print evaluation</Button></Modal>}
   </>;
+    {onboardingOpen && (
+      <StudentOnboardingModal
+        user={user}
+        onClose={() => setOnboardingOpen(false)}
+        onChange={onChange}
+      />
+    )}
+
   return <div className="student-dashboard"><PageHeader title="Dashboard" subtitle="Your internship overview." />{body}</div>;
 }
 

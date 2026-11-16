@@ -59,6 +59,19 @@ class AuthController extends Controller
             ]);
         }
 
+        if ($user->isStudent()) {
+            \App\Models\Student::firstOrCreate(
+                ['user_id' => $user->id],
+                [
+                    'college_code' => $user->college_code,
+                    'enrollment_status' => $user->college_code ? 'APPROVED' : 'PENDING_ONBOARDING',
+                    'skills' => [],
+                    'coursework' => [],
+                    'achievements' => [],
+                ]
+            );
+        }
+
         $token = $user->createToken('web-session')->plainTextToken;
 
         return response()->json([

@@ -39,7 +39,7 @@ export function Registration() {
           </div>
 
           <Notice tone="info" title="Automatic Account Setup">
-            Signing in with your official university Google account will connect you to your OJT workspace once the authentication backend is connected in Phase 4.
+            Sign in with your official university Google account (<code className="font-mono text-ink">@nemsu.edu.ph</code>) on the sign-in page. Upon initial sign-in, you will declare your college and degree program, which connects your workspace directly to your College OJT Coordinator.
           </Notice>
 
           <Button

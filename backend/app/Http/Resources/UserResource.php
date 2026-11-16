@@ -23,6 +23,7 @@ class UserResource extends JsonResource
             'college_code' => $this->college_code,
             'company' => $this->company,
             'company_id' => $this->company_id,
+            'enrollment_status' => $this->isStudent() ? ($this->student?->enrollment_status ?? ($this->college_code ? 'APPROVED' : 'PENDING_ONBOARDING')) : null,
             'created_at' => $this->created_at?->toIso8601String(),
         ];
     }

@@ -40,6 +40,32 @@ export async function grantClearance(user, id) {
   const student = await studentRecord(id);
   return mutate(`/students/${student.studentProfileId}/clearance`, 'POST');
 }
+export async function submitOnboarding(user, values) {
+  return mutate('/students/me/onboarding', 'POST', {
+    student_number: values.studentNumber,
+    college_code: values.college,
+    program: values.program,
+    phone: values.phone || null
+  });
+}
+export async function approveEnrollment(user, id) {
+  const student = await studentRecord(id);
+  return mutate(`/students/${student.studentProfileId}/enrollment/approve`, 'POST');
+}
+export async function rejectEnrollment(user, id, reason) {
+  const student = await studentRecord(id);
+  return mutate(`/students/${student.studentProfileId}/enrollment/reject`, 'POST', { reason });
+}
+export async function updateEnrollment(user, id, values) {
+  const student = await studentRecord(id);
+  return mutate(`/students/${student.studentProfileId}/enrollment`, 'PATCH', {
+    college_code: values.college,
+    program: values.program,
+    student_number: values.studentNumber,
+    enrollment_status: values.enrollmentStatus
+  });
+}
+
 export async function savePlacement(user, id, companyId, reason) {
   const student = await studentRecord(id);
   return mutate(`/students/${student.studentProfileId}/placement`, 'POST', { company_id: companyId, reason });

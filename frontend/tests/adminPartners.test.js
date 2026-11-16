@@ -37,7 +37,7 @@ test('partner and staff college selectors use catalog-backed options and guard e
 test('college catalog exposes only confirmed colleges to administrative selectors', () => {
   const catalog = readFileSync(new URL('../src/config/institution.js', import.meta.url), 'utf8');
   assert.match(catalog, /CITE: Object\.freeze/);
-  assert.match(catalog, /CBA: Object\.freeze/);
+  assert.match(catalog, /CBM: Object\.freeze/);
   assert.match(catalog, /collegeCodesForWorkspace/);
   assert.match(source, /collegeOptions = colleges\.map/);
 });

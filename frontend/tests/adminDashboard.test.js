@@ -8,22 +8,22 @@ const mockDb = () => ({
   users: [
     { id: 's1', role: 'student', college: 'CITE', placementStatus: 'Approved & Deployed' },
     { id: 's2', role: 'student', college: 'CITE', placementStatus: 'Pending Coordinator Endorsement' },
-    { id: 's3', role: 'student', college: 'CBA', placementStatus: 'Unplaced' },
+    { id: 's3', role: 'student', college: 'CBM', placementStatus: 'Unplaced' },
     { id: 'c1', role: 'coordinator', college: 'CITE', name: 'Dr. Jane Smith' }
   ],
   htes: [
     { id: 'h1', name: 'Tech Corp', college: 'CITE', filledSlots: 3, maxSlots: 5 },
-    { id: 'h2', name: 'Biz Inc', college: 'CBA', filledSlots: 2, maxSlots: 4 }
+    { id: 'h2', name: 'Biz Inc', college: 'CBM', filledSlots: 2, maxSlots: 4 }
   ],
   policyCorpus: [{ chunkId: 'pol-1' }, { chunkId: 'pol-2' }],
   auditLogs: [
     { id: 'a1', college: 'CITE', actionType: 'CLEARANCE_GRANTED' },
-    { id: 'a2', college: 'CBA', actionType: 'ALERT_DISMISSED' },
+    { id: 'a2', college: 'CBM', actionType: 'ALERT_DISMISSED' },
     { id: 'a3', college: 'ALL', actionType: 'POLICY_CREATED' }
   ],
   collegeSettings: {
     CITE: { requiredHours: 324 },
-    CBA: { requiredHours: 600 }
+    CBM: { requiredHours: 600 }
   }
 });
 
@@ -47,10 +47,10 @@ test('adminDashboardModel aggregates university-wide metrics accurately across c
   assert.equal(cite.coordinatorName, 'Dr. Jane Smith');
   assert.equal(cite.quota, '324 hrs');
 
-  const cba = model.collegeBreakdown.find(c => c.code === 'CBA');
-  assert.equal(cba.totalInterns, 1);
-  assert.equal(cba.coordinatorName, 'Unassigned');
-  assert.equal(cba.quota, '600 hrs');
+  const cbm = model.collegeBreakdown.find(c => c.code === 'CBM');
+  assert.equal(cbm.totalInterns, 1);
+  assert.equal(cbm.coordinatorName, 'Unassigned');
+  assert.equal(cbm.quota, '600 hrs');
 });
 
 test('adminDashboardModel filters cohort and partners by college when specified', () => {

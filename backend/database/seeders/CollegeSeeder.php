@@ -11,11 +11,11 @@ class CollegeSeeder extends Seeder
     public function run(): void
     {
         $colleges = [
-            ['code' => 'CITE', 'name' => 'College of Information Technology Education', 'hours' => 486, 'gpa' => 2.50],
-            ['code' => 'CBA', 'name' => 'College of Business Administration', 'hours' => 300, 'gpa' => 2.50],
-            ['code' => 'CED', 'name' => 'College of Education', 'hours' => 400, 'gpa' => 2.25],
             ['code' => 'CAS', 'name' => 'College of Arts and Sciences', 'hours' => 350, 'gpa' => 2.50],
+            ['code' => 'CBM', 'name' => 'College of Business and Management', 'hours' => 300, 'gpa' => 2.50],
             ['code' => 'CET', 'name' => 'College of Engineering and Technology', 'hours' => 500, 'gpa' => 2.50],
+            ['code' => 'CITE', 'name' => 'College of Information Technology Education', 'hours' => 486, 'gpa' => 2.50],
+            ['code' => 'CTE', 'name' => 'College of Teacher Education', 'hours' => 400, 'gpa' => 2.25],
         ];
 
         foreach ($colleges as $c) {

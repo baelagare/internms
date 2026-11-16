@@ -130,6 +130,9 @@ class WorkspaceService
                 $data = array_merge($data, [
                     'studentNumber' => $student?->student_number,
                     'program' => $student?->program,
+                    'enrollmentStatus' => $student?->enrollment_status ?? ($u->college_code ? 'APPROVED' : 'PENDING_ONBOARDING'),
+                    'rejectionReason' => $student?->rejection_reason,
+                    'verifiedAt' => $student?->verified_at?->toIso8601String(),
                     'gpa' => $student?->gpa,
                     'phone' => $student?->phone,
                     'company' => $assignedCompany,

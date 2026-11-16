@@ -20,7 +20,7 @@ class WorkspaceTest extends TestCase
         parent::setUp();
 
         College::create(['code' => 'CITE', 'name' => 'College of IT Education']);
-        College::create(['code' => 'CBA', 'name' => 'College of Business Administration']);
+        College::create(['code' => 'CBM', 'name' => 'College of Business and Management']);
 
         CollegeSetting::create([
             'college_code' => 'CITE',
@@ -29,7 +29,7 @@ class WorkspaceTest extends TestCase
         ]);
 
         CollegeSetting::create([
-            'college_code' => 'CBA',
+            'college_code' => 'CBM',
             'required_hours' => 300,
             'max_gpa_cutoff' => 2.50,
         ]);
@@ -95,21 +95,21 @@ class WorkspaceTest extends TestCase
             'program' => 'BSCS',
         ]);
 
-        $cbaStudentUser = User::create([
-            'name' => 'Bob CBA',
+        $cbmStudentUser = User::create([
+            'name' => 'Bob CBM',
             'email' => 'bob@nemsu.edu.ph',
             'role' => 'student',
-            'college_code' => 'CBA',
+            'college_code' => 'CBM',
         ]);
         Student::create([
-            'user_id' => $cbaStudentUser->id,
+            'user_id' => $cbmStudentUser->id,
             'student_number' => '2026-0002',
-            'college_code' => 'CBA',
+            'college_code' => 'CBM',
             'program' => 'BSBA',
         ]);
 
         Company::create(['name' => 'Tech Corp', 'college_code' => 'CITE']);
-        Company::create(['name' => 'Finance Inc', 'college_code' => 'CBA']);
+        Company::create(['name' => 'Finance Inc', 'college_code' => 'CBM']);
 
         $response = $this->actingAs($admin, 'sanctum')->getJson('/api/v1/workspace');
 
@@ -122,7 +122,7 @@ class WorkspaceTest extends TestCase
         $this->assertTrue($users->contains('email', 'bob@nemsu.edu.ph'));
         $this->assertCount(2, $htes);
         $this->assertArrayHasKey('CITE', $settings);
-        $this->assertArrayHasKey('CBA', $settings);
+        $this->assertArrayHasKey('CBM', $settings);
     }
 
     public function test_coordinator_workspace_is_scoped_to_their_college(): void
@@ -146,16 +146,16 @@ class WorkspaceTest extends TestCase
             'college_code' => 'CITE',
         ]);
 
-        $cbaStudentUser = User::create([
-            'name' => 'Bob CBA',
+        $cbmStudentUser = User::create([
+            'name' => 'Bob CBM',
             'email' => 'bob@nemsu.edu.ph',
             'role' => 'student',
-            'college_code' => 'CBA',
+            'college_code' => 'CBM',
         ]);
         Student::create([
-            'user_id' => $cbaStudentUser->id,
+            'user_id' => $cbmStudentUser->id,
             'student_number' => '2026-0002',
-            'college_code' => 'CBA',
+            'college_code' => 'CBM',
         ]);
 
         $response = $this->actingAs($coordinator, 'sanctum')->getJson('/api/v1/workspace');
@@ -168,7 +168,7 @@ class WorkspaceTest extends TestCase
         $this->assertFalse($users->contains('email', 'bob@nemsu.edu.ph'));
 
         $this->assertArrayHasKey('CITE', $settings);
-        $this->assertArrayNotHasKey('CBA', $settings);
+        $this->assertArrayNotHasKey('CBM', $settings);
     }
 
     public function test_supervisor_workspace_is_scoped_to_their_interns_and_company(): void

@@ -17,6 +17,10 @@ class Student extends Model
         'student_number',
         'college_code',
         'program',
+        'enrollment_status',
+        'rejection_reason',
+        'verified_by_user_id',
+        'verified_at',
         'gpa',
         'phone',
         'bio',
@@ -37,12 +41,18 @@ class Student extends Model
             'skills' => 'array',
             'coursework' => 'array',
             'achievements' => 'array',
+            'verified_at' => 'datetime',
         ];
     }
 
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function verifiedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'verified_by_user_id');
     }
 
     public function college(): BelongsTo

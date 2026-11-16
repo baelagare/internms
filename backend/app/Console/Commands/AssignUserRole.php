@@ -61,8 +61,18 @@ class AssignUserRole extends Command
         if ($user) {
             $user->update([
                 'role' => $role,
-                'college_code' => $role === 'coordinator' ? $college : ($role === 'admin' ? null : $user->college_code),
+                'college_code' => $role === 'coordinator' ? $college : ($role === 'admin' ? null : ($college ?? $user->college_code)),
             ]);
+
+            if ($role === 'student' && $college) {
+                \App\Models\Student::updateOrCreate(
+                    ['user_id' => $user->id],
+                    [
+                        'college_code' => $college,
+                        'enrollment_status' => 'APPROVED',
+                    ]
+                );
+            }
 
             $this->info("User '{$user->name}' ({$email}) updated to role '{$role}'" . ($college ? " in {$college}" : "") . ".");
         } else {
@@ -73,6 +83,17 @@ class AssignUserRole extends Command
                 'college_code' => $college,
                 'email_verified_at' => now(),
             ]);
+
+            if ($role === 'student') {
+                \App\Models\Student::create([
+                    'user_id' => $user->id,
+                    'college_code' => $college,
+                    'enrollment_status' => $college ? 'APPROVED' : 'PENDING_ONBOARDING',
+                    'skills' => [],
+                    'coursework' => [],
+                    'achievements' => [],
+                ]);
+            }
 
             $this->info("Pre-provisioned user ({$email}) as '{$role}'" . ($college ? " in {$college}" : "") . ". When they sign in with Google, they will enter with this role.");
         }

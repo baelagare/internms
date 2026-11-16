@@ -50,8 +50,10 @@ test('missing requirements and quotas are unknown, not invented defaults', async
   assert.equal(attendance.remaining, null);
   assert.equal(attendance.percent, null);
   assert.equal(getTaskLogsModuleOverview(db, {}).requiredQuota, null);
-  assert.deepEqual(Object.keys(NEMSU_COLLEGES).sort(), ['CAS', 'CBA', 'CED', 'CET', 'CITE']);
+  assert.deepEqual(Object.keys(NEMSU_COLLEGES).sort(), ['CAS', 'CBM', 'CET', 'CITE', 'CTE']);
   assert.equal(NEMSU_COLLEGES.CITE.name, 'College of Information Technology Education');
+  assert.equal(NEMSU_COLLEGES.CBM.name, 'College of Business and Management');
+  assert.equal(NEMSU_COLLEGES.CTE.name, 'College of Teacher Education');
 });
 
 test('empty lists and unavailable matching do not create results', async () => {

@@ -1,7 +1,8 @@
 import { useRef, useState } from 'react';
-import { Button, Card, HelpTip, PageHeader, StatusBadge } from '../components/ui.jsx';
+import { Button, Card, HelpTip, Notice, PageHeader, StatusBadge } from '../components/ui.jsx';
 import { Icon } from '../components/Icons.jsx';
 import { Modal, useMutation } from '../components/workflow.jsx';
+import { StudentOnboardingModal } from '../components/StudentOnboardingModal.jsx';
 import {
   editPortfolio,
   removeResume,
@@ -22,6 +23,7 @@ export function StudentProfile({ user, onChange }) {
   const [preview, setPreview] = useState(false);
   const [remove, setRemove] = useState(null);
   const [undo, setUndo] = useState(null);
+  const [onboardingOpen, setOnboardingOpen] = useState(false);
 
   const commit = next => {
     setUndo(null);
@@ -80,6 +82,48 @@ export function StudentProfile({ user, onChange }) {
           />
         </div>
       </div>
+
+      {(!user.college || user.enrollmentStatus === 'PENDING_ONBOARDING') && (
+        <Notice
+          tone="warning"
+          title="Academic Onboarding Required"
+          action={
+            <Button variant="primary" size="sm" onClick={() => setOnboardingOpen(true)}>
+              Complete Declaration
+            </Button>
+          }
+        >
+          Your student account is not yet enrolled in an official college. Select your college and degree program to connect with your College OJT Coordinator.
+        </Notice>
+      )}
+
+      {user.enrollmentStatus === 'PENDING_APPROVAL' && (
+        <Notice
+          tone="info"
+          title="Enrollment Pending Coordinator Approval"
+          action={
+            <Button variant="secondary" size="sm" onClick={() => setOnboardingOpen(true)}>
+              Edit Declaration
+            </Button>
+          }
+        >
+          Your declaration for <strong>{user.college} · {user.program}</strong> (ID: {user.studentNumber}) is under review by your College OJT Coordinator.
+        </Notice>
+      )}
+
+      {user.enrollmentStatus === 'REJECTED' && (
+        <Notice
+          tone="danger"
+          title="Enrollment Revision Requested"
+          action={
+            <Button variant="danger" size="sm" onClick={() => setOnboardingOpen(true)}>
+              Resubmit Declaration
+            </Button>
+          }
+        >
+          {user.rejectionReason || 'Your coordinator requested corrections to your college or student identification number.'}
+        </Notice>
+      )}
 
       {!remove && notice}
 
@@ -212,6 +256,14 @@ export function StudentProfile({ user, onChange }) {
           </div>
           {notice}
         </Modal>
+      )}
+
+      {onboardingOpen && (
+        <StudentOnboardingModal
+          user={user}
+          onClose={() => setOnboardingOpen(false)}
+          onChange={commit}
+        />
       )}
 
     </div>

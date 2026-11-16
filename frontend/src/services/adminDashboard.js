@@ -23,7 +23,9 @@ export function adminDashboardModel(db = {}, user = {}, collegeFilter = 'ALL') {
   const totalFilledSlots = allPartners.reduce((sum, h) => sum + (Number(h.filledSlots) || 0), 0);
   const totalMaxSlots = allPartners.reduce((sum, h) => sum + (Number(h.maxSlots) || 0), 0);
 
-  const collegesList = settingsSource ? Object.keys(settingsSource) : [];
+  const collegesList = settingsSource
+    ? Object.keys(settingsSource).filter(code => code !== 'CBA' && code !== 'CED')
+    : [];
   const collegeBreakdown = collegesList
     .filter(code => collegeFilter === 'ALL' || code === collegeFilter)
     .map(code => {

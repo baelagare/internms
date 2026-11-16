@@ -16,6 +16,16 @@ export function CoordinatorDashboard({ user, db, onNavigate }) {
       { label: 'Active risk alerts', value: model.activeAlertsCount }
     ]} />
 
+    {model.students.filter(s => s.enrollmentStatus === 'PENDING_APPROVAL').length > 0 && (
+      <Notice
+        tone="warning"
+        title="Pending Student Enrollments"
+        action={<Button variant="primary" size="sm" onClick={() => onNavigate?.('interns')}>Review in intern directory</Button>}
+      >
+        {model.students.filter(s => s.enrollmentStatus === 'PENDING_APPROVAL').length} student(s) have declared {model.college} as their college and are awaiting your enrollment approval.
+      </Notice>
+    )}
+
     <section aria-labelledby="coordinator-actions-heading">
       <div className="coordinator-section-heading"><div><h2 id="coordinator-actions-heading">Review queue</h2><p>Items awaiting your review.</p></div>
         <Button variant="secondary" onClick={() => onNavigate?.('approvals')}>Open approvals</Button>

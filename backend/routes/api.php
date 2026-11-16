@@ -34,6 +34,10 @@ Route::prefix('v1')->group(function (): void {
         Route::patch('/students/me', [StudentProfileController::class, 'update']);
         Route::post('/students/me/portfolio', [StudentProfileController::class, 'addPortfolio']);
         Route::delete('/students/me/portfolio', [StudentProfileController::class, 'removePortfolio']);
+        Route::post('/students/me/onboarding', [\App\Http\Controllers\Api\V1\EnrollmentController::class, 'onboarding']);
+        Route::post('/students/{id}/enrollment/approve', [\App\Http\Controllers\Api\V1\EnrollmentController::class, 'approve']);
+        Route::post('/students/{id}/enrollment/reject', [\App\Http\Controllers\Api\V1\EnrollmentController::class, 'reject']);
+        Route::patch('/students/{id}/enrollment', [\App\Http\Controllers\Api\V1\EnrollmentController::class, 'update']);
 
         // Documents
         Route::post('/students/me/documents', [DocumentController::class, 'upload']);

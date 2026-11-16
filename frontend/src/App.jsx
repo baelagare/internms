@@ -50,7 +50,7 @@ export default function App() {
   const content = useMemo(() => {
     if (!db || !user) return null;
     if (route.role !== user.role || !allowedRoutes[user.role]?.includes(route.route)) return <section role="alert" className="rounded-xl border bg-white p-6"><h1 className="text-xl font-bold">Page unavailable for your role</h1><p className="my-3">Choose a destination from your navigation.</p><button onClick={() => navigate('dashboard')} className="font-bold text-navy-700">Return to dashboard</button></section>;
-    if (route.route === 'dashboard') return <Dashboard user={user} db={db} onNavigate={navigate}/>;
+    if (route.route === 'dashboard') return <Dashboard user={user} db={db} onChange={updateData} onNavigate={navigate}/>;
     if (route.route === 'messages') return <Messages key={user.id} user={user} db={db} onChange={updateData} connectionStatus={connectionStatus}/>;
     if (route.route === 'placement') return <Placement key={user.id} user={user} db={db} onChange={updateData}/>;
     if (user.role === 'student' && route.route === 'attendance') return <StudentAttendance key={user.id} user={user} db={db} onChange={updateData}/>;
