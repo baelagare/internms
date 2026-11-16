@@ -13,9 +13,9 @@ mkdir -p storage/framework/cache/data storage/framework/sessions storage/framewo
 php artisan config:cache
 php artisan route:cache
 
-# Run database migrations and idempotent initial seeding if database is reachable
-php artisan migrate --force || true
-php artisan db:seed --class=CollegeSeeder --force || true
+# Fail the deployment startup if migrations or initial seed data cannot be applied.
+php artisan migrate --force
+php artisan db:seed --class=CollegeSeeder --force
 
 # Ensure web server user owns storage and cache
 chown -R www-data:www-data storage bootstrap/cache

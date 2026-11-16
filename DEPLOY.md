@@ -45,7 +45,8 @@ This repo contains a React/Vite frontend (`frontend/`) and a Laravel 12 API (`ba
    DB_PASSWORD=YOUR-NEON-PASSWORD
    DB_SSLMODE=require
    SESSION_DRIVER=database
-   CACHE_STORE=database
+   CACHE_STORE=file
+   CACHE_LIMITER=file
    QUEUE_CONNECTION=database
    CORS_ALLOWED_ORIGINS=https://YOUR-VERCEL-SITE.vercel.app
    GOOGLE_CLIENT_ID=YOUR-GOOGLE-OAUTH-CLIENT-ID

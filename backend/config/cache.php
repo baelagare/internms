@@ -15,7 +15,10 @@ return [
     |
     */
 
-    'default' => env('CACHE_STORE', 'database'),
+    'default' => env('CACHE_STORE', 'file'),
+
+    // Keep request throttling independent from the Neon transaction pooler.
+    'limiter' => env('CACHE_LIMITER', 'file'),
 
     /*
     |--------------------------------------------------------------------------
@@ -94,7 +97,7 @@ return [
         'failover' => [
             'driver' => 'failover',
             'stores' => [
-                'database',
+                'file',
                 'array',
             ],
         ],

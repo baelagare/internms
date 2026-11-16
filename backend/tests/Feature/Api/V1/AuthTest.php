@@ -125,6 +125,14 @@ class AuthTest extends TestCase
             ]);
     }
 
+    public function test_authentication_rate_limiter_uses_its_dedicated_cache_store(): void
+    {
+        $limiterStore = cache()->store(config('cache.limiter'))->getStore();
+
+        $this->assertSame('array', config('cache.limiter'));
+        $this->assertInstanceOf(\Illuminate\Cache\ArrayStore::class, $limiterStore);
+    }
+
     public function test_supervisor_login_succeeds_with_valid_credentials(): void
     {
         $supervisor = User::create([
