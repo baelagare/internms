@@ -42,6 +42,9 @@ try {
     ['views/Management.jsx', 'Staff', { role: 'admin' }],
     ['views/Management.jsx', 'Settings', { role: 'admin' }],
     ['views/Management.jsx', 'Settings', { role: 'coordinator', college: 'C1' }],
+    ['views/Management.jsx', 'Settings', { role: 'admin', settingsFixture: true }],
+    ['views/Management.jsx', 'Settings', { role: 'coordinator', college: 'CAS', settingsFixture: true }],
+    ['components/ErrorBoundary.jsx', 'ErrorBoundary', { probe: true }],
     ['views/Management.jsx', 'Corpus', { role: 'admin' }],
     ['views/Governance.jsx', 'Alerts', { role: 'admin' }],
     ['views/Governance.jsx', 'Alerts', { role: 'coordinator' }],
@@ -52,8 +55,19 @@ try {
   for (const [file, name, user] of screens) {
     try {
       const module = await server.ssrLoadModule(`/src/${file}`);
+      if (name === 'ErrorBoundary' && user.probe) {
+        const { createElement } = await import('react');
+        const { renderToStaticMarkup } = await import('react-dom/server');
+        const probeHtml = renderToStaticMarkup(createElement(module.ErrorBoundary, null, createElement('p', null, 'error-boundary-probe-child')));
+        if (!probeHtml.includes('error-boundary-probe-child')) throw new Error('ErrorBoundary did not render its children');
+        const mainSource = fs.readFileSync(path.join(root, 'src/main.jsx'), 'utf8');
+        if (!mainSource.includes("import { ErrorBoundary } from './components/ErrorBoundary.jsx'") || !mainSource.includes('<ErrorBoundary>')) throw new Error('main.jsx does not mount App inside ErrorBoundary');
+        results.push({ check: 'ErrorBoundary app root', passed: true });
+        continue;
+      }
       const { render } = await server.ssrLoadModule('/tests/render.js');
-      const renderProps = name === 'Registration' && user.supervisor ? { supervisor: true } : { db, user, onChange: noChange, onNavigate: noChange };
+      const renderDb = user.settingsFixture ? { ...db, collegeSettings: { CAS: { requiredHours: 300, maxGpaCutoff: 2.5, ruleAMaxConsecutiveAbsences: 3, ruleAMaxDeficitPct: 20, ruleBConsecutiveWeeks: 2, ruleBClericalKeywords: ['leave', 'excused absence'] } } } : db;
+      const renderProps = name === 'Registration' && user.supervisor ? { supervisor: true } : { db: renderDb, user, onChange: noChange, onNavigate: noChange };
       const html = render(module[name], renderProps);
       if (!html) throw new Error('Empty render');
       if (name === 'AppShell') {
@@ -155,6 +169,9 @@ try {
       if (name === 'Settings' && user.role === 'admin') {
         if (!html.includes('College settings') || !html.includes('across all colleges')) throw new Error('Admin settings landmarks missing');
         if (!html.includes('Colleges with saved settings') && !html.includes('Settings unavailable')) throw new Error('Admin settings coverage or unavailable state missing');
+      }
+      if (name === 'Settings' && user.settingsFixture) {
+        if (!html.includes('Academic requirements') || !html.includes('Attendance thresholds') || !html.includes('Task review threshold') || !html.includes('Save settings') || !html.includes('Flagged non-degree clerical terms')) throw new Error('Settings form landmarks missing for populated college settings');
       }
       if (name === 'Staff' && user.role === 'admin') {
         if (!html.includes('Staff accounts') || !html.includes('OJT coordinators') || !html.includes('Host representatives')) throw new Error('Admin staff landmarks missing');
