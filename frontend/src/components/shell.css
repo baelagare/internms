@@ -15,7 +15,9 @@
   flex-direction: column;
   background: var(--color-surface);
   border-right: 1px solid var(--color-border);
-  transition: width var(--duration-normal) ease;
+  /* Deliberate container tween (rail width changes layout by design);
+     the move curve keeps it snappy. Paired with .workspace-body. */
+  transition: width var(--duration-enter) var(--ease-move);
 }
 
 .workspace-brand {
@@ -143,7 +145,7 @@
 .workspace-body {
   margin-left: var(--rail-width);
   min-width: 0;
-  transition: margin-left var(--duration-normal) ease;
+  transition: margin-left var(--duration-enter) var(--ease-move);
 }
 .workspace-topbar {
   min-height: 64px;
@@ -195,6 +197,9 @@
 
 .mobile-toggle { display: none; }
 .workspace-bottom-nav { display: none; }
+/* The backdrop is mounted on every viewport; only the mobile media
+   query shows it, so it stays hidden by default. */
+.workspace-backdrop { display: none; }
 .workspace-source { display: inline-flex; align-items: center; gap: var(--space-2); font-size: var(--text-xs); color: var(--color-text-secondary); overflow-wrap: anywhere; white-space: nowrap; }
 .workspace-source::before { content: ''; width: 8px; height: 8px; flex: none; border-radius: 50%; background: var(--color-warning); }
 .workspace-source--connected::before { background: var(--color-success); }
@@ -204,7 +209,8 @@
 .workspace-shell.drawer-open .workspace-skip { visibility: hidden; }
 .workspace-bottom-nav > * { min-width: 44px; overflow-wrap: anywhere; }
 @media(min-width: 1024px) { .workspace-body main { padding: var(--space-8); } }
-@media(prefers-reduced-motion: reduce) { .workspace-shell *, .workspace-shell *::after { transition: none !important; } }
+/* Reduced motion is handled globally in base.css: durations/delays
+   collapse to zero while opacity and color feedback stay intact. */
 
 
 @media(min-width: 1024px) {
@@ -236,19 +242,34 @@
   .workspace-shell { --rail-width: 0px; }
   .workspace-shell.is-collapsed { --rail-width: 0px; }
   .workspace-shell.has-mobile-tabbar .workspace-body { padding-bottom: calc(80px + env(safe-area-inset-bottom)); }
+  /* Drawer: the steep iOS-like curve covers most of the travel fast,
+     so 250ms never reads as slow. The visibility flip waits a full
+     drawer duration when closing (so the slide-out stays visible) and
+     fires instantly when opening. */
   .workspace-sidebar {
     width: min(288px, 88vw);
     transform: translateX(-100%);
     visibility: hidden;
-    transition: transform var(--duration-normal) ease;
+    transition: transform var(--duration-enter) var(--ease-drawer),
+                visibility 0s linear var(--duration-enter);
   }
-  .drawer-open .workspace-sidebar { transform: translateX(0); visibility: visible; }
+  .drawer-open .workspace-sidebar {
+    transform: translateX(0);
+    visibility: visible;
+    transition: transform var(--duration-enter) var(--ease-drawer),
+                visibility 0s;
+  }
   .workspace-backdrop {
+    display: block;
     position: fixed;
     inset: 0;
     z-index: 30;
     background: rgb(15 23 42 / 0.5);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--duration-quick) ease;
   }
+  .drawer-open .workspace-backdrop { opacity: 1; pointer-events: auto; }
   .mobile-toggle { display: inline-flex; }
   .desktop-toggle { display: none; }
   .workspace-topbar { padding: var(--space-2) var(--space-4); min-height: 64px; flex-wrap: wrap; }

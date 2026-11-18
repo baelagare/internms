@@ -1,0 +1,150 @@
+/* ============================================================
+   Motion layer
+   Keyframed UI motion (ui-animation skill): transform and
+   opacity only (plus low-cost color). Curves and durations are
+   read from the motion tokens in tokens.css. The global
+   prefers-reduced-motion gate in base.css collapses durations,
+   delays and loops for users who opt out.
+   ============================================================ */
+
+/* ---------- keyframes ---------- */
+
+@keyframes ds-rise {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes ds-page-rise {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes ds-shake {
+  0%   { transform: translateX(0); }
+  20%  { transform: translateX(-4px); }
+  45%  { transform: translateX(4px); }
+  70%  { transform: translateX(-2px); }
+  100% { transform: translateX(0); }
+}
+
+@keyframes ds-pulse {
+  from { opacity: 0.45; transform: scale(0.97); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes ds-load-slide {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(260%); }
+}
+
+@keyframes ds-toast-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes ds-toast-out {
+  to { opacity: 0; transform: translateY(6px); }
+}
+
+/* ---------- page transition ----------
+   Each route change mounts a fresh view root (App.jsx keys views by
+   user + route), so a one-shot rise on main's child gives route
+   continuity with a single entry per container. */
+.workspace-body main > * {
+  animation: ds-page-rise var(--duration-page) var(--ease-enter) both;
+}
+
+/* ---------- loading ---------- */
+.ds-loading-logo {
+  animation: ds-pulse 1.6s ease-in-out infinite alternate;
+}
+
+.ds-loading-bar {
+  position: relative;
+  width: 160px;
+  height: 4px;
+  margin: var(--space-4) auto 0;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--color-surface-subtle);
+  border: 1px solid var(--color-border);
+}
+.ds-loading-bar::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  width: 40%;
+  border-radius: inherit;
+  background: var(--color-accent);
+  opacity: 0.35;
+  animation: ds-load-slide 1.2s var(--ease-move) infinite;
+}
+
+/* ---------- button press feedback ----------
+   Press applies instantly (no transition in the :active state);
+   release eases back over the quick duration on the enter curve. */
+.ds-button { touch-action: manipulation; }
+.ds-button:not(:active) {
+  transition: background-color var(--duration-fast) ease,
+              border-color var(--duration-fast) ease,
+              color var(--duration-fast) ease,
+              transform var(--duration-quick) var(--ease-enter);
+}
+.ds-button:active:not(:disabled) { transform: scale(0.985); }
+
+/* ---------- tabs ---------- */
+.ds-tab {
+  transition: color var(--duration-quick) ease,
+              border-color var(--duration-quick) ease,
+              background-color var(--duration-quick) ease;
+}
+
+/* ---------- notices & empty states ---------- */
+.ds-notice {
+  animation: ds-rise var(--duration-normal) var(--ease-enter) both;
+}
+/* Error notices shake once, after the rise settles. */
+.ds-notice.ds-tone--danger {
+  animation: ds-rise var(--duration-normal) var(--ease-enter) both,
+            ds-shake 240ms var(--ease-enter) var(--duration-normal) both;
+}
+
+.ds-empty {
+  animation: ds-rise var(--duration-normal) var(--ease-enter) both;
+}
+
+/* ---------- modal entry ----------
+   dialog[open] transitions in from @starting-style (Baseline,
+   2024). Unsupported browsers show the modal instantly. */
+.ds-modal {
+  opacity: 1;
+  transform: scale(1);
+  transform-origin: center;
+  transition: opacity var(--duration-enter) var(--ease-enter),
+              transform var(--duration-enter) var(--ease-enter);
+}
+.ds-modal::backdrop {
+  transition: opacity var(--duration-enter) var(--ease-enter);
+}
+@starting-style {
+  .ds-modal {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  .ds-modal::backdrop {
+    opacity: 0;
+  }
+}
+
+/* ---------- app toast ---------- */
+.app-toast {
+  animation: ds-toast-in var(--duration-enter) var(--ease-enter) both;
+}
+.app-toast[data-leaving] {
+  animation: ds-toast-out var(--duration-quick) ease both;
+}
+
+/* ---------- public auth screens ---------- */
+.auth-enter {
+  animation: ds-rise var(--duration-enter) var(--ease-enter) both;
+}

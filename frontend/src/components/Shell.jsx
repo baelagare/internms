@@ -87,6 +87,7 @@ export function AppShell({ user = {}, children, route, onLogout, academicYear, c
       pendingNavigation.current = true;
       previousRoute.current = route;
       setOpen(false);
+      window.scrollTo(0, 0);
     }
     if (!open && pendingNavigation.current) {
       pendingNavigation.current = false;
@@ -130,9 +131,10 @@ export function AppShell({ user = {}, children, route, onLogout, academicYear, c
       >
         Skip to main content
       </a>
-      {open && (
-        <div className="workspace-backdrop" aria-hidden="true" onClick={() => setOpen(false)} />
-      )}
+      {/* Backdrop stays mounted: the mobile media query shows it and the
+          .drawer-open class on the shell drives its fade, paired with the
+          drawer slide (open and close animate together). */}
+      <div className="workspace-backdrop" aria-hidden="true" onClick={() => setOpen(false)} />
       <aside
         id="workspace-navigation"
         ref={sidebar}

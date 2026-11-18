@@ -42,4 +42,12 @@
   --focus-ring: 0 0 0 3px rgb(29 78 216 / 0.24);
   --duration-fast: 120ms;
   --duration-normal: 180ms;
+  /* Motion system (consumed by src/styles/motion.css). fast/normal above
+     remain the legacy control tokens used by components.css. */
+  --duration-quick: 150ms;
+  --duration-enter: 250ms;
+  --duration-page: 300ms;
+  --ease-enter: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-move: cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
 }

@@ -76,7 +76,7 @@ export function AuthScreen({ onLogin, onGoogleSignIn, busy, error }) {
         Skip to sign in form
       </a>
 
-      <div className="w-full max-w-[29rem]">
+      <div className="auth-enter w-full max-w-[29rem]">
         <Card id="auth-card" className="rounded-2xl border-[#e3e6ee] bg-white p-7 shadow-[0_18px_50px_rgba(15,23,42,0.09)] sm:p-9">
           <header className="text-center">
             <img src="/internms-logo.svg" alt="" width="48" height="48" className="mx-auto h-12 w-12" />
