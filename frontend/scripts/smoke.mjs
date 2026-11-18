@@ -23,6 +23,7 @@ try {
     ['components/Shell.jsx', 'AppShell', {}],
     ['components/Auth.jsx', 'AuthScreen', {}],
     ['components/Registration.jsx', 'Registration', {}],
+    ['components/Registration.jsx', 'Registration', { supervisor: true }],
     ['views/StudentDashboard.jsx', 'StudentDashboard', { role: 'student' }],
     ['views/StudentProfile.jsx', 'StudentProfile', { role: 'student' }],
     ['views/StudentChecklist.jsx', 'StudentChecklist', { role: 'student' }],
@@ -52,7 +53,8 @@ try {
     try {
       const module = await server.ssrLoadModule(`/src/${file}`);
       const { render } = await server.ssrLoadModule('/tests/render.js');
-      const html = render(module[name], { db, user, onChange: noChange, onNavigate: noChange });
+      const renderProps = name === 'Registration' && user.supervisor ? { supervisor: true } : { db, user, onChange: noChange, onNavigate: noChange };
+      const html = render(module[name], renderProps);
       if (!html) throw new Error('Empty render');
       if (name === 'AppShell') {
         if (!html.includes('Account unavailable') || !html.includes('Skip to main content') || !html.includes('Backend not connected')) throw new Error('Missing shell unavailable state or landmark');
@@ -78,19 +80,21 @@ try {
         }
       }
       if (name === 'AuthScreen') {
-        if (!html.includes('Log in to your account') || !html.includes('Email address') || !html.includes('Forgot password?') || !html.includes('Remember me') || !html.includes('Log in with Google') || !html.includes('Sign up')) {
-          throw new Error('AuthScreen missing required login controls');
-        }
-        if (html.includes('University Sign-In uses a verified Google Workspace account') || html.includes('Host Company Access uses the email and password fields above')) {
-          throw new Error('AuthScreen contains removed account-type explanatory content');
+        if (!html.includes('Log in to your account') || !html.includes('Choose account type') || !html.includes('Supervisor') || !html.includes('University') || !html.includes('Email address') || !html.includes('Log in as supervisor') || !html.includes('Create your account')) {
+          throw new Error('AuthScreen missing supervisor or university sign-in controls');
         }
         if (!html.includes('Privacy Notice') || !html.includes('Terms of Use') || html.includes('<details id="privacy"') || html.includes('<details id="terms"')) {
           throw new Error('AuthScreen footer links are missing or expandable disclosure sections were added');
         }
       }
-      if (name === 'Registration') {
+      if (name === 'Registration' && !user.supervisor) {
         if (!html.includes('Student Account Provisioning') || !html.includes('Return to Sign-In')) {
           throw new Error('Registration missing required student provisioning elements');
+        }
+      }
+      if (name === 'Registration' && user.supervisor) {
+        if (!html.includes('Supervisor account setup') || !html.includes('Invitation token') || !html.includes('Create supervisor account')) {
+          throw new Error('Supervisor registration missing invitation onboarding fields');
         }
       }
       if (name === 'StudentProfile') {
