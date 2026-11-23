@@ -24,36 +24,36 @@ export function Partners({ user, db = {}, onChange }) {
   const records = (Array.isArray(db.htes) ? db.htes : []).filter(item => supervisor ? item.name === user.company : user.role === 'coordinator' ? item.college === user.college : college === 'ALL' || item.college === college);
   const collegeOptions = colleges.map(code => ({ value: code, label: `${code}${NEMSU_COLLEGES[code]?.name ? ` · ${NEMSU_COLLEGES[code].name}` : ''}` }));
   const fields = supervisor
-    ? [{ key: 'roleTitle', label: 'Role title' }, { key: 'description', label: 'Role description and training scope', multiline: true }, { key: 'requiredSkills', label: 'Required skills (comma separated)' }]
-    : [{ key: 'name', label: 'Company name' }, { key: 'college', label: 'College', options: user.role === 'coordinator' ? [user.college] : collegeOptions }, { key: 'supervisorName', label: 'Supervisor name' }, { key: 'inviteToken', label: 'Supervisor invitation token' }, { key: 'roleTitle', label: 'Role title' }, { key: 'maxSlots', label: 'Maximum slots', type: 'number', min: 1, max: 50 }, { key: 'minGpa', label: 'GPA cutoff', type: 'number', min: 1, max: 3, step: 0.05 }, { key: 'description', label: 'Role description & training scope', multiline: true }, { key: 'requiredSkills', label: 'Required skills (comma separated)' }];
+    ? [{ key: 'roleTitle', label: 'Role Title' }, { key: 'description', label: 'Role Description & Training Scope', multiline: true }, { key: 'requiredSkills', label: 'Required Skills (Comma Separated)' }]
+    : [{ key: 'name', label: 'Company Name' }, { key: 'college', label: 'College', options: user.role === 'coordinator' ? [user.college] : collegeOptions }, { key: 'supervisorName', label: 'Supervisor Name' }, { key: 'inviteToken', label: 'Supervisor Invitation Token' }, { key: 'roleTitle', label: 'Role Title' }, { key: 'maxSlots', label: 'Maximum Slots', type: 'number', min: 1, max: 50 }, { key: 'minGpa', label: 'GPA Cutoff', type: 'number', min: 1, max: 3, step: 0.05 }, { key: 'description', label: 'Role Description & Training Scope', multiline: true }, { key: 'requiredSkills', label: 'Required Skills (Comma Separated)' }];
   const pendingInvitationCount = records.filter(item => item.inviteToken && !item.supervisorId).length;
   const collegesCovered = new Set(records.map(item => item.college).filter(value => value && value !== 'ALL')).size;
   const openCreate = () => setEdit({ name: '', college: user.role === 'coordinator' ? user.college : college === 'ALL' ? '' : college, supervisorName: '', inviteToken: '', roleTitle: '', maxSlots: '', minGpa: '', description: '', requiredSkills: [] });
   const scopedEmpty = !supervisor && admin && college !== 'ALL';
-  return <WorkspacePage title={supervisor ? 'Job postings' : 'Partner companies'} subtitle={supervisor ? 'Manage the role information shared with your host company.' : admin ? 'Manage host company records across all colleges.' : 'Manage host company records for your college.'} action={!supervisor && <Button onClick={openCreate} disabled={admin && colleges.length === 0}>Add partner</Button>}>
+  return <WorkspacePage title={supervisor ? 'Job Postings' : 'Partner Companies'} subtitle={supervisor ? 'Manage the role information shared with your host company.' : admin ? 'Manage host company records across all colleges.' : 'Manage host company records for your college.'} action={!supervisor && <Button onClick={openCreate} disabled={admin && colleges.length === 0}>Add Partner</Button>}>
     {!supervisor && <>
       <SummaryMetrics className="partner-summary" ariaLabel="Partner overview" items={[
-        { label: 'Host companies', value: records.length },
-        { label: 'Invitations pending', value: pendingInvitationCount },
-        { label: 'Capacity recorded', value: records.filter(item => Number.isFinite(Number(item.maxSlots))).length },
-        ...(admin ? [{ label: 'Colleges covered', value: collegesCovered }] : [])
+        { label: 'Host Companies', value: records.length },
+        { label: 'Invitations Pending', value: pendingInvitationCount },
+        { label: 'Capacity Recorded', value: records.filter(item => Number.isFinite(Number(item.maxSlots))).length },
+        ...(admin ? [{ label: 'Colleges Covered', value: collegesCovered }] : [])
       ]} />
     </>}
-    {admin && colleges.length > 0 && <Field label="College scope" options={[{ value: 'ALL', label: 'All colleges' }, ...collegeOptions]} value={college} onChange={event => setCollege(event.target.value)} />}
-    {supervisor && <section className="job-posting-context"><h2>Role information</h2><p>Edit only details confirmed by your company. Capacity, eligibility rules, and placement decisions are managed separately by the college.</p></section>}
+    {admin && colleges.length > 0 && <Field label="College Scope" options={[{ value: 'ALL', label: 'All colleges' }, ...collegeOptions]} value={college} onChange={event => setCollege(event.target.value)} />}
+    {supervisor && <section className="job-posting-context"><h2>Role Information</h2><p>Edit only details confirmed by your company. Capacity, eligibility rules, and placement decisions are managed separately by the college.</p></section>}
     {supervisor && !records.length && <div role="status" className="job-posting-unavailable">No job posting record is available for this company yet.</div>}
-    <DataTable title={supervisor ? 'Job posting' : 'Partner directory'} rows={records} emptyTitle={scopedEmpty ? 'No partner records in this college' : 'No partner records yet'} emptyDescription={scopedEmpty ? 'Select a different college scope.' : 'Add the first host company record.'} emptyIcon="building" columns={[
-      { key: 'name', label: 'Company' }, { key: 'college', label: 'College' }, { key: 'location', label: 'Location' }, { key: 'roleTitle', label: 'Role' }, { key: 'supervisorName', label: 'Representative' }, { key: 'supervisorEmail', label: 'Contact' }, { key: 'minGpa', label: 'GPA cutoff' }, { key: 'slots', label: 'Capacity', render: item => item.maxSlots == null || item.filledSlots == null ? 'Not recorded' : `${item.filledSlots}/${item.maxSlots}` },
-      ...(!supervisor ? [{ key: 'inviteToken', label: 'Invitation status', render: item => <StatusBadge tone={item.inviteToken && !item.supervisorId ? 'warning' : 'neutral'}>{item.inviteToken && !item.supervisorId ? 'Invitation pending' : item.supervisorId ? 'Representative linked' : 'Not configured'}</StatusBadge> }] : []),
-      { key: 'actions', label: 'Actions', render: item => <Button variant="secondary" onClick={() => setEdit({ ...item })}>{supervisor ? 'Edit posting' : 'Edit'}</Button> }
+    <DataTable title={supervisor ? 'Job Posting' : 'Partner Directory'} rows={records} emptyTitle={scopedEmpty ? 'No partner records in this college' : 'No partner records yet'} emptyDescription={scopedEmpty ? 'Select a different college scope.' : 'Add the first host company record.'} emptyIcon="building" columns={[
+      { key: 'name', label: 'Company' }, { key: 'college', label: 'College' }, { key: 'location', label: 'Location' }, { key: 'roleTitle', label: 'Role' }, { key: 'supervisorName', label: 'Representative' }, { key: 'supervisorEmail', label: 'Contact' }, { key: 'minGpa', label: 'GPA Cutoff' }, { key: 'slots', label: 'Capacity', render: item => item.maxSlots == null || item.filledSlots == null ? 'Not recorded' : `${item.filledSlots}/${item.maxSlots}` },
+      ...(!supervisor ? [{ key: 'inviteToken', label: 'Invitation Status', render: item => <StatusBadge tone={item.inviteToken && !item.supervisorId ? 'warning' : 'neutral'}>{item.inviteToken && !item.supervisorId ? 'Invitation pending' : item.supervisorId ? 'Representative linked' : 'Not configured'}</StatusBadge> }] : []),
+      { key: 'actions', label: 'Actions', render: item => <Button variant="secondary" onClick={() => setEdit({ ...item })}>{supervisor ? 'Edit Posting' : 'Edit'}</Button> }
     ]} />
-    {edit && <Modal title={edit.id ? (supervisor ? 'Edit job posting' : 'Edit partner company') : 'Add partner company'} onClose={() => setEdit(null)}><div className="partner-edit-note"><p>Only enter company and role information confirmed by the partner. Missing values will not be filled automatically.</p></div><RecordForm initial={{ ...edit, requiredSkills: Array.isArray(edit.requiredSkills) ? edit.requiredSkills.join(', ') : edit.requiredSkills || '' }} fields={fields} submit={values => savePartner(user, edit.id, values)} onChange={onChange} onDone={() => setEdit(null)} /></Modal>}
+    {edit && <Modal title={edit.id ? (supervisor ? 'Edit Job Posting' : 'Edit Partner Company') : 'Add Partner Company'} onClose={() => setEdit(null)}><div className="partner-edit-note"><p>Only enter company and role information confirmed by the partner. Missing values will not be filled automatically.</p></div><RecordForm initial={{ ...edit, requiredSkills: Array.isArray(edit.requiredSkills) ? edit.requiredSkills.join(', ') : edit.requiredSkills || '' }} fields={fields} submit={values => savePartner(user, edit.id, values)} onChange={onChange} onDone={() => setEdit(null)} /></Modal>}
   </WorkspacePage>;
 }
 const STAFF_ROLE_LABELS = {
   admin: 'Administrator',
-  coordinator: 'OJT coordinator',
-  supervisor: 'Host company representative'
+  coordinator: 'OJT Coordinator',
+  supervisor: 'Host Company Representative'
 };
 
 export function Staff({ user, db = {}, onChange }) {
@@ -63,14 +63,14 @@ export function Staff({ user, db = {}, onChange }) {
   const colleges = collegeCodesForWorkspace(db);
   const partnerCompanies = (Array.isArray(db.htes) ? db.htes : []).map(item => item.name).filter(Boolean);
   const staff = users.filter(item => item.role !== 'student' && (college === 'ALL' || item.college === college || item.role === 'supervisor'));
-  return <WorkspacePage title="Staff accounts" subtitle="Review coordinator and host representative accounts." action={<Button onClick={() => setOpen(true)} disabled={colleges.length === 0}>Add staff account</Button>}>
-    {colleges.length === 0 && <Notice tone="warning" title="College catalog unavailable">Staff accounts require a verified college scope. Configure the institution college catalog before creating accounts.</Notice>}
+  return <WorkspacePage title="Staff Accounts" subtitle="Review coordinator and host representative accounts." action={<Button onClick={() => setOpen(true)} disabled={colleges.length === 0}>Add Staff Account</Button>}>
+    {colleges.length === 0 && <Notice tone="warning" title="College Catalog Unavailable">Staff accounts require a verified college scope. Configure the institution college catalog before creating accounts.</Notice>}
     <SummaryMetrics className="staff-summary" ariaLabel="Staff overview" accent="info" items={[
-      { label: 'OJT coordinators', value: staff.filter(item => item.role === 'coordinator').length },
-      { label: 'Host representatives', value: staff.filter(item => item.role === 'supervisor').length }
+      { label: 'OJT Coordinators', value: staff.filter(item => item.role === 'coordinator').length },
+      { label: 'Host Representatives', value: staff.filter(item => item.role === 'supervisor').length }
     ]} />
-    {colleges.length > 0 && <Field label="College scope" options={[{ value: 'ALL', label: 'All colleges' }, ...colleges.map(code => ({ value: code, label: `${code}${NEMSU_COLLEGES[code]?.name ? ` · ${NEMSU_COLLEGES[code].name}` : ''}` }))]} value={college} onChange={event => setCollege(event.target.value)} />}
-    <DataTable title="Staff directory" rows={staff} emptyTitle="No staff accounts" emptyDescription={college === 'ALL' ? 'Add the first coordinator or host representative account.' : 'No staff accounts in this college scope.'} emptyIcon="users" columns={[
+    {colleges.length > 0 && <Field label="College Scope" options={[{ value: 'ALL', label: 'All colleges' }, ...colleges.map(code => ({ value: code, label: `${code}${NEMSU_COLLEGES[code]?.name ? ` · ${NEMSU_COLLEGES[code].name}` : ''}` }))]} value={college} onChange={event => setCollege(event.target.value)} />}
+    <DataTable title="Staff Directory" rows={staff} emptyTitle="No staff accounts" emptyDescription={college === 'ALL' ? 'Add the first coordinator or host representative account.' : 'No staff accounts in this college scope.'} emptyIcon="users" columns={[
       { key: 'name', label: 'Name' },
       { key: 'role', label: 'Role', render: item => STAFF_ROLE_LABELS[item.role] || item.role || 'Not recorded' },
       { key: 'email', label: 'Email', render: item => item.email || 'Not recorded' },
@@ -89,7 +89,7 @@ function StaffAccountForm({ user, collegeOptions, partnerOptions, onChange, onDo
   const setField = key => event => setValues(previous => ({ ...previous, [key]: event.target.value }));
   return <form className="space-y-4" onSubmit={async event => { event.preventDefault(); if (await run(() => createStaff(user, { role, ...values }))) onDone?.(); }}>
     {notice}
-    <Field label="Role" options={[{ value: 'coordinator', label: 'OJT coordinator' }, { value: 'supervisor', label: 'Host company representative' }]} value={role} onChange={event => setRole(event.target.value)} />
+    <Field label="Role" options={[{ value: 'coordinator', label: 'OJT Coordinator' }, { value: 'supervisor', label: 'Host Company Representative' }]} value={role} onChange={event => setRole(event.target.value)} />
     <p className="text-sm text-muted">{supervisor ? 'Host representatives sign in with email and password.' : 'Coordinators sign in with their institutional Google account. No password is required when creating the account.'}</p>
     <Field required label="Full name" value={values.name} onChange={setField('name')} />
     <Field required label="Login ID / email" value={values.id} onChange={setField('id')} />
@@ -135,13 +135,13 @@ export function Settings({ user, db = {}, onChange, connectionStatus = 'offline'
     { title: 'Attendance thresholds', description: 'Recorded limits used by attendance review rules.', fields: fields.slice(2, 4) },
     { title: 'Task review threshold', description: 'Weeks of mismatch before a review indicator is considered.', fields: fields.slice(4) }
   ];
-  if (!college || availableColleges.length === 0) return <WorkspacePage title="College settings" subtitle={admin ? 'Review approved settings across all colleges.' : 'Review approved settings for your college.'}><Notice tone="warning" title="College catalog unavailable">No institution-approved college catalog is available, so a college cannot be selected. Configure the catalog before managing college settings.</Notice></WorkspacePage>;
-  return <WorkspacePage title="College settings" subtitle={admin ? 'Review approved quotas and alert thresholds across all colleges.' : 'Review approved quotas and alert thresholds for your college.'}>
+  if (!college || availableColleges.length === 0) return <WorkspacePage title="College Settings" subtitle={admin ? 'Review approved settings across all colleges.' : 'Review approved settings for your college.'}><Notice tone="warning" title="College catalog unavailable">No institution-approved college catalog is available, so a college cannot be selected. Configure the catalog before managing college settings.</Notice></WorkspacePage>;
+  return <WorkspacePage title="College Settings" subtitle={admin ? 'Review approved quotas and alert thresholds across all colleges.' : 'Review approved quotas and alert thresholds for your college.'}>
     {admin && <SummaryMetrics className="settings-summary" ariaLabel="Settings coverage" accent="info" items={[
       { label: 'Colleges with saved settings', value: savedColleges.filter(code => availableColleges.includes(code)).length },
       { label: 'Colleges in institution directory', value: Object.keys(NEMSU_COLLEGES).length }
     ]} />}
-    {admin && savedColleges.length === 0 && <Notice tone="info" title="No college settings have been provisioned">College options are available, but no approved quotas or policy thresholds are saved yet. Select a college to see its setup status; values are not assumed.</Notice>}
+    {admin && savedColleges.length === 0 && <Notice tone="info" title="No College Settings Have Been Provisioned">College options are available, but no approved quotas or policy thresholds are saved yet. Select a college to see its setup status; values are not assumed.</Notice>}
     {admin && availableColleges.length > 0 && <Field label="College" options={availableColleges.map(code => ({ value: code, label: `${code}${NEMSU_COLLEGES[code]?.name ? ` · ${NEMSU_COLLEGES[code].name}` : ''}${db.collegeSettings?.[code] ? '' : ' · Settings not configured'}` }))} value={college} onChange={event => setCollege(event.target.value)} />}
     <div className="settings-context"><h2>{NEMSU_COLLEGES[college]?.name || college}</h2><p>Changes affect records and indicators for this college. Confirm values against approved institutional policy.</p></div>
     {!settings ? <Notice tone="warning" title="Settings unavailable · approved settings not configured">No saved policy settings exist for {college}. The settings form is unavailable until the institution approves and provisions values; no quotas or thresholds are assumed. {admin ? 'Provision approved values once they are confirmed by the institution.' : 'Ask an administrator to confirm and provision approved values.'}</Notice> : <>
@@ -168,20 +168,20 @@ export function Corpus({ user, db = {}, onChange, connectionStatus = 'offline' }
     return (!query || haystack.includes(query.toLowerCase())) && (category === 'ALL' || item.ruleCategory === category);
   });
   const filtered = Boolean(query) || category !== 'ALL';
-  return <WorkspacePage title="Policy corpus" subtitle="Approved institutional clauses used during alert review." action={<Button onClick={() => setOpen(true)}>Add policy clause</Button>}>
+  return <WorkspacePage title="Policy Corpus" subtitle="Approved institutional clauses used during alert review." action={<Button onClick={() => setOpen(true)}>Add policy clause</Button>}>
     <div className="corpus-view">
       {connectionStatus !== 'connected' && <Notice tone="info" title="Backend unavailable">New clauses cannot be saved until the Phase 4 backend is connected. Only enter clauses that the university has approved.</Notice>}
-      {clauses === null && <Notice tone="warning" title="Corpus unavailable">No policy corpus has been loaded in this workspace. Clauses will appear here when institutional records are available.</Notice>}
-      {clauses && clauses.length > 0 && <SummaryMetrics className="corpus-summary" ariaLabel="Policy corpus summary" accent="info" items={[
+      {clauses === null && <Notice tone="warning" title="Corpus unavailable">No policy Corpus has been loaded in this workspace. Clauses will appear here when institutional records are available.</Notice>}
+      {clauses && clauses.length > 0 && <SummaryMetrics className="corpus-summary" ariaLabel="Policy Corpus summary" accent="info" items={[
         { label: 'Recorded clauses', value: clauses.length },
         { label: 'Source documents', value: new Set(clauses.filter(item => item.sourceDoc).map(item => item.sourceDoc)).size },
         { label: 'Categories covered', value: `${new Set(clauses.filter(item => POLICY_CATEGORY_LABELS[item.ruleCategory]).map(item => item.ruleCategory)).size} of ${Object.keys(POLICY_CATEGORY_LABELS).length}` }
       ]} />}
       <div className="corpus-filters">
-        <SearchField label="Search clauses" value={query} placeholder="Title, clause ID, source, or section" onChange={event => setQuery(event.target.value)} onClear={() => setQuery('')} />
-        <Field label="Alert category" options={[{ value: 'ALL', label: 'All categories' }, ...Object.entries(POLICY_CATEGORY_LABELS).map(([value, label]) => ({ value, label }))]} value={category} onChange={event => setCategory(event.target.value)} />
+        <SearchField label="Search Clauses" value={query} placeholder="Title, clause ID, source, or section" onChange={event => setQuery(event.target.value)} onClear={() => setQuery('')} />
+        <Field label="Alert Category" options={[{ value: 'ALL', label: 'All categories' }, ...Object.entries(POLICY_CATEGORY_LABELS).map(([value, label]) => ({ value, label }))]} value={category} onChange={event => setCategory(event.target.value)} />
       </div>
-      <DataTable title="Policy clauses" rows={visible} emptyTitle={filtered ? 'No clauses match' : 'No policy clauses yet'} emptyDescription={filtered ? 'Adjust the search or category filter.' : 'Add the first approved clause to begin alert review.'} emptyIcon="document" columns={[
+      <DataTable title="Policy Clauses" rows={visible} emptyTitle={filtered ? 'No clauses match' : 'No policy clauses yet'} emptyDescription={filtered ? 'Adjust the search or category filter.' : 'Add the first approved clause to begin alert review.'} emptyIcon="document" columns={[
         { key: 'title', label: 'Clause', render: item => <span><strong>{item.title || 'Untitled clause'}</strong><small className="corpus-clause-id"> {item.chunkId}</small></span> },
         { key: 'ruleCategory', label: 'Category', render: item => policyCategoryLabel(item.ruleCategory) },
         { key: 'sourceDoc', label: 'Source', render: item => item.sourceDoc ? `${item.sourceDoc}${item.sectionRef ? ` · ${item.sectionRef}` : ''}` : 'Not recorded' },

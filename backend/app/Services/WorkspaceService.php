@@ -66,6 +66,7 @@ class WorkspaceService
         $query = User::with([
             'student',
             'student.activePlacement.company',
+            'student.pendingPreference.company',
             'student.preferredCompany',
             'student.documents.reviewer',
         ]);
@@ -123,9 +124,30 @@ class WorkspaceService
             if ($u->isStudent()) {
                 $student = $u->student;
                 $activePlacement = $student?->activePlacement;
-                $assignedCompany = $activePlacement?->company?->name ?? $u->company;
-                $assignedRole = $activePlacement?->assigned_role ?? $student?->assigned_role;
-                $placementStatus = $activePlacement?->status ?? ($assignedCompany ? 'Approved & Deployed' : ($student?->preferred_company ? 'Pending Coordinator Endorsement' : 'Unplaced'));
+                $pendingPreference = $student?->pendingPreference;
+                if ($activePlacement && $pendingPreference && $pendingPreference->id < $activePlacement->id) {
+                    $pendingPreference = null;
+                }
+
+                // A pending placement is not evidence of deployment, even when legacy
+                // records also copied the preferred host into the user's company field.
+                $assignedCompany = $activePlacement?->company?->name ?? ($pendingPreference ? null : $u->company);
+                $assignedCompanyId = $activePlacement?->company_id ?? ($pendingPreference ? null : $u->company_id);
+                $assignedRole = $activePlacement
+                    ? $activePlacement->assigned_role
+                    : ($assignedCompany ? $student?->assigned_role : null);
+                $preferredCompany = $student?->preferredCompany?->name
+                    ?? $student?->preferred_company
+                    ?? $pendingPreference?->company?->name;
+                $preferredRole = $student?->preferred_role
+                    ?? ($pendingPreference?->company?->name === $preferredCompany
+                        ? $pendingPreference?->assigned_role
+                        : null);
+                $placementStatus = $activePlacement || $assignedCompany
+                    ? 'Approved & Deployed'
+                    : ($pendingPreference?->status === 'Returned for Revision'
+                        ? 'Returned for Revision'
+                        : ($preferredCompany ? 'Pending Coordinator Endorsement' : 'Unplaced'));
 
                 $data = array_merge($data, [
                     'studentNumber' => $student?->student_number,
@@ -136,11 +158,15 @@ class WorkspaceService
                     'gpa' => $student?->gpa,
                     'phone' => $student?->phone,
                     'company' => $assignedCompany,
+                    'company_id' => $assignedCompanyId,
                     'placementStatus' => $placementStatus,
-                    'preferredHte' => $student?->preferred_company ?? $student?->preferredCompany?->name,
-                    'preferred_company' => $student?->preferred_company,
+                    'preferredHte' => $preferredCompany,
+                    'preferredRole' => $preferredRole,
+                    'preferenceStatus' => $pendingPreference?->status,
+                    'preferenceFeedback' => $pendingPreference?->status === 'Returned for Revision' ? $pendingPreference->reason : null,
+                    'preferred_company' => $preferredCompany,
                     'assignedRole' => $assignedRole,
-                    'disciplinaryClearance' => $student?->disciplinary_clearance ?? 'Cleared & Certified',
+                    'disciplinaryClearance' => $student?->disciplinary_clearance,
                     'clearanceStatus' => $student?->clearance_status,
                     'portfolioData' => [
                         'bio' => $student?->bio ?? '',

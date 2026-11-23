@@ -29,6 +29,7 @@ class Student extends Model
         'achievements',
         'preferred_company',
         'preferred_company_id',
+        'preferred_role',
         'assigned_role',
         'disciplinary_clearance',
         'clearance_status',
@@ -72,7 +73,16 @@ class Student extends Model
 
     public function activePlacement(): HasOne
     {
-        return $this->hasOne(Placement::class)->latestOfMany();
+        return $this->hasOne(Placement::class)->ofMany(['id' => 'max'], function ($query) {
+            $query->where('status', 'Approved & Deployed');
+        });
+    }
+
+    public function pendingPreference(): HasOne
+    {
+        return $this->hasOne(Placement::class)->ofMany(['id' => 'max'], function ($query) {
+            $query->whereIn('status', ['Pending Coordinator Endorsement', 'Returned for Revision']);
+        });
     }
 
     public function documents(): HasMany

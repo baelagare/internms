@@ -6,18 +6,21 @@ export function profileValues(user) {
   return { gpa: String(user.gpa ?? ''), academicStanding: user.academicStanding || '', email: portfolio.email ?? user.email ?? '', phone: portfolio.phone || '', portfolioUrl: portfolio.portfolioUrl || '', bio: portfolio.bio || '' };
 }
 
+export function refreshedProfileValues(values, saved, user) {
+  const keys = Object.keys(values);
+  const isPristine = keys.every(key => values[key] === saved[key]);
+  if (!isPristine) return null;
+
+  const refreshed = profileValues(user);
+  return keys.every(key => values[key] === refreshed[key]) ? null : refreshed;
+}
+
 export function validateProfile(values) {
   const errors = {};
   if (!String(values.gpa).trim() || !Number.isFinite(Number(values.gpa)) || Number(values.gpa) < 1 || Number(values.gpa) > 5) errors.gpa = 'Enter a GPA between 1.00 and 5.00.';
   else if (Math.abs(Number(values.gpa) * 100 - Math.round(Number(values.gpa) * 100)) > 1e-8) errors.gpa = 'Use no more than two decimal places.';
-  if (!academicStandings.includes(values.academicStanding)) errors.academicStanding = 'Choose your academic standing.';
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email)) errors.email = 'Enter a valid email address.';
   if (!values.phone.trim()) errors.phone = 'Enter your mobile number.';
   if (!values.bio.trim()) errors.bio = 'Enter a brief career summary.';
-  if (values.portfolioUrl) {
-    try { if (!['http:', 'https:'].includes(new URL(values.portfolioUrl).protocol)) throw new Error(); }
-    catch { errors.portfolioUrl = 'Enter a complete HTTP or HTTPS URL.'; }
-  }
   return errors;
 }
 

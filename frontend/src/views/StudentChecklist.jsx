@@ -52,7 +52,7 @@ export function StudentChecklist({ user, onChange }) {
   return (
     <div className="student-checklist space-y-6">
       <PageHeader
-        title="Pre-deployment Checklist"
+        title="Pre-Deployment Checklist"
         subtitle="Upload and manage required internship clearance documents before deployment."
         badge={
           available && documents.length ? (
@@ -86,12 +86,12 @@ export function StudentChecklist({ user, onChange }) {
       {!available ? (
         <Card className="p-6">
           <EmptyState
-            title="Document requirements unavailable"
+            title="Document Requirements Unavailable"
             description="Your checklist records could not be loaded. Please contact your coordinator."
             icon="document"
             action={
               <Button variant="secondary" onClick={() => window.location.reload()}>
-                Reload page
+                Reload Page
               </Button>
             }
           />
@@ -99,7 +99,7 @@ export function StudentChecklist({ user, onChange }) {
       ) : !documents.length ? (
         <Card className="p-6">
           <EmptyState
-            title="No required documents assigned"
+            title="No Required Documents Assigned"
             description="Your pre-deployment requirements will appear here once configured by your coordinator."
             icon="document"
           />
@@ -209,7 +209,7 @@ export function StudentChecklist({ user, onChange }) {
               </ul>
             ) : (
               <EmptyState
-                title="No documents match your search"
+                title="No Documents Match Your Search"
                 description="Try another search term or clear your status filter."
                 icon="search"
                 action={

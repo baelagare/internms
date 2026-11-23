@@ -8,7 +8,7 @@ const css = readFileSync(new URL('../src/views/corpus.css', import.meta.url), 'u
 const corpusSource = source.slice(source.indexOf('const POLICY_CATEGORY_LABELS'));
 
 test('policy corpus screen shows human category labels, an unavailable-save notice, and empty states', () => {
-  assert.match(corpusSource, /title="Policy corpus"/);
+  assert.match(corpusSource, /title="Policy Corpus"/);
   assert.match(corpusSource, /Attendance/);
   assert.match(corpusSource, /Task alignment/);
   assert.match(corpusSource, /Documents/);

@@ -29,8 +29,8 @@ test('approval review eligibility remains stage and category specific', () => {
 
 test('host approvals explain supervisor verification and separate coordinator credit', () => {
   const source = readFileSync(new URL('../src/views/Approvals.jsx', import.meta.url), 'utf8');
-  assert.match(source, /Company review queue/);
-  assert.match(source, /Supervisor verification/);
+  assert.match(source, /Company Review Queue/);
+  assert.match(source, /Supervisor Verification/);
   assert.match(source, /Final OJT credit is decided by the college coordinator/);
   assert.match(source, /item\.college === user\.college|scopedStudents\(safeDb, user\)/);
   assert.match(source, /safeDb\.dtrDisputes/);
@@ -39,10 +39,10 @@ test('host approvals explain supervisor verification and separate coordinator cr
 test('coordinator approvals provide readable queue counts and empty state without fake data', () => {
   const source = readFileSync(new URL('../src/views/Approvals.jsx', import.meta.url), 'utf8');
   const css = readFileSync(new URL('../src/views/approvals.css', import.meta.url), 'utf8');
-  assert.match(source, /Coordinator approvals/);
-  assert.match(source, /Needs review/);
-  assert.match(source, /Approved \/ verified/);
-  assert.match(source, /No submissions in this view/);
+  assert.match(source, /Coordinator Approvals/);
+  assert.match(source, /Needs Review/);
+  assert.match(source, /Approved \/ Verified/);
+  assert.match(source, /No Submissions In This View/);
   assert.match(css, /approvals-summary/);
   assert.match(css, /min-height: 72px/);
 });
@@ -56,3 +56,11 @@ test('coordinator review pages follow the shared three-metric KPI rule for recor
   assert.match(placement, /SummaryMetrics className="placement-review-summary" ariaLabel="Placement summary"/);
   assert.match(readFileSync(new URL('../src/views/approvals.css', import.meta.url), 'utf8'), /@media \(min-width: 640px\).*approvals-summary \{ grid-template-columns: repeat\(3/);
 });
+
+test('approvals screen supports initialQuery deep linking to auto-select and open review modal', () => {
+  const source = readFileSync(new URL('../src/views/Approvals.jsx', import.meta.url), 'utf8');
+  assert.match(source, /export function Approvals\(\{ user, db, onChange, initialQuery \}\)/);
+  assert.match(source, /initialQuery\?\.category/);
+  assert.match(source, /setSelected\(match\)/);
+});
+

@@ -76,7 +76,8 @@ test('blank and incomplete evaluation cannot yield a score', () => {
 
 test('missing profile, report and document inputs fail validation', () => {
   const errors = validateProfile(profileValues({}));
-  for (const field of ['gpa', 'academicStanding', 'email', 'phone', 'bio']) assert.ok(errors[field]);
+  for (const field of ['gpa', 'phone', 'bio']) assert.ok(errors[field]);
+  for (const field of ['academicStanding', 'email', 'portfolioUrl']) assert.equal(errors[field], undefined);
   const reportErrors = validateWeeklyTaskReport();
   for (const field of ['weekNumber', 'hours', 'competencyTag', 'title', 'description', 'snapshot']) assert.ok(reportErrors[field]);
   assert.ok(validateDocumentFile(null));

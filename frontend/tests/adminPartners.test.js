@@ -14,15 +14,15 @@ test('admin partner directory labels the university view and scopes the empty st
 });
 
 test('admin partner summary adds college coverage without changing coordinator metrics', () => {
-  assert.match(partnersSource, /Colleges covered/);
-  assert.match(partnersSource, /Host companies/);
-  assert.match(partnersSource, /Invitations pending/);
+  assert.match(partnersSource, /Colleges Covered/);
+  assert.match(partnersSource, /Host Companies/);
+  assert.match(partnersSource, /Invitations Pending/);
   assert.match(css, /auto-fit/);
 });
 
 test('admin partner creation keeps institutional fields and invents no defaults', () => {
-  assert.match(partnersSource, /Supervisor invitation token/);
-  assert.match(partnersSource, /GPA cutoff/);
+  assert.match(partnersSource, /Supervisor Invitation Token/);
+  assert.match(partnersSource, /GPA Cutoff/);
   assert.match(partnersSource, /Missing values will not be filled automatically/);
   assert.doesNotMatch(partnersSource, /partner@hte\.ph/);
 });
@@ -31,9 +31,11 @@ test('partner and staff college selectors use catalog-backed options and guard e
   assert.match(partnersSource, /collegeOptions = colleges\.map/);
   assert.match(partnersSource, /disabled=\{admin && colleges\.length === 0\}/);
   const staffSource = source.slice(source.indexOf('export function Staff'), source.indexOf('function StaffAccountForm'));
-  assert.match(staffSource, /College scope/);
+  assert.match(staffSource, /College Scope/);
   assert.match(staffSource, /collegeCodesForWorkspace\(db\)/);
-  assert.match(staffSource, /college catalog/);
+  assert.match(staffSource, /College Catalog/);
+});
+
 test('college catalog exposes only confirmed colleges to administrative selectors', () => {
   const catalog = readFileSync(new URL('../src/config/institution.js', import.meta.url), 'utf8');
   assert.match(catalog, /CITE: Object\.freeze/);
@@ -42,7 +44,5 @@ test('college catalog exposes only confirmed colleges to administrative selector
   assert.match(source, /collegeOptions = colleges\.map/);
 });
 
-
-});
 
 

@@ -231,6 +231,127 @@ class WorkspaceTest extends TestCase
         $this->assertFalse($htes->contains('name', 'Beta Logistics'));
     }
 
+    public function test_pending_preference_is_separate_from_assigned_company_and_role(): void
+    {
+        $studentUser = User::create([
+            'name' => 'Pending Intern',
+            'email' => 'pending@nemsu.edu.ph',
+            'role' => 'student',
+            'college_code' => 'CITE',
+            'company' => 'Pending Host',
+        ]);
+        $host = Company::create([
+            'name' => 'Pending Host',
+            'college_code' => 'CITE',
+            'max_slots' => 3,
+            'filled_slots' => 0,
+        ]);
+        $student = Student::create([
+            'user_id' => $studentUser->id,
+            'college_code' => 'CITE',
+            'preferred_company_id' => $host->id,
+            'preferred_company' => $host->name,
+            'preferred_role' => 'Preferred QA Role',
+            'assigned_role' => null,
+        ]);
+        Placement::create([
+            'student_id' => $student->id,
+            'company_id' => $host->id,
+            'status' => 'Pending Coordinator Endorsement',
+            'assigned_role' => 'Requested Host Role',
+        ]);
+
+        $response = $this->actingAs($studentUser, 'sanctum')->getJson('/api/v1/workspace');
+        $response->assertOk();
+
+        $record = collect($response->json('users'))->firstWhere('id', $studentUser->id);
+        $this->assertSame('Pending Coordinator Endorsement', $record['placementStatus']);
+        $this->assertNull($record['company']);
+        $this->assertNull($record['company_id']);
+        $this->assertNull($record['assignedRole']);
+        $this->assertSame('Pending Host', $record['preferredHte']);
+        $this->assertSame('Preferred QA Role', $record['preferredRole']);
+        $this->assertSame('Pending Coordinator Endorsement', $record['preferenceStatus']);
+        $this->assertNull($record['preferenceFeedback']);
+    }
+
+    public function test_returned_preference_is_exposed_to_student_with_reason_and_no_assignment(): void
+    {
+        $studentUser = User::create([
+            'name' => 'Returned Intern',
+            'email' => 'returned@nemsu.edu.ph',
+            'role' => 'student',
+            'college_code' => 'CITE',
+        ]);
+        $host = Company::create(['name' => 'Return Host', 'college_code' => 'CITE']);
+        $student = Student::create([
+            'user_id' => $studentUser->id,
+            'college_code' => 'CITE',
+            'preferred_company_id' => $host->id,
+            'preferred_company' => $host->name,
+            'preferred_role' => 'Preferred Analyst Role',
+        ]);
+        Placement::create([
+            'student_id' => $student->id,
+            'company_id' => $host->id,
+            'status' => 'Returned for Revision',
+            'reason' => 'Please choose a role related to your approved academic program.',
+        ]);
+
+        $response = $this->actingAs($studentUser, 'sanctum')->getJson('/api/v1/workspace');
+        $response->assertOk();
+
+        $record = collect($response->json('users'))->firstWhere('id', $studentUser->id);
+        $this->assertSame('Returned for Revision', $record['placementStatus']);
+        $this->assertSame('Returned for Revision', $record['preferenceStatus']);
+        $this->assertSame('Please choose a role related to your approved academic program.', $record['preferenceFeedback']);
+        $this->assertNull($record['company']);
+        $this->assertNull($record['assignedRole']);
+        $this->assertSame('Return Host', $record['preferredHte']);
+        $this->assertSame('Preferred Analyst Role', $record['preferredRole']);
+    }
+
+    public function test_deployed_placement_remains_assigned_and_old_pending_preference_is_not_current(): void
+    {
+        $studentUser = User::create([
+            'name' => 'Deployed Intern',
+            'email' => 'deployed@nemsu.edu.ph',
+            'role' => 'student',
+            'college_code' => 'CITE',
+            'company' => 'Active Host',
+        ]);
+        $host = Company::create(['name' => 'Active Host', 'college_code' => 'CITE']);
+        $oldHost = Company::create(['name' => 'Old Preferred Host', 'college_code' => 'CITE']);
+        $student = Student::create([
+            'user_id' => $studentUser->id,
+            'college_code' => 'CITE',
+            'assigned_role' => 'Approved Role',
+        ]);
+        Placement::create([
+            'student_id' => $student->id,
+            'company_id' => $oldHost->id,
+            'status' => 'Pending Coordinator Endorsement',
+            'assigned_role' => 'Old Preferred Role',
+        ]);
+        Placement::create([
+            'student_id' => $student->id,
+            'company_id' => $host->id,
+            'status' => 'Approved & Deployed',
+            'assigned_role' => 'Approved Role',
+        ]);
+
+        $response = $this->actingAs($studentUser, 'sanctum')->getJson('/api/v1/workspace');
+        $response->assertOk();
+
+        $record = collect($response->json('users'))->firstWhere('id', $studentUser->id);
+        $this->assertSame('Approved & Deployed', $record['placementStatus']);
+        $this->assertSame('Active Host', $record['company']);
+        $this->assertSame($host->id, $record['company_id']);
+        $this->assertSame('Approved Role', $record['assignedRole']);
+        $this->assertNull($record['preferredHte']);
+        $this->assertNull($record['preferredRole']);
+    }
+
     public function test_student_workspace_excludes_other_students(): void
     {
         $studentUserA = User::create([

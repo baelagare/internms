@@ -15,13 +15,21 @@ import { Interns } from './views/Interns.jsx';
 import { Partners, Staff, Settings, Corpus } from './views/Management.jsx';
 import { Alerts, Audit } from './views/Governance.jsx';
 import { allowedRoutes } from './services/routes.js';
+import { workspaceUser } from './services/workspaceAdapter.js';
 import { getDatabase, restoreSession, logoutSession, login, loginWithGoogle, onboardSupervisor, persistSession, registerStudent } from './services/apiClient.js';
 
-function readRoute() { const value = window.location.hash.replace(/^#\/?/, ''); const [role, route = 'dashboard'] = value.split('/'); return { role, route }; }
+function readRoute() {
+  const hash = window.location.hash.replace(/^#\/?/, '');
+  const [path, search = ''] = hash.split('?');
+  const [role, route = 'dashboard'] = path.split('/');
+  const query = Object.fromEntries(new URLSearchParams(search));
+  return { role, route, query };
+}
 
 export default function App() {
   const [db, setDb] = useState(null);
-  const [user, setUser] = useState(null);
+  const [sessionUser, setUser] = useState(null);
+  const user = useMemo(() => workspaceUser(sessionUser, db?.users), [sessionUser, db]);
   const [route, setRoute] = useState(readRoute());
   const [busy, setBusy] = useState(true);
   const [authBusy, setAuthBusy] = useState(false);
@@ -49,18 +57,27 @@ export default function App() {
   const handleSupervisor = async form => { setAuthBusy(true); setError(''); try { await enter(await onboardSupervisor(form)); } catch (err) { setError(err.message); } finally { setAuthBusy(false); } };
   const handleGoogleSignIn = useCallback(async idToken => { setAuthBusy(true); setError(''); try { await enter(await loginWithGoogle(idToken)); } catch (err) { setError(err.message); } finally { setAuthBusy(false); } }, []);
   const logout = async () => { try { await logoutSession(); setUser(null); window.location.hash = '#/login'; notify('Signed out', 'You have left the workspace.', 'info'); } catch (error) { notify('Sign-out failed', error.message, 'info'); } };
-  const navigate = key => { window.location.hash = `#/${user.role}/${key}`; };
-  const updateData = next => { setDb(next); setUser(previous => { const refreshed = next.users.find(candidate => candidate.id === previous?.id); if (!refreshed) return previous; const { pass, altPass, password, ...safe } = refreshed; return safe; }); };
+  const navigate = (key, params) => {
+    if (params && typeof params === 'object') {
+      const search = new URLSearchParams(
+        Object.entries(params).filter(([_, v]) => v !== undefined && v !== null && typeof v !== 'object')
+      ).toString();
+      window.location.hash = `#/${user.role}/${key}${search ? `?${search}` : ''}`;
+    } else {
+      window.location.hash = `#/${user.role}/${key}`;
+    }
+  };
+  const updateData = next => { setDb(next); };
   const isPublic = !user;
   const content = useMemo(() => {
     if (!db || !user) return null;
     if (route.role !== user.role || !allowedRoutes[user.role]?.includes(route.route)) return <section role="alert" className="rounded-xl border bg-white p-6"><h1 className="text-xl font-bold">Page unavailable for your role</h1><p className="my-3">Choose a destination from your navigation.</p><button onClick={() => navigate('dashboard')} className="font-bold text-navy-700">Return to dashboard</button></section>;
     if (route.route === 'dashboard') return <Dashboard user={user} db={db} onChange={updateData} onNavigate={navigate}/>;
     if (route.route === 'messages') return <Messages key={user.id} user={user} db={db} onChange={updateData} connectionStatus={connectionStatus}/>;
-    if (route.route === 'placement') return <Placement key={user.id} user={user} db={db} onChange={updateData}/>;
+    if (route.route === 'placement') return <Placement key={user.id} user={user} db={db} onChange={updateData} initialQuery={route.query}/>;
     if (user.role === 'student' && route.route === 'attendance') return <StudentAttendance key={user.id} user={user} db={db} onChange={updateData}/>;
     if (route.route === 'attendance' || route.route === 'tasks') return <Training key={`${user.id}-${route.route}`} user={user} db={db} onChange={updateData} route={route.route}/>;
-    if (route.route === 'approvals') return <Approvals key={user.id} user={user} db={db} onChange={updateData}/>;
+    if (route.route === 'approvals') return <Approvals key={`${user.id}-${route.query?.category || ''}-${route.query?.id || ''}`} user={user} db={db} onChange={updateData} initialQuery={route.query}/>;
     if (route.route === 'evaluations') return <Evaluations key={user.id} user={user} db={db} onChange={updateData}/>;
     if (route.route === 'interns') return <Interns key={user.id} user={user} db={db} onChange={updateData}/>;
     if (route.route === 'alerts') return <Alerts key={user.id} user={user} db={db} onChange={updateData}/>;

@@ -66,15 +66,18 @@ export async function updateEnrollment(user, id, values) {
   });
 }
 
-export async function savePlacement(user, id, companyId, reason) {
+export async function savePlacement(user, id, companyId, reason, role) {
   const student = await studentRecord(id);
-  return mutate(`/students/${student.studentProfileId}/placement`, 'POST', { company_id: companyId, reason });
+  const field = user.role === 'student' ? 'preferred_role' : 'assigned_role';
+  const body = { company_id: companyId, reason };
+  if (role !== undefined) body[field] = role || null;
+  return mutate(`/students/${student.studentProfileId}/placement`, 'POST', body);
+}
+export async function returnPlacementPreference(user, id, reason) {
+  const student = await studentRecord(id);
+  return mutate(`/students/${student.studentProfileId}/placement/return`, 'POST', { reason });
 }
 export function saveProfile(user, values) {
-  // Never silently discard fields that the backend cannot persist.
-  if (values.academicStanding !== (user.academicStanding || '') || values.portfolioUrl !== (user.portfolioData?.portfolioUrl || '') || values.email !== user.email) {
-    return Promise.reject(new Error('Academic standing, sign-in email, and portfolio URL changes are not supported by the current API. Keep those values unchanged.'));
-  }
   return mutate('/students/me', 'PATCH', { phone: values.phone, bio: values.bio, gpa: values.gpa });
 }
 export function editPortfolio(user, type, action, value) {

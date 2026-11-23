@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Button, Card, HelpTip, Notice, PageHeader, StatusBadge } from '../components/ui.jsx';
 import { Icon } from '../components/Icons.jsx';
 import { Modal, useMutation } from '../components/workflow.jsx';
@@ -9,7 +9,7 @@ import {
   restorePortfolioItem,
   saveProfile
 } from '../services/applicationService.js';
-import { academicStandings, profileValues, validateProfile } from '../services/studentProfile.js';
+import { profileValues, refreshedProfileValues, validateProfile } from '../services/studentProfile.js';
 import {
   ProfileField,
   ProfileHeading,
@@ -275,6 +275,14 @@ function AcademicProfile({ user, onChange }) {
   const [saved, setSaved] = useState(() => profileValues(user));
   const [tried, setTried] = useState(false);
   const { run, busy, notice } = useMutation(onChange);
+
+  useEffect(() => {
+    const refreshed = refreshedProfileValues(values, saved, user);
+    if (refreshed) {
+      setValues(refreshed);
+      setSaved(refreshed);
+    }
+  }, [user, values, saved]);
   const formRef = useRef(null);
   const errors = validateProfile(values);
   const dirty = Object.keys(values).some(key => values[key] !== saved[key]);
@@ -309,7 +317,7 @@ function AcademicProfile({ user, onChange }) {
         description="Your GPA, standing, and summary are used for internship matching. Disciplinary status is managed by your coordinator."
         action={
           <HelpTip label="About these records">
-            Student-managed fields can be edited and saved here. Clearance and institutional records are read-only.
+            GPA, contact number, and professional summary can be edited and saved. Standing, sign-in email, portfolio link, and clearance are read-only until supported by the API.
           </HelpTip>
         }
       />
@@ -331,11 +339,10 @@ function AcademicProfile({ user, onChange }) {
               {...field('gpa')}
             />
             <ProfileField
-              label="Academic standing"
-              options={['', ...academicStandings]}
-              required
-              hint="Current academic classification"
-              {...field('academicStanding')}
+              label="Academic standing (Read-only)"
+              value={values.academicStanding || 'Not recorded'}
+              readOnly
+              hint="Academic standing is not available in the current profile API."
             />
             <ProfileField
               label="Disciplinary clearance (Read-only)"
@@ -353,13 +360,12 @@ function AcademicProfile({ user, onChange }) {
           </legend>
           <div className="grid gap-4 sm:grid-cols-3">
             <ProfileField
-              label="Institutional email"
+              label="Institutional email (Read-only)"
               type="email"
               autoComplete="email"
-              placeholder="student@nemsu.edu.ph"
-              required
-              hint="Official university email address"
-              {...field('email')}
+              value={values.email}
+              readOnly
+              hint="Official sign-in address managed by the institution"
             />
             <ProfileField
               label="Mobile contact number"
@@ -371,12 +377,12 @@ function AcademicProfile({ user, onChange }) {
               {...field('phone')}
             />
             <ProfileField
-              label="Portfolio or project link"
+              label="Portfolio or project link (Read-only)"
               type="url"
               autoComplete="url"
-              placeholder="https://github.com/..."
-              hint="Optional HTTP or HTTPS URL"
-              {...field('portfolioUrl')}
+              value={values.portfolioUrl || 'Not recorded'}
+              readOnly
+              hint="Portfolio links cannot currently be saved through the API"
             />
           </div>
         </fieldset>

@@ -30,7 +30,7 @@ test('partner interface has explicit invitation statuses and responsive summary 
   const css = readFileSync(new URL('../src/views/partners.css', import.meta.url), 'utf8');
   assert.match(source, /Invitation pending/);
   assert.match(source, /Representative linked/);
-  assert.match(source, /Capacity recorded/);
+  assert.match(source, /Capacity Recorded/);
   assert.match(css, /@media \(min-width: 640px\)/);
 });
 

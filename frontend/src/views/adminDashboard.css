@@ -3,6 +3,28 @@
   gap: var(--space-6);
   min-width: 0;
 }
+.admin-dashboard .ds-page-header {
+  margin: 0;
+}
+
+.admin-section-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+}
+.admin-section-heading h2 {
+  color: var(--color-text);
+  font-size: var(--text-xl);
+  font-weight: 600;
+}
+.admin-section-heading p {
+  margin-top: var(--space-1);
+  color: var(--color-text-secondary);
+  font-size: var(--text-sm);
+}
 
 .admin-kpi-grid {
   display: grid;

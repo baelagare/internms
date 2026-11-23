@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import './approvals.css';
 import { Button, Notice, StatusBadge, SummaryMetrics } from '../components/ui.jsx';
 import { DataTable, Field, Modal, WorkspacePage, useMutation } from '../components/workflow.jsx';
@@ -6,11 +6,13 @@ import { scopedStudents } from '../services/records.js';
 import { reviewSubmission } from '../services/applicationService.js';
 import { taskStatusTone } from '../services/studentTaskLogs.js';
 
-export function Approvals({ user, db, onChange }) {
-  const [category, setCategory] = useState(user.role === 'supervisor' ? 'log' : 'document');
+export function Approvals({ user, db, onChange, initialQuery }) {
+  const defaultCategory = initialQuery?.category || (user.role === 'supervisor' ? 'log' : 'document');
+  const [category, setCategory] = useState(defaultCategory);
   const [status, setStatus] = useState('ALL');
   const [selected, setSelected] = useState(null);
   const [remarks, setRemarks] = useState('');
+  const initialHandled = useRef(false);
   const { run, busy, notice } = useMutation(onChange);
   const safeDb = { ...db, logs: Array.isArray(db?.logs) ? db.logs : [], dtrDisputes: Array.isArray(db?.dtrDisputes) ? db.dtrDisputes : [], users: Array.isArray(db?.users) ? db.users : [] };
   const students = scopedStudents(safeDb, user);
@@ -44,6 +46,23 @@ export function Approvals({ user, db, onChange }) {
             date: record.date || record.targetDate,
             hours: record.hours || record.requestedHours
           }));
+
+  useEffect(() => {
+    if (initialHandled.current) return;
+    if (initialQuery?.id || initialQuery?.targetId || initialQuery?.studentId || initialQuery?.student) {
+      const match = records.find(r =>
+        (initialQuery.id && String(r.id) === String(initialQuery.id)) ||
+        (initialQuery.targetId && String(r.id) === String(initialQuery.targetId)) ||
+        (initialQuery.studentId && String(r.studentId) === String(initialQuery.studentId)) ||
+        (initialQuery.student && r.student === initialQuery.student)
+      );
+      if (match) {
+        setSelected(match);
+        setRemarks('');
+        initialHandled.current = true;
+      }
+    }
+  }, [initialQuery, records]);
   const expected =
     user.role === 'supervisor' ? 'Pending Supervisor Verification' : 'Supervisor Verified';
   const canReview = row => category === 'document' ? Boolean(row.fileName) : row.status === expected;
@@ -56,28 +75,28 @@ export function Approvals({ user, db, onChange }) {
   const isHost = user.role === 'supervisor';
 
   return (
-    <WorkspacePage title={isCoordinator ? 'Coordinator approvals' : isHost ? 'Company review queue' : 'Approval queues & history'} subtitle={isHost ? `Review submissions from interns assigned to ${user.company || 'your company'}.` : undefined}>
+    <WorkspacePage title={isCoordinator ? 'Coordinator Approvals' : isHost ? 'Company Review Queue' : 'Approval Queues & History'} subtitle={isHost ? `Review submissions from interns assigned to ${user.company || 'your company'}.` : undefined}>
       {notice}
       {isHost && <>
-        <Notice tone="info" title="Supervisor verification">Your review records verification only. Final OJT credit is decided by the college coordinator.</Notice>
+        <Notice tone="info" title="Supervisor Verification">Your review records verification only. Final OJT credit is decided by the college coordinator.</Notice>
         <SummaryMetrics className="approvals-summary" ariaLabel="Company review summary" items={[
-          { label: 'Needs your review', value: pendingCount },
+          { label: 'Needs Your Review', value: pendingCount },
           { label: 'Verified', value: approvedCount },
-          { label: 'Returned for changes', value: returnedCount }
+          { label: 'Returned For Changes', value: returnedCount }
         ]} />
       </>}
       {isCoordinator && <>
         <p className="approvals-intro">Review verified internship records for your college. Supervisor verification and coordinator approval are separate stages.</p>
         <SummaryMetrics className="approvals-summary" ariaLabel="Submission summary" items={[
-          { label: 'Needs review', value: pendingCount },
-          { label: 'Approved / verified', value: approvedCount },
-          { label: 'Returned for changes', value: returnedCount }
+          { label: 'Needs Review', value: pendingCount },
+          { label: 'Approved / Verified', value: approvedCount },
+          { label: 'Returned For Changes', value: returnedCount }
         ]} />
       </>}
       {user.role === 'supervisor' && !Array.isArray(db?.logs) && !Array.isArray(db?.dtrDisputes) && <Notice tone="warning" title="Review records unavailable">Submission and attendance records are not connected.</Notice>}
       <div className="approvals-filters grid gap-4 sm:grid-cols-2">
         <Field
-          label="Submission category"
+          label="Submission Category"
           options={[
             ...(user.role !== 'supervisor'
               ? [{ value: 'document', label: 'Checklist documents' }]
@@ -99,9 +118,9 @@ export function Approvals({ user, db, onChange }) {
         />
       </div>
       <DataTable
-        title={isCoordinator ? 'Review records' : isHost ? 'Company submissions' : 'Submissions'}
+        title={isCoordinator ? 'Review Records' : isHost ? 'Company Submissions' : 'Submissions'}
         rows={visibleRecords}
-        emptyTitle={isCoordinator ? 'No submissions in this view' : 'No submissions found'}
+        emptyTitle={isCoordinator ? 'No Submissions In This View' : 'No Submissions Found'}
         emptyDescription={isCoordinator ? 'Records will appear here when they are available to your college.' : 'Try another category or status filter.'}
         columns={[
           { key: 'student', label: 'Student' },

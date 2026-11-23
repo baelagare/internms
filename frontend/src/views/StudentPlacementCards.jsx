@@ -116,7 +116,7 @@ export function OpportunityCard({ match, host, student, settings, onRequest }) {
 
         <div className="w-full sm:w-44 sm:text-right">
           {score === null ? (
-            <p className="text-xs text-muted">Match score unavailable</p>
+            <p className="text-xs text-muted">Match Score Unavailable</p>
           ) : (
             <div className="space-y-1.5">
               <div className="flex items-baseline justify-between sm:justify-end gap-1.5">

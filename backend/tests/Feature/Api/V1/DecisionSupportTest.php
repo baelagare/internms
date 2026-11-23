@@ -45,6 +45,8 @@ class DecisionSupportTest extends TestCase
             'student_number' => '2026-2001',
             'college_code' => 'CITE',
             'program' => 'BSCS',
+            'gpa' => 1.75,
+            'disciplinary_clearance' => 'Cleared & Certified',
         ]);
 
         $this->coordinatorUser = User::create([
@@ -132,21 +134,181 @@ class DecisionSupportTest extends TestCase
         $response->assertStatus(403);
     }
 
-    public function test_student_can_save_placement_preference(): void
+    public function test_student_can_save_placement_preference_without_changing_assigned_role(): void
     {
+        $this->student->update(['assigned_role' => 'Existing Approved Role']);
+
         $response = $this->actingAs($this->studentUser, 'sanctum')->postJson("/api/v1/students/{$this->student->id}/placement", [
             'company_id' => $this->company->id,
-            'assigned_role' => 'QA Intern',
+            'preferred_role' => 'Requested Preference Role',
         ]);
 
         $response->assertOk();
         $this->student->refresh();
         $this->assertEquals($this->company->id, $this->student->preferred_company_id);
         $this->assertEquals('Innovate Corp', $this->student->preferred_company);
+        $this->assertEquals('Requested Preference Role', $this->student->preferred_role);
+        $this->assertEquals('Existing Approved Role', $this->student->assigned_role);
+        $this->assertDatabaseHas('placements', [
+            'student_id' => $this->student->id,
+            'company_id' => $this->company->id,
+            'status' => 'Pending Coordinator Endorsement',
+            'assigned_role' => null,
+        ]);
+    }
+
+    public function test_student_cannot_submit_assigned_role_as_a_preference(): void
+    {
+        $this->actingAs($this->studentUser, 'sanctum')
+            ->postJson("/api/v1/students/{$this->student->id}/placement", [
+                'company_id' => $this->company->id,
+                'assigned_role' => 'Unauthorized Assigned Role',
+            ])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['assigned_role']);
+
+        $this->student->refresh();
+        $this->assertNull($this->student->preferred_company_id);
+        $this->assertNull($this->student->preferred_role);
+    }
+
+    public function test_student_cannot_submit_preference_for_another_student(): void
+    {
+        $otherStudentUser = User::create([
+            'name' => 'Another Student',
+            'email' => 'another-student@nemsu.edu.ph',
+            'role' => 'student',
+            'college_code' => 'CITE',
+        ]);
+        $otherStudent = Student::create([
+            'user_id' => $otherStudentUser->id,
+            'college_code' => 'CITE',
+        ]);
+
+        $this->actingAs($this->studentUser, 'sanctum')
+            ->postJson("/api/v1/students/{$otherStudent->id}/placement", [
+                'company_id' => $this->company->id,
+            ])
+            ->assertForbidden();
+
+        $otherStudent->refresh();
+        $this->assertNull($otherStudent->preferred_company_id);
+    }
+
+    public function test_student_cannot_submit_preference_when_gpa_is_over_the_cutoff(): void
+    {
+        $this->student->update(['gpa' => 3.00]);
+
+        $this->actingAs($this->studentUser, 'sanctum')
+            ->postJson("/api/v1/students/{$this->student->id}/placement", [
+                'company_id' => $this->company->id,
+            ])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['eligibility']);
+
+        $this->student->refresh();
+        $this->assertNull($this->student->preferred_company_id);
+    }
+
+    public function test_student_cannot_submit_preference_without_certified_clearance(): void
+    {
+        $this->student->update(['disciplinary_clearance' => 'Not Cleared']);
+
+        $this->actingAs($this->studentUser, 'sanctum')
+            ->postJson("/api/v1/students/{$this->student->id}/placement", [
+                'company_id' => $this->company->id,
+            ])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['eligibility']);
+
+        $this->student->refresh();
+        $this->assertNull($this->student->preferred_company_id);
+    }
+
+    public function test_student_cannot_submit_preference_when_host_has_no_open_slots(): void
+    {
+        $fullCompany = Company::create([
+            'name' => 'Full Company',
+            'college_code' => 'CITE',
+            'max_slots' => 2,
+            'filled_slots' => 2,
+        ]);
+
+        $this->actingAs($this->studentUser, 'sanctum')
+            ->postJson("/api/v1/students/{$this->student->id}/placement", [
+                'company_id' => $fullCompany->id,
+            ])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['capacity']);
+
+        $this->student->refresh();
+        $this->assertNull($this->student->preferred_company_id);
+    }
+
+    public function test_placement_is_rejected_when_host_capacity_is_not_configured(): void
+    {
+        $unconfiguredCompany = Company::create([
+            'name' => 'Unconfigured Company',
+            'college_code' => 'CITE',
+            'max_slots' => null,
+            'filled_slots' => 0,
+        ]);
+
+        $this->actingAs($this->studentUser, 'sanctum')
+            ->postJson("/api/v1/students/{$this->student->id}/placement", [
+                'company_id' => $unconfiguredCompany->id,
+            ])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['capacity']);
+
+        $this->student->refresh();
+        $this->assertNull($this->student->preferred_company_id);
+    }
+
+    public function test_coordinator_cannot_deploy_student_to_full_company(): void
+    {
+        $fullCompany = Company::create([
+            'name' => 'Full Company',
+            'college_code' => 'CITE',
+            'max_slots' => 2,
+            'filled_slots' => 2,
+        ]);
+
+        $this->actingAs($this->coordinatorUser, 'sanctum')
+            ->postJson("/api/v1/students/{$this->student->id}/placement", [
+                'company_id' => $fullCompany->id,
+            ])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['capacity']);
+
+        $this->assertDatabaseCount('placements', 0);
+        $fullCompany->refresh();
+        $this->assertSame(2, $fullCompany->filled_slots);
+    }
+
+    public function test_placement_is_rejected_when_student_gpa_is_unknown(): void
+    {
+        $this->student->update(['gpa' => null]);
+
+        $this->actingAs($this->studentUser, 'sanctum')
+            ->postJson("/api/v1/students/{$this->student->id}/placement", [
+                'company_id' => $this->company->id,
+            ])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['eligibility']);
+
+        $this->student->refresh();
+        $this->assertNull($this->student->preferred_company_id);
     }
 
     public function test_coordinator_can_assign_and_deploy_student_placement(): void
     {
+        $this->student->update([
+            'preferred_company_id' => $this->company->id,
+            'preferred_company' => $this->company->name,
+            'preferred_role' => 'Student Preferred Developer Role',
+        ]);
+
         $response = $this->actingAs($this->coordinatorUser, 'sanctum')->postJson("/api/v1/students/{$this->student->id}/placement", [
             'company_id' => $this->company->id,
             'assigned_role' => 'Fullstack Developer Intern',
@@ -165,6 +327,297 @@ class DecisionSupportTest extends TestCase
 
         $this->company->refresh();
         $this->assertEquals(1, $this->company->filled_slots);
+        $this->student->refresh();
+        $this->assertNull($this->student->preferred_company_id);
+        $this->assertNull($this->student->preferred_role);
+    }
+
+    public function test_repeating_assignment_to_same_company_updates_existing_placement_and_does_not_consume_another_slot(): void
+    {
+        $this->actingAs($this->coordinatorUser, 'sanctum')
+            ->postJson("/api/v1/students/{$this->student->id}/placement", [
+                'company_id' => $this->company->id,
+                'assigned_role' => 'Software Intern',
+            ])
+            ->assertOk();
+
+        $firstPlacement = Placement::where('student_id', $this->student->id)->firstOrFail();
+
+        $this->actingAs($this->coordinatorUser, 'sanctum')
+            ->postJson("/api/v1/students/{$this->student->id}/placement", [
+                'company_id' => $this->company->id,
+                'assigned_role' => 'Senior Software Intern',
+            ])
+            ->assertOk()
+            ->assertJsonPath('placement.id', $firstPlacement->id);
+
+        $this->assertSame(1, Placement::where('student_id', $this->student->id)->count());
+        $this->assertDatabaseHas('placements', [
+            'id' => $firstPlacement->id,
+            'status' => 'Approved & Deployed',
+            'assigned_role' => 'Senior Software Intern',
+        ]);
+        $this->company->refresh();
+        $this->assertSame(1, $this->company->filled_slots);
+    }
+
+    public function test_reassigning_student_releases_old_company_slot_and_frees_old_deployment(): void
+    {
+        $oldCompany = Company::create([
+            'name' => 'Previous Host',
+            'college_code' => 'CITE',
+            'max_slots' => 4,
+            'filled_slots' => 1,
+        ]);
+        $oldPlacement = Placement::create([
+            'student_id' => $this->student->id,
+            'company_id' => $oldCompany->id,
+            'status' => 'Approved & Deployed',
+            'assigned_role' => 'Previous Role',
+            'endorsed_by_user_id' => $this->coordinatorUser->id,
+        ]);
+        $this->studentUser->update(['company' => $oldCompany->name, 'company_id' => $oldCompany->id]);
+        $this->student->update(['assigned_role' => 'Previous Role']);
+
+        $this->actingAs($this->coordinatorUser, 'sanctum')
+            ->postJson("/api/v1/students/{$this->student->id}/placement", [
+                'company_id' => $this->company->id,
+                'assigned_role' => 'New Role',
+            ])
+            ->assertOk();
+
+        $this->assertDatabaseHas('placements', [
+            'id' => $oldPlacement->id,
+            'status' => 'Reassigned',
+        ]);
+        $this->assertDatabaseHas('placements', [
+            'student_id' => $this->student->id,
+            'company_id' => $this->company->id,
+            'status' => 'Approved & Deployed',
+            'assigned_role' => 'New Role',
+        ]);
+
+        $oldCompany->refresh();
+        $this->company->refresh();
+        $this->studentUser->refresh();
+        $this->assertSame(0, $oldCompany->filled_slots);
+        $this->assertSame(1, $this->company->filled_slots);
+        $this->assertSame($this->company->id, $this->studentUser->company_id);
+    }
+
+    public function test_coordinator_can_return_pending_preference_with_revision_reason(): void
+    {
+        $this->student->update([
+            'preferred_company_id' => $this->company->id,
+            'preferred_company' => $this->company->name,
+            'preferred_role' => 'Preferred QA Role',
+        ]);
+        $preference = Placement::create([
+            'student_id' => $this->student->id,
+            'company_id' => $this->company->id,
+            'status' => 'Pending Coordinator Endorsement',
+        ]);
+
+        $this->actingAs($this->coordinatorUser, 'sanctum')
+            ->postJson("/api/v1/students/{$this->student->id}/placement/return", [
+                'reason' => 'Please choose a role that matches your current program skills.',
+            ])
+            ->assertOk()
+            ->assertJsonPath('placement.status', 'Returned for Revision')
+            ->assertJsonPath('placement.reason', 'Please choose a role that matches your current program skills.')
+            ->assertJsonPath('placement.endorsed_by_user_id', $this->coordinatorUser->id);
+
+        $this->assertDatabaseHas('placements', [
+            'id' => $preference->id,
+            'status' => 'Returned for Revision',
+            'reason' => 'Please choose a role that matches your current program skills.',
+        ]);
+    }
+
+    public function test_returning_preference_requires_a_minimum_reason(): void
+    {
+        Placement::create([
+            'student_id' => $this->student->id,
+            'company_id' => $this->company->id,
+            'status' => 'Pending Coordinator Endorsement',
+        ]);
+
+        $this->actingAs($this->coordinatorUser, 'sanctum')
+            ->postJson("/api/v1/students/{$this->student->id}/placement/return", ['reason' => 'no'])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['reason']);
+
+        $this->assertDatabaseHas('placements', [
+            'student_id' => $this->student->id,
+            'status' => 'Pending Coordinator Endorsement',
+        ]);
+    }
+
+    public function test_student_cannot_return_placement_preference(): void
+    {
+        $this->actingAs($this->studentUser, 'sanctum')
+            ->postJson("/api/v1/students/{$this->student->id}/placement/return", [
+                'reason' => 'Please update your placement role choice.',
+            ])
+            ->assertForbidden();
+    }
+
+    public function test_coordinator_cannot_return_preference_outside_their_college(): void
+    {
+        College::create(['code' => 'CBM', 'name' => 'College of Business and Management']);
+        $otherUser = User::create([
+            'name' => 'Other Student',
+            'email' => 'return-other@nemsu.edu.ph',
+            'role' => 'student',
+            'college_code' => 'CBM',
+        ]);
+        $otherStudent = Student::create(['user_id' => $otherUser->id, 'college_code' => 'CBM']);
+
+        $this->actingAs($this->coordinatorUser, 'sanctum')
+            ->postJson("/api/v1/students/{$otherStudent->id}/placement/return", [
+                'reason' => 'Please update your placement role choice.',
+            ])
+            ->assertForbidden();
+    }
+
+    public function test_returned_preference_can_be_resubmitted_to_pending_review(): void
+    {
+        $this->student->update([
+            'preferred_company_id' => $this->company->id,
+            'preferred_company' => $this->company->name,
+            'preferred_role' => 'Original Preferred Role',
+        ]);
+        $preference = Placement::create([
+            'student_id' => $this->student->id,
+            'company_id' => $this->company->id,
+            'status' => 'Returned for Revision',
+            'reason' => 'Please revise your role choice.',
+            'endorsed_by_user_id' => $this->coordinatorUser->id,
+        ]);
+
+        $this->actingAs($this->studentUser, 'sanctum')
+            ->postJson("/api/v1/students/{$this->student->id}/placement", [
+                'company_id' => $this->company->id,
+                'preferred_role' => 'Revised Preferred Role',
+            ])
+            ->assertOk();
+
+        $this->assertSame(1, Placement::where('student_id', $this->student->id)->count());
+        $this->assertDatabaseHas('placements', [
+            'id' => $preference->id,
+            'status' => 'Pending Coordinator Endorsement',
+            'reason' => null,
+            'endorsed_by_user_id' => null,
+        ]);
+        $this->student->refresh();
+        $this->assertSame('Revised Preferred Role', $this->student->preferred_role);
+    }
+
+    public function test_coordinator_cannot_submit_student_preferred_role_field(): void
+    {
+        $this->actingAs($this->coordinatorUser, 'sanctum')
+            ->postJson("/api/v1/students/{$this->student->id}/placement", [
+                'company_id' => $this->company->id,
+                'preferred_role' => 'Unapproved Preference Role',
+            ])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['preferred_role']);
+
+        $this->assertDatabaseCount('placements', 0);
+    }
+
+    public function test_supervisor_cannot_submit_placement_decision(): void
+    {
+        $this->actingAs($this->supervisorUser, 'sanctum')
+            ->postJson("/api/v1/students/{$this->student->id}/placement", [
+                'company_id' => $this->company->id,
+            ])
+            ->assertForbidden();
+
+        $this->assertDatabaseCount('placements', 0);
+    }
+
+    public function test_coordinator_cannot_assign_student_from_another_college(): void
+    {
+        College::create(['code' => 'CBM', 'name' => 'College of Business and Management']);
+        $otherStudentUser = User::create([
+            'name' => 'Other College Student',
+            'email' => 'other-student@nemsu.edu.ph',
+            'role' => 'student',
+            'college_code' => 'CBM',
+        ]);
+        $otherStudent = Student::create([
+            'user_id' => $otherStudentUser->id,
+            'college_code' => 'CBM',
+        ]);
+
+        $this->actingAs($this->coordinatorUser, 'sanctum')
+            ->postJson("/api/v1/students/{$otherStudent->id}/placement", [
+                'company_id' => $this->company->id,
+            ])
+            ->assertForbidden();
+
+        $this->assertDatabaseCount('placements', 0);
+    }
+
+    public function test_student_cannot_request_company_affiliated_with_another_college(): void
+    {
+        College::create(['code' => 'CBM', 'name' => 'College of Business and Management']);
+        $otherCompany = Company::create([
+            'name' => 'Other College Company',
+            'college_code' => 'CBM',
+            'max_slots' => 5,
+            'filled_slots' => 0,
+        ]);
+
+        $this->actingAs($this->studentUser, 'sanctum')
+            ->postJson("/api/v1/students/{$this->student->id}/placement", [
+                'company_id' => $otherCompany->id,
+            ])
+            ->assertForbidden();
+
+        $this->student->refresh();
+        $this->assertNull($this->student->preferred_company_id);
+    }
+
+    public function test_coordinator_cannot_assign_student_to_company_from_another_college(): void
+    {
+        College::create(['code' => 'CBM', 'name' => 'College of Business and Management']);
+        $otherCompany = Company::create([
+            'name' => 'Other College Company',
+            'college_code' => 'CBM',
+            'max_slots' => 5,
+            'filled_slots' => 0,
+        ]);
+
+        $this->actingAs($this->coordinatorUser, 'sanctum')
+            ->postJson("/api/v1/students/{$this->student->id}/placement", [
+                'company_id' => $otherCompany->id,
+            ])
+            ->assertForbidden();
+
+        $this->assertDatabaseCount('placements', 0);
+    }
+
+    public function test_admin_can_assign_student_placement(): void
+    {
+        $admin = User::create([
+            'name' => 'System Administrator',
+            'email' => 'admin@nemsu.edu.ph',
+            'role' => 'admin',
+        ]);
+
+        $this->actingAs($admin, 'sanctum')
+            ->postJson("/api/v1/students/{$this->student->id}/placement", [
+                'company_id' => $this->company->id,
+            ])
+            ->assertOk();
+
+        $this->assertDatabaseHas('placements', [
+            'student_id' => $this->student->id,
+            'company_id' => $this->company->id,
+            'endorsed_by_user_id' => $admin->id,
+        ]);
     }
 
     public function test_coordinator_can_certify_student_clearance_after_evaluation(): void

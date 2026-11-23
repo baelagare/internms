@@ -9,7 +9,7 @@ const internal = view.slice(view.indexOf('function InternalInternDirectory'));
 test('admin intern directory labels the university view and shows the cohort summary', () => {
   assert.match(internal, /Student records across all colleges/);
   assert.match(internal, /user\.role === 'coordinator' \|\| admin/);
-  assert.match(internal, /Students in scope/);
+  assert.match(internal, /Students in Scope/i);
 });
 
 test('admin intern directory scopes the empty state to the selected college', () => {

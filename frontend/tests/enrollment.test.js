@@ -50,7 +50,7 @@ test('intern directory view includes enrollment column and coordinator approve/r
   assert.match(source, /approveEnrollment/);
   assert.match(source, /rejectEnrollment/);
   assert.match(source, /Pending Approval/);
-  assert.match(source, /Enrollment status/);
+  assert.match(source, /Enrollment Status/);
 });
 
 test('student profile and dashboard expose onboarding and enrollment status notices', () => {

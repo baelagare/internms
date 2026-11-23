@@ -71,11 +71,25 @@ test('adminDashboardModel returns unavailable for non-admin or missing sources',
 test('admin dashboard view renders governance landmarks and quick access tools', () => {
   const source = readFileSync(new URL('../src/views/AdminDashboard.jsx', import.meta.url), 'utf8');
   const css = readFileSync(new URL('../src/views/adminDashboard.css', import.meta.url), 'utf8');
-  assert.match(source, /Administrator dashboard/);
-  assert.match(source, /Administrative tools/);
-  assert.match(source, /College compliance summary/);
-  assert.match(source, /Policy corpus/);
-  assert.match(source, /Audit trail/);
+  assert.match(source, /Administrator Dashboard/);
+  assert.match(source, /Administrative Tools/);
+  assert.match(source, /College Compliance Summary/);
+  assert.match(source, /Policy Corpus/);
+  assert.match(source, /Audit Trail/);
   assert.match(css, /admin-kpi-grid/);
   assert.match(css, /admin-table-region/);
+});
+
+test('admin dashboard layout classes and section labels match their CSS and heading ids', () => {
+  const source = readFileSync(new URL('../src/views/AdminDashboard.jsx', import.meta.url), 'utf8');
+  const css = readFileSync(new URL('../src/views/adminDashboard.css', import.meta.url), 'utf8');
+  assert.doesNotMatch(source, /admin-Dashboard/);
+  assert.match(source, /className="admin-dashboard"/);
+  assert.match(css, /\.admin-dashboard\s*\{[^}]*gap:\s*var\(--space-6\)/);
+  assert.match(css, /\.admin-dashboard \.ds-page-header\s*\{\s*margin:\s*0;/);
+  assert.match(css, /\.admin-section-heading\s*\{[^}]*margin-bottom:\s*var\(--space-3\)/);
+  assert.match(css, /\.admin-section-heading p\s*\{[^}]*margin-top:\s*var\(--space-1\)/);
+  for (const [, id] of source.matchAll(/aria-labelledby="([^"]+)"/g)) {
+    assert.match(source, new RegExp(`id="${id}"`), `missing heading id for ${id}`);
+  }
 });

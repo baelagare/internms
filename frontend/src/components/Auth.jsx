@@ -3,6 +3,7 @@ import { Button, Card, Notice } from './ui.jsx';
 import { Field, Input } from './workflow.jsx';
 import { GoogleIcon, Icon } from './Icons.jsx';
 
+
 export function AuthScreen({ onLogin, onGoogleSignIn, busy, error }) {
   const [googleReady, setGoogleReady] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -83,11 +84,11 @@ export function AuthScreen({ onLogin, onGoogleSignIn, busy, error }) {
             <img src="/internms-logo.svg" alt="" width="48" height="48" className={`mx-auto h-12 w-12 transition-transform duration-300 ${busy ? 'ds-loading-logo' : ''}`} />
             <h4 className="mt-1 text-xl font-bold tracking-wide text-ink">InternMS</h4>
             <p className="mt-1 text-xs font-semibold text-muted">North Eastern Mindanao State University</p>
-            <h1 className="mt-2 text-[1.75rem] font-bold tracking-[-0.03em] text-ink">Log in to your account</h1>
-            <p className="mt-2 text-sm text-muted">Choose how you access InternMS.</p>
+            <h1 className="mt-2 text-[1.75rem] font-bold tracking-[-0.03em] text-ink">Log In To Your Account</h1>
+            <p className="mt-2 text-sm text-muted">Choose How You Access InternMS.</p>
           </header>
 
-          <div className="auth-tab-toggle relative mt-6 grid grid-cols-2 rounded-xl bg-subtle p-1" role="group" aria-label="Choose account type">
+          <div className="auth-tab-toggle relative mt-6 grid grid-cols-2 rounded-xl bg-subtle p-1" role="group" aria-label="Choose Account Type">
             <div
               className={`auth-tab-indicator ${loginType === 'university' ? 'auth-tab-indicator--right' : ''}`}
               aria-hidden="true"
@@ -99,7 +100,7 @@ export function AuthScreen({ onLogin, onGoogleSignIn, busy, error }) {
               className={`auth-tab-btn min-h-[44px] rounded-lg px-3 text-sm font-semibold ${
                 loginType === 'supervisor' ? 'text-ink font-bold' : 'text-muted hover:text-ink'
               }`}
-            >Supervisor</button>
+            >Company</button>
             <button
               type="button"
               aria-pressed={loginType === 'university'}
@@ -110,21 +111,21 @@ export function AuthScreen({ onLogin, onGoogleSignIn, busy, error }) {
             >University</button>
           </div>
 
-          {error && <Notice tone="danger" title="Authentication error"><span>{error}</span></Notice>}
+          {error && <Notice tone="danger" title="Authentication Error"><span>{error}</span></Notice>}
 
           <div className="auth-tab-content mt-4">
             {loginType === 'supervisor' ? (
               <div key="supervisor" className="auth-panel-fade">
-                <p className="text-sm text-muted">Host company supervisors sign in with the email and password provided for their account.</p>
+                <p className="text-sm text-muted"><strong>Host company supervisors sign in with the email and password provided for their account.</strong></p>
                 <form onSubmit={handleSubmit} className={`mt-6 space-y-5 transition-opacity duration-200 ${busy ? 'pointer-events-none opacity-80' : ''}`} noValidate>
-                  <Field id={emailId} label="Email address">
+                  <Field id={emailId} label="Email Address">
                     <Input id={emailId} type="email" value={form.email} onChange={setField('email')} autoComplete="username" placeholder="user@example.com" required className="min-h-[52px] rounded-lg px-4 text-base" />
                   </Field>
 
                   <Field id={passwordId} label="Password">
                     <div className="relative flex items-center">
                       <Input id={passwordId} type={showPassword ? 'text' : 'password'} value={form.password} onChange={setField('password')} autoComplete="current-password" placeholder="Password" required className="min-h-[52px] rounded-lg px-4 pr-14 text-base" />
-                      <button type="button" aria-pressed={showPassword} aria-label={showPassword ? 'Hide password' : 'Show password'} onClick={() => setShowPassword(value => !value)} className="auth-eye-button absolute right-2 inline-flex min-h-[40px] min-w-[40px] items-center justify-center rounded-md text-muted hover:bg-subtle hover:text-ink">
+                      <button type="button" aria-pressed={showPassword} aria-label={showPassword ? 'Hide Password' : 'Show Password'} onClick={() => setShowPassword(value => !value)} className="auth-eye-button absolute right-2 inline-flex min-h-[40px] min-w-[40px] items-center justify-center rounded-md text-muted hover:bg-subtle hover:text-ink">
                         <Icon name="eye" size={20} />
                       </button>
                     </div>
@@ -132,20 +133,20 @@ export function AuthScreen({ onLogin, onGoogleSignIn, busy, error }) {
 
                   <label htmlFor="remember-me" className="flex cursor-pointer items-center gap-3 text-sm font-medium text-ink">
                     <input id="remember-me" type="checkbox" checked={rememberMe} onChange={event => setRememberMe(event.target.checked)} className="h-5 w-5 rounded-md border-line text-accent focus:ring-accent" />
-                    Remember me
+                    Remember Me
                   </label>
 
-                  <Button type="submit" variant="primary" disabled={busy} loading={busy} loadingLabel="Logging in…" className="mt-2 min-h-[52px] w-full rounded-lg text-base font-bold">
-                    Log in as supervisor
+                  <Button type="submit" variant="primary" disabled={busy} loading={busy} loadingLabel="Logging In…" className="mt-2 min-h-[52px] w-full rounded-lg text-base font-bold">
+                    Log In As Supervisor
                   </Button>
                 </form>
                 <p className="mt-6 text-center text-sm text-muted">Have a supervisor invitation? <a href="#/supervisor-register" className="font-semibold text-ink underline decoration-[#aeb5c2] underline-offset-4 hover:text-accent">Create your account</a></p>
               </div>
             ) : (
-              <section key="university" className="auth-panel-fade mt-5" aria-label="University sign-in">
-                <p className="mb-4 text-sm text-muted">Students, coordinators, and administrators sign in with their NEMSU Google Workspace account.</p>
-                <div ref={googleButtonRef} aria-label="Continue with Google" className="google-signin-slot mx-auto flex min-h-[60px] w-full max-w-[360px] justify-center overflow-visible px-1 py-1" />
-                {!googleReady && <button type="button" disabled className="inline-flex min-h-[52px] w-full items-center justify-center gap-3 rounded-lg border border-line bg-white px-4 py-2.5 text-base font-semibold text-ink opacity-65"><GoogleIcon size={20} /><span>Log in with Google</span></button>}
+              <section key="university" className="auth-panel-fade mt-5" aria-label="University Sign-In">
+                <p className="mb-4 text-sm text-muted"><strong>Students, coordinators, and administrators sign in with their NEMSU Google Workspace account.</strong></p>
+                <div ref={googleButtonRef} aria-label="Continue With Google" className="google-signin-slot mx-auto flex min-h-[60px] w-full max-w-[360px] justify-center overflow-visible px-1 py-1" />
+                {!googleReady && <button type="button" disabled className="inline-flex min-h-[52px] w-full items-center justify-center gap-3 rounded-lg border border-line bg-white px-4 py-2.5 text-base font-semibold text-ink opacity-65"><GoogleIcon size={20} /><span>Log In With Google</span></button>}
                 <p className="mt-6 text-center text-sm text-muted">University accounts are provisioned automatically at sign-in. <a href="#/register" className="font-semibold text-ink underline decoration-[#aeb5c2] underline-offset-4 hover:text-accent">Learn more</a></p>
               </section>
             )}

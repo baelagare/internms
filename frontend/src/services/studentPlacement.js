@@ -15,7 +15,10 @@ export function hostCapacity(host) {
 export function placementRecommendations(student, db) {
   if (!Array.isArray(db.htes)) return { matches: [], error: 'Host organization records are unavailable. Reload your workspace to try again.' };
   try {
-    return { matches: placementRankings(), error: 'Placement recommendations are unavailable until the backend is connected.' };
+    return {
+      matches: placementRankings(student, db.htes, db.collegeSettings || {}),
+      error: null
+    };
   } catch {
     return { matches: [], error: 'Recommendations could not be calculated from the current records. Review your profile or contact your coordinator.' };
   }
@@ -27,12 +30,12 @@ export function eligibilityRows(student, host, settings, eligibility = placement
   const capacityConsistent = capacity && (capacity.available > 0 || student.company === host?.name) === gates.slotAvailability.pass;
   const docs = Array.isArray(student.preDeploymentDocs) ? student.preDeploymentDocs : [];
   const gpaKnown = recordedNumber(student.gpa) && Number(student.gpa) !== 0;
-  const cutoff = host?.minGpa || settings?.[student.college]?.maxGpaCutoff;
+  const cutoff = host?.minGpa ?? settings?.[student.college]?.maxGpaCutoff;
   return [
     { key: 'college', label: 'College Eligibility', pass: host && student.college && host.college ? gates.collegeMatch.pass : null,
       detail: host ? student.college && host.college ? `${student.college} · Host college: ${host.college}${gates.collegeMatch.pass ? ' · College or target program matches' : ' · College / program requirement not met'}` : 'College information unavailable.' : `${student.college || 'College not recorded'} · Evaluated separately for each host.` },
     { key: 'gpa', label: 'GPA Requirement', pass: gpaKnown ? gates.gpaCutoff.pass : null,
-      detail: gpaKnown ? `${gates.gpaCutoff.label}${cutoff ? '' : ' · Cutoff unavailable'}${host ? '' : ' · General cutoff; host limits may differ'}` : 'GPA not recorded; eligibility is unconfirmed.' },
+      detail: gpaKnown ? `${student.gpa} GPA · ${gates.gpaCutoff.label}${cutoff != null ? ` · Maximum ${cutoff}` : ' · Cutoff unavailable'}${host ? '' : ' · General cutoff; host limits may differ'}` : 'GPA not recorded; eligibility is unconfirmed.' },
     { key: 'clearance', label: 'Disciplinary Clearance', pass: student.disciplinaryClearance ? gates.disciplinaryClearance.pass : null,
       detail: student.disciplinaryClearance || 'Clearance not recorded. Confirm with your coordinator.' },
     { key: 'checklist', label: 'Document Checklist', pass: docs.length ? gates.preDeploymentDocs.pass : null,

@@ -18,7 +18,7 @@ const menus = {
     ['approvals', 'Approvals', 'check'],
     ['placement', 'Placements', 'compass'],
     ['partners', 'Partners', 'building'],
-    ['alerts', 'Risk alerts', 'alert'],
+    ['alerts', 'Risk Alerts', 'alert'],
     ['interns', 'Interns', 'users'],
     ['settings', 'Settings', 'settings'],
     ['messages', 'Messages', 'chat']
@@ -27,16 +27,16 @@ const menus = {
     ['dashboard', 'Dashboard', 'grid'],
     ['interns', 'Interns', 'users'],
     ['approvals', 'Approvals', 'check'],
-    ['postings', 'Job postings', 'building'],
+    ['postings', 'Job Postings', 'building'],
     ['evaluations', 'Evaluations', 'check'],
     ['messages', 'Messages', 'chat']
   ],
   admin: [
     ['dashboard', 'Dashboard', 'grid'],
-    ['alerts', 'Risk alerts', 'alert'],
+    ['alerts', 'Risk Alerts', 'alert'],
     ['placement', 'Placements', 'compass'],
-    ['corpus', 'Policy corpus', 'file'],
-    ['audit-logs', 'Audit trail', 'file'],
+    ['corpus', 'Policy Corpus', 'file'],
+    ['audit-logs', 'Audit Trail', 'file'],
     ['partners', 'Partners', 'building'],
     ['interns', 'Interns', 'users'],
     ['staff', 'Staff', 'users'],
@@ -54,8 +54,8 @@ const studentPrimaryTabs = [
 
 const labels = {
   student: 'Student',
-  coordinator: 'OJT coordinator',
-  supervisor: 'Host company representative',
+  coordinator: 'OJT Coordinator',
+  supervisor: 'Host Company Representative',
   admin: 'Administrator'
 };
 
@@ -161,7 +161,7 @@ export function AppShell({ user = {}, children, route, onLogout, academicYear, c
           <button
             className="shell-icon mobile-toggle"
             onClick={() => setOpen(false)}
-            aria-label="Close navigation"
+            aria-label="Close Navigation"
           >
             <Icon name="close" />
           </button>
@@ -194,9 +194,9 @@ export function AppShell({ user = {}, children, route, onLogout, academicYear, c
         </nav>
 
         <div className="workspace-logout">
-          <button type="button" onClick={onLogout} disabled={!onLogout} aria-label="Sign out" data-tooltip="Sign out">
+          <button type="button" onClick={onLogout} disabled={!onLogout} aria-label="Sign Out" data-tooltip="Sign Out">
             <Icon name="logout" size={20} />
-            <span className="sidebar-label">Sign out</span>
+            <span className="sidebar-label">Sign Out</span>
           </button>
         </div>
       </aside>
@@ -206,7 +206,7 @@ export function AppShell({ user = {}, children, route, onLogout, academicYear, c
           <button
             className="shell-icon mobile-toggle"
             onClick={() => setOpen(true)}
-            aria-label="Open navigation"
+            aria-label="Open Navigation"
             aria-expanded={open}
             aria-controls="workspace-navigation"
           >

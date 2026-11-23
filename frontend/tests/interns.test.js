@@ -41,9 +41,9 @@ test('invalid credited hours remain unavailable instead of partial totals', () =
 test('intern directory has accessible search, placement filtering and honest detail states', () => {
   const view = readFileSync(new URL('../src/views/Interns.jsx', import.meta.url), 'utf8');
   const css = readFileSync(new URL('../src/views/interns.css', import.meta.url), 'utf8');
-  assert.match(view, /Search students/);
-  assert.match(view, /Placement status/);
-  assert.match(view, /Student records/);
+  assert.match(view, /Search Students/);
+  assert.match(view, /Placement Status/);
+  assert.match(view, /Student Records/);
   assert.match(view, /Evaluation records are unavailable/);
   assert.match(css, /@media \(min-width: 640px\)/);
 });

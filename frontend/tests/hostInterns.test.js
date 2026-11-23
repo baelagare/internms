@@ -37,7 +37,7 @@ test('host intern records mark missing sources and hours unavailable', () => {
 
 test('host intern view avoids institutional clearance and evaluation score details', () => {
   const view = readFileSync(new URL('../src/views/HostInternDirectory.jsx', import.meta.url), 'utf8');
-  assert.match(view, /Assigned interns/);
+  assert.match(view, /Assigned Interns/);
   assert.match(view, /Evaluation/);
   assert.doesNotMatch(view, /Clearance|totalScore|averageRating/);
 });

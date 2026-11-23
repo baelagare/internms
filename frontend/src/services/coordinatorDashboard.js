@@ -38,9 +38,9 @@ export function coordinatorDashboardModel(db, user) {
     return { student, verified: docs?.filter(doc => doc.status === 'Verified').length ?? null, required: docs?.length ?? null };
   });
   const pendingItems = [
-    ...pendingLogs.map(item => ({ id: item.id, type: 'Weekly report', studentName: item.student || students.find(s => s.id === item.studentId)?.name || 'Student', label: item.title || 'Weekly accomplishment report', route: 'approvals' })),
-    ...pendingDisputes.map(item => ({ id: item.id, type: 'Attendance adjustment', studentName: item.student || students.find(s => s.id === item.studentId)?.name || 'Student', label: item.reason || 'Attendance adjustment request', route: 'approvals' })),
-    ...pendingEndorsements.map(item => ({ id: item.id, type: 'Placement preference', studentName: item.name || 'Student', label: item.preferredHte || 'Placement preference awaiting review', route: 'placement' }))
+    ...pendingLogs.map(item => ({ id: item.id, targetId: item.id, type: 'Weekly report', studentName: item.student || students.find(s => s.id === item.studentId)?.name || 'Student', label: item.title || 'Weekly accomplishment report', route: 'approvals', category: 'log', studentId: item.studentId })),
+    ...pendingDisputes.map(item => ({ id: item.id, targetId: item.id, type: 'Attendance adjustment', studentName: item.student || students.find(s => s.id === item.studentId)?.name || 'Student', label: item.reason || 'Attendance adjustment request', route: 'approvals', category: 'adjustment', studentId: item.studentId })),
+    ...pendingEndorsements.map(item => ({ id: item.id, targetId: item.id, type: 'Placement preference', studentName: item.name || 'Student', label: item.preferredHte || 'Placement preference awaiting review', route: 'placement', studentId: item.id }))
   ];
   const requiredHours = db.collegeSettings?.[user.college]?.requiredHours;
   const hoursConfigured = validHours(requiredHours) && Number(requiredHours) > 0;

@@ -61,6 +61,12 @@ test('invalid/missing reported hours are excluded from credited aggregate withou
 
 test('coordinator dashboard section actions use consistent secondary button styling', () => {
   const source = readFileSync(new URL('../src/views/CoordinatorDashboard.jsx', import.meta.url), 'utf8');
-  assert.match(source, /<Button variant="secondary" onClick=\{\(\) => onNavigate\?\.?\('approvals'\)\}>Open approvals<\/Button>/);
-  assert.match(source, /<Button variant="secondary" onClick=\{\(\) => onNavigate\?\.?\('interns'\)\}>View interns<\/Button>/);
+  assert.match(source, /<Button variant="secondary" onClick=\{\(\) => onNavigate\?\.?\('approvals'\)\}>Open Approvals<\/Button>/);
+  assert.match(source, /<Button variant="secondary" onClick=\{\(\) => onNavigate\?\.?\('interns'\)\}>View Interns<\/Button>/);
 });
+
+test('coordinator dashboard review queue links pass target parameters to open modals directly', () => {
+  const source = readFileSync(new URL('../src/views/CoordinatorDashboard.jsx', import.meta.url), 'utf8');
+  assert.match(source, /onNavigate\?\.?\(item\.route, \{ category: item\.category/);
+});
+

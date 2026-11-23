@@ -58,6 +58,7 @@ function PlacementWorkspace({ student, db, onChange }) {
   const assigned = hosts.find(host => host.name === company);
   const deployed = student.placementStatus === 'Approved & Deployed';
   const pending = student.placementStatus === 'Pending Coordinator Endorsement';
+  const returned = student.placementStatus === 'Returned for Revision';
   const missingSkills = !student.portfolioData?.skills?.length;
   const missingCourses = !student.portfolioData?.coursework?.length;
 
@@ -85,6 +86,10 @@ function PlacementWorkspace({ student, db, onChange }) {
         }
       />
 
+      <Notice tone="info" title="AI Placement Recommendations">
+        Host training opportunities are ranked by the AI Placement Recommendation Engine based on student competency profiles, coursework alignment, academic GPA standing, and partner slot availability. Official deployment requires coordinator endorsement.
+      </Notice>
+
       {feedback && (
         <Notice tone="success" onDismiss={() => setFeedback('')}>
           <span>{feedback}</span>
@@ -109,6 +114,8 @@ function PlacementWorkspace({ student, db, onChange }) {
             <p className="text-sm text-muted">
               {company
                 ? student.assignedRole || assigned?.roleTitle || 'Intern'
+                : returned
+                ? 'Your coordinator returned this preference for revision. Review the guidance and submit an updated preference.'
                 : pending
                 ? 'Your placement preference has been recorded and is pending coordinator review.'
                 : 'Review available partner opportunities below to submit a placement preference.'}
@@ -116,7 +123,7 @@ function PlacementWorkspace({ student, db, onChange }) {
           </div>
           <StatusBadge
             status={student.placementStatus || 'Unplaced'}
-            tone={deployed ? 'success' : pending ? 'warning' : 'neutral'}
+            tone={deployed ? 'success' : pending || returned ? 'warning' : 'neutral'}
           />
         </div>
 
@@ -171,6 +178,8 @@ function PlacementWorkspace({ student, db, onChange }) {
         )}
       </Card>
 
+      {returned && student.preferenceFeedback && <Notice tone="warning" title="Coordinator revision guidance">{student.preferenceFeedback}</Notice>}
+
       {/* Institutional Readiness Strip */}
       <Card className="p-6 space-y-4" aria-labelledby="placement-eligibility-heading">
         <SectionHeading
@@ -209,7 +218,7 @@ function PlacementWorkspace({ student, db, onChange }) {
           <details className="text-xs text-muted">
             <summary className="inline-flex min-h-[44px] cursor-pointer items-center gap-1.5 font-semibold text-accent hover:underline">
               <Icon name="help" size={15} />
-              <span>How placement review works</span>
+              <span>How Placement Review Works</span>
             </summary>
             <div className="mt-2 max-w-xl rounded-panel border border-line bg-surface p-4 leading-relaxed text-muted shadow-sm">
               Opportunity alignment reflects your recorded skills, degree coursework, and host college eligibility. Submitting a preference flags your interest for coordinator review; it does not guarantee a slot or finalize deployment.
@@ -220,7 +229,7 @@ function PlacementWorkspace({ student, db, onChange }) {
         {(missingSkills || missingCourses || !student.program) && (
           <Notice
             tone="warning"
-            title="Profile information incomplete"
+            title="Profile Information Incomplete"
             action={
               <Button
                 variant="secondary"
@@ -250,20 +259,20 @@ function PlacementWorkspace({ student, db, onChange }) {
                 value={filter}
                 onChange={event => setFilter(event.target.value)}
                 options={[
-                  { value: 'all', label: 'All organizations' },
-                  { value: 'eligible', label: 'Eligible requirements only' },
-                  { value: 'available', label: 'Open slots only' }
+                  { value: 'all', label: 'All Organizations' },
+                  { value: 'eligible', label: 'Eligible Requirements Only' },
+                  { value: 'available', label: 'Open Slots Only' }
                 ]}
               />
               <Field
-                label="Sort by"
+                label="Sort By"
                 value={sort}
                 onChange={event => setSort(event.target.value)}
                 options={[
-                  { value: 'recommended', label: 'Recommended order' },
-                  { value: 'highest', label: 'Highest alignment' },
-                  { value: 'lowest', label: 'Lowest alignment' },
-                  { value: 'name', label: 'Company name' }
+                  { value: 'recommended', label: 'Recommended Order' },
+                  { value: 'highest', label: 'Highest Alignment' },
+                  { value: 'lowest', label: 'Lowest Alignment' },
+                  { value: 'name', label: 'Company Name' }
                 ]}
               />
             </div>
@@ -284,18 +293,18 @@ function PlacementWorkspace({ student, db, onChange }) {
           </Card>
         ) : !result.matches.length ? (
           <EmptyState
-            title={hosts.length ? 'No opportunity results' : 'No partner host organizations available'}
+            title={hosts.length ? 'No Opportunity Results' : 'No Partner Host Organizations Available'}
             description="Partner opportunities will appear here once registered by your OJT coordinator."
             icon="briefcase"
           />
         ) : !visible.length ? (
           <EmptyState
-            title="No opportunities match this filter"
+            title="No Opportunities Match This Filter"
             description="Reset the filters to see all available partner companies."
             icon="search"
             action={
               <Button variant="secondary" onClick={clearFilters}>
-                Reset filters
+                Reset Filters
               </Button>
             }
           />
@@ -333,6 +342,7 @@ function PlacementWorkspace({ student, db, onChange }) {
 }
 
 function PlacementRequest({ student, match, onChange, onClose, onSuccess }) {
+  const [preferredRole, setPreferredRole] = useState(match.roleTitle || '');
   const { run, busy, notice } = useMutation(onChange);
   return (
     <Modal
@@ -348,7 +358,7 @@ function PlacementRequest({ student, match, onChange, onClose, onSuccess }) {
           event.preventDefault();
           if (
             await run(
-              () => savePlacement(student, student.id, match.hteId),
+              () => savePlacement(student, student.id, match.hteId, undefined, preferredRole),
               'Preference saved for coordinator review.'
             )
           ) {
@@ -358,8 +368,15 @@ function PlacementRequest({ student, match, onChange, onClose, onSuccess }) {
       >
         <div>
           <h3 className="text-base font-semibold text-ink">{match.company}</h3>
-          <p className="text-sm text-muted">{match.roleTitle}</p>
+          <p className="text-sm text-muted">Recommended role: {match.roleTitle || 'Not recorded'}</p>
         </div>
+        <Field
+          label="Preferred Role"
+          value={preferredRole}
+          onChange={event => setPreferredRole(event.target.value)}
+          maxLength={150}
+          hint="You may keep the recommended role or enter another preference. Your coordinator confirms the final assigned role."
+        />
         <p className="text-sm text-ink leading-relaxed">
           Your college coordinator will review this preference before assigning your official placement.
         </p>

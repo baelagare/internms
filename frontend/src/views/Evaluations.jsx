@@ -95,8 +95,8 @@ export function Evaluations({ user, db, onChange }) {
   const existing = db.evaluations.find(item => item.studentId === selected && item.company === user.company);
   return (
     <WorkspacePage
-      title="Performance evaluations"
-      subtitle={user.company ? `Conduct and review performance evaluations for interns assigned to ${user.company}.` : 'Conduct and review performance evaluations.'}
+      title="Performance Evaluations"
+      subtitle={user.company ? `Conduct and review performance valuations for interns assigned to ${user.company}.` : 'Conduct and review performance evaluations.'}
     >
       {!students.length ? (
         <EmptyState

@@ -1,0 +1,386 @@
+[
+  {
+    "name": "Caraga Digital Solutions Inc.",
+    "college": "CITE",
+    "location": "Donasco St., Tandag City",
+    "role": "Frontend & Systems Intern",
+    "slots": 6,
+    "filled": 3,
+    "gpa": 2.5,
+    "skills": [
+      "React",
+      "JavaScript",
+      "Tailwind CSS",
+      "Git",
+      "Figma"
+    ],
+    "supName": "Engr. Rafael Santos",
+    "supEmail": "rsantos@caragadigital.ph"
+  },
+  {
+    "name": "Metro Tandag Water District — ICT Division",
+    "college": "CITE",
+    "location": "Balilahan, Tandag City",
+    "role": "Database & Applications Intern",
+    "slots": 5,
+    "filled": 2,
+    "gpa": 2.75,
+    "skills": [
+      "SQL",
+      "Python",
+      "Database Management",
+      "Data Analytics"
+    ],
+    "supName": "Engr. Amihan Reyes",
+    "supEmail": "areyes@tandagwater.gov.ph"
+  },
+  {
+    "name": "Bislig Bay Technology Ventures",
+    "college": "CITE",
+    "location": "Mangagoy, Bislig City",
+    "role": "IT Infrastructure Intern",
+    "slots": 5,
+    "filled": 4,
+    "gpa": 2.5,
+    "skills": [
+      "Networking",
+      "Technical Support",
+      "Linux",
+      "Hardware Troubleshooting"
+    ],
+    "supName": "Engr. Paolo Dizon",
+    "supEmail": "pdizon@bisligtech.ph"
+  },
+  {
+    "name": "Provincial Information Technology Office — Surigao del Sur",
+    "college": "CITE",
+    "location": "Capitol Hills, Tandag City",
+    "role": "Junior Web Systems Developer",
+    "slots": 8,
+    "filled": 3,
+    "gpa": 2.5,
+    "skills": [
+      "React",
+      "JavaScript",
+      "UI Design",
+      "Git",
+      "HTML"
+    ],
+    "supName": "Engr. Dennis A. Minguillan",
+    "supEmail": "pito.supervisor@surigaodelsur.gov.ph"
+  },
+  {
+    "name": "Surigao Communications & Cloud Systems",
+    "college": "CITE",
+    "location": "Borromeo St., Surigao City",
+    "role": "Cloud & Network Systems Intern",
+    "slots": 4,
+    "filled": 2,
+    "gpa": 2.25,
+    "skills": [
+      "Cloud Computing",
+      "Networking",
+      "Cybersecurity",
+      "Python"
+    ],
+    "supName": "Ms. Celeste Navarro",
+    "supEmail": "cnavarro@surigaocloud.com"
+  },
+  {
+    "name": "Department of Trade and Industry (DTI) — Surigao del Sur",
+    "college": "CBM",
+    "location": "Capitol Hills, Tandag City",
+    "role": "Marketing & Trade Promotion Intern",
+    "slots": 16,
+    "filled": 8,
+    "gpa": 2.5,
+    "skills": [
+      "Digital Marketing",
+      "Market Research",
+      "Social Media Analytics",
+      "Brand Strategy",
+      "Content Strategy"
+    ],
+    "supName": "Ms. Rowena M. Alvizo",
+    "supEmail": "dti.surigao@dti.gov.ph"
+  },
+  {
+    "name": "Development Bank of the Philippines (DBP) — Tandag Branch",
+    "college": "CBM",
+    "location": "Don Vasco St., Tandag City",
+    "role": "Financial Operations Intern",
+    "slots": 28,
+    "filled": 20,
+    "gpa": 2.25,
+    "skills": [
+      "Financial Statement Analysis",
+      "Cash Flow Auditing",
+      "QuickBooks",
+      "Cost Accounting",
+      "Advanced Excel"
+    ],
+    "supName": "Mr. Vicente C. Galdonez",
+    "supEmail": "tandag@dbp.ph"
+  },
+  {
+    "name": "Land Bank of the Philippines — Tandag City Branch",
+    "college": "CBM",
+    "location": "National Highway, Tandag City",
+    "role": "Credit & Accounts Evaluation Intern",
+    "slots": 30,
+    "filled": 22,
+    "gpa": 2.25,
+    "skills": [
+      "Financial Statement Analysis",
+      "Capital Budgeting",
+      "Cost Accounting",
+      "Advanced Excel"
+    ],
+    "supName": "Ms. Maria Luz P. Cortez",
+    "supEmail": "landbank.tandag@landbank.com"
+  },
+  {
+    "name": "Villa Maria Luisa Hotel & Resort",
+    "college": "CBM",
+    "location": "San Agustin, Tandag City",
+    "role": "Front Office & Guest Services Intern",
+    "slots": 35,
+    "filled": 28,
+    "gpa": 2.5,
+    "skills": [
+      "Front Office Operations",
+      "Hotel Property Management Systems (PMS)",
+      "Food & Beverage Service",
+      "Event Planning"
+    ],
+    "supName": "Mr. Ferdinand G. Tan",
+    "supEmail": "reservations@villamarialuisa.ph"
+  },
+  {
+    "name": "Shacene Hotel & Travel Lodge",
+    "college": "CBM",
+    "location": "National Highway, Tandag City",
+    "role": "Hospitality Operations Intern",
+    "slots": 30,
+    "filled": 22,
+    "gpa": 2.5,
+    "skills": [
+      "Front Office Operations",
+      "Housekeeping Management",
+      "Customer Relations",
+      "Hotel Property Management Systems (PMS)"
+    ],
+    "supName": "Ms. Jeanette B. Chua",
+    "supEmail": "frontdesk@shacenehotel.com"
+  },
+  {
+    "name": "Civil Service Commission (CSC) Field Office — Surigao del Sur",
+    "college": "CBM",
+    "location": "Capitol Compound, Tandag City",
+    "role": "Public Human Resource Records Intern",
+    "slots": 12,
+    "filled": 7,
+    "gpa": 2.5,
+    "skills": [
+      "Public Policy Implementation",
+      "Records Management",
+      "HRIS Administration",
+      "Labor Standards Compliance"
+    ],
+    "supName": "Atty. Michael D. Serna",
+    "supEmail": "csc.surigaodelsur@csc.gov.ph"
+  },
+  {
+    "name": "Provincial Assessor's Office — Surigao del Sur",
+    "college": "CBM",
+    "location": "Provincial Capitol, Tandag City",
+    "role": "Public Administrative Operations Intern",
+    "slots": 22,
+    "filled": 16,
+    "gpa": 2.5,
+    "skills": [
+      "Public Policy Implementation",
+      "Local Government Administration",
+      "Records Management",
+      "Public Fiscal Documentation"
+    ],
+    "supName": "Mr. Arturo E. Plaza",
+    "supEmail": "assessor@surigaodelsur.gov.ph"
+  },
+  {
+    "name": "Department of Environment and Natural Resources (DENR) — PENRO",
+    "college": "CAS",
+    "location": "Capitol Hills, Tandag City",
+    "role": "Environmental Science & Forestry Intern",
+    "slots": 22,
+    "filled": 15,
+    "gpa": 2.5,
+    "skills": [
+      "Environmental Impact Assessment (EIA)",
+      "GIS Mapping",
+      "Soil Sampling",
+      "Water Quality Testing",
+      "Biodiversity Auditing"
+    ],
+    "supName": "For. Victor M. Sabornido",
+    "supEmail": "penro.surigaodelsur@denr.gov.ph"
+  },
+  {
+    "name": "Adela Serra Ty Memorial Medical Center (ASTMMC)",
+    "college": "CAS",
+    "location": "Capitol Hills, Tandag City",
+    "role": "Clinical Laboratory & Maternal Care Intern",
+    "slots": 25,
+    "filled": 18,
+    "gpa": 2.25,
+    "skills": [
+      "Microbiological Techniques",
+      "Specimen Preservation",
+      "Maternal and Child Care",
+      "Patient Triage",
+      "Laboratory Biosafety"
+    ],
+    "supName": "Dr. Jocelyn B. Cabalfin",
+    "supEmail": "astmmc.training@doh.gov.ph"
+  },
+  {
+    "name": "Provincial Planning and Development Office (PPDO)",
+    "college": "CAS",
+    "location": "Provincial Capitol, Tandag City",
+    "role": "Economic Research & Statistical Modeling Intern",
+    "slots": 22,
+    "filled": 14,
+    "gpa": 2.5,
+    "skills": [
+      "Economic Forecasting",
+      "Econometrics",
+      "Statistical Modeling",
+      "Operations Research",
+      "R Programming"
+    ],
+    "supName": "EnP. Carmelo M. Roz",
+    "supEmail": "ppdo@surigaodelsur.gov.ph"
+  },
+  {
+    "name": "Public Attorney's Office (PAO) — Tandag District Office",
+    "college": "CAS",
+    "location": "Hall of Justice, Tandag City",
+    "role": "Legal Research & Policy Documentation Intern",
+    "slots": 32,
+    "filled": 24,
+    "gpa": 2.5,
+    "skills": [
+      "Policy Analysis",
+      "Legal Research",
+      "Public Governance",
+      "Legislative Drafting",
+      "Community Profiling"
+    ],
+    "supName": "Atty. Gregorio P. Alvizo",
+    "supEmail": "pao.tandag@doj.gov.ph"
+  },
+  {
+    "name": "Surigao del Sur Heritage and Cultural Affairs Office",
+    "college": "CAS",
+    "location": "Tandag City",
+    "role": "Cultural Documentation & Translation Intern",
+    "slots": 16,
+    "filled": 10,
+    "gpa": 2.5,
+    "skills": [
+      "Pananaliksik sa Wika",
+      "Pagsasaling-wika",
+      "Malikhaing Pagsulat",
+      "Technical Writing",
+      "Copy Editing"
+    ],
+    "supName": "Prof. Remedios C. Guingona",
+    "supEmail": "heritage@surigaodelsur.gov.ph"
+  },
+  {
+    "name": "Department of Public Works and Highways (DPWH) — Surigao del Sur 1st DEO",
+    "college": "CET",
+    "location": "Capitol Hills, Tandag City",
+    "role": "Junior Civil Engineering Field Intern",
+    "slots": 8,
+    "filled": 6,
+    "gpa": 2.5,
+    "skills": [
+      "AutoCAD",
+      "Structural Analysis",
+      "Quantity Surveying",
+      "Construction Safety Monitoring",
+      "Total Station Surveying"
+    ],
+    "supName": "Engr. Ruel B. Bantugan",
+    "supEmail": "dpwh.sds1st@dpwh.gov.ph"
+  },
+  {
+    "name": "Provincial Engineering Office (PEO) — Surigao del Sur",
+    "college": "CET",
+    "location": "Tandag City",
+    "role": "Infrastructure Project Monitoring Intern",
+    "slots": 8,
+    "filled": 4,
+    "gpa": 2.5,
+    "skills": [
+      "AutoCAD",
+      "Quantity Surveying",
+      "Cost Estimation",
+      "Reinforced Concrete Design"
+    ],
+    "supName": "Engr. Oscar M. Pineda",
+    "supEmail": "peo@surigaodelsur.gov.ph"
+  },
+  {
+    "name": "DepEd Schools Division of Surigao del Sur",
+    "college": "CTE",
+    "location": "Balilahan, Tandag City",
+    "role": "Elementary & Secondary Student Teacher Intern",
+    "slots": 22,
+    "filled": 16,
+    "gpa": 2.25,
+    "skills": [
+      "Elementary Lesson Planning",
+      "Differentiated Instruction",
+      "Reading Remediation",
+      "Language Assessment"
+    ],
+    "supName": "Dr. Josita B. Carmen",
+    "supEmail": "surigaodelsur@deped.gov.ph"
+  },
+  {
+    "name": "Tandag National Science High School",
+    "college": "CTE",
+    "location": "Tabon-tabon, Tandag City",
+    "role": "Secondary STEM & English Practice Teacher",
+    "slots": 15,
+    "filled": 11,
+    "gpa": 2.25,
+    "skills": [
+      "Inquiry-Based Science Teaching",
+      "Secondary Math Pedagogy",
+      "ESL Instructional Design",
+      "STEM Project Mentorship"
+    ],
+    "supName": "Dr. Marilyn V. Quinto",
+    "supEmail": "tnshs@deped.gov.ph"
+  },
+  {
+    "name": "NEMSU Laboratory High School & Elementary Department",
+    "college": "CTE",
+    "location": "Main Campus, Tandag City",
+    "role": "Demonstration Practice Teacher",
+    "slots": 12,
+    "filled": 8,
+    "gpa": 2.25,
+    "skills": [
+      "Early Learning Pedagogy",
+      "Sports Officiating",
+      "Physical Fitness Assessment",
+      "Play-Based Classroom Guidance"
+    ],
+    "supName": "Prof. Glenda C. Balili",
+    "supEmail": "labschool@nemsu.edu.ph"
+  }
+]

@@ -14,12 +14,12 @@ export function AdminDashboard({ user, db = {}, onNavigate }) {
     return (
       <div className="admin-dashboard">
         <PageHeader
-          title="Administrator dashboard"
+          title="Administrator Dashboard"
           subtitle="University-wide internship management and compliance oversight."
         />
         <Card>
           <EmptyState
-            title="Administration data unavailable"
+            title="Administration Data Unavailable"
             description="System records are not connected yet. No cohort totals or policy counts are assumed."
           />
         </Card>
@@ -30,14 +30,14 @@ export function AdminDashboard({ user, db = {}, onNavigate }) {
   return (
     <div className="admin-dashboard">
       <PageHeader
-        title="Administrator dashboard"
+        title="Administrator Dashboard"
         subtitle="University-wide internship management, partner governance, and academic compliance."
       />
 
       {collegeOptions.length > 0 && (
         <div className="max-w-xs">
           <Field
-            label="Filter college scope"
+            label="Filter College Scope"
             options={[{ value: 'ALL', label: 'All colleges' }, ...collegeOptions.map(code => ({ value: code, label: `${code}${NEMSU_COLLEGES[code]?.name ? ` · ${NEMSU_COLLEGES[code].name}` : ''}` }))]}
             value={college}
             onChange={event => setCollege(event.target.value)}
@@ -46,37 +46,37 @@ export function AdminDashboard({ user, db = {}, onNavigate }) {
       )}
 
       <SummaryMetrics className="admin-kpi-grid" ariaLabel="System overview metrics" items={[
-        { label: 'Interns in scope', value: model.internsCount, detail: `${model.deployedCount} deployed · ${model.pendingPlacementCount} pending endorsement` },
-        { label: 'Host organizations', value: model.partnersCount, detail: model.hasCapacityData ? `${model.totalFilledSlots} / ${model.totalMaxSlots} slots occupied` : 'Slot capacity not recorded' },
-        { label: 'Policy corpus', value: model.policyClausesCount != null ? model.policyClausesCount : '—', detail: model.policyClausesCount != null ? 'Institutional clauses' : 'Corpus unavailable' },
-        { label: 'Audit records', value: model.auditEventsCount != null ? model.auditEventsCount : '—', detail: model.auditEventsCount != null ? 'Logged system events' : 'Audit logs unavailable' }
+        { label: 'Interns in Scope', value: model.internsCount, detail: `${model.deployedCount} deployed · ${model.pendingPlacementCount} pending endorsement` },
+        { label: 'Host Organizations', value: model.partnersCount, detail: model.hasCapacityData ? `${model.totalFilledSlots} / ${model.totalMaxSlots} slots occupied` : 'Slot capacity not recorded' },
+        { label: 'Policy Corpus', value: model.policyClausesCount != null ? model.policyClausesCount : '—', detail: model.policyClausesCount != null ? 'Institutional clauses' : 'Corpus unavailable' },
+        { label: 'Audit Records', value: model.auditEventsCount != null ? model.auditEventsCount : '—', detail: model.auditEventsCount != null ? 'Logged system events' : 'Audit logs unavailable' }
       ]} />
 
-      <section aria-labelledby="admin-tools-heading" className="space-y-3">
-        <div className="flex flex-wrap items-center justify-between gap-3">
+      <section aria-labelledby="admin-tools-heading">
+        <div className="admin-section-heading">
           <div>
-            <h2 id="admin-tools-heading" className="text-xl font-semibold text-ink">Administrative tools</h2>
-            <p className="text-sm text-muted">Access institutional governance and configuration modules.</p>
+            <h2 id="admin-tools-heading">Administrative Tools</h2>
+            <p>Access institutional governance and configuration modules.</p>
           </div>
         </div>
         <div className="admin-quick-links">
-          <Button onClick={() => onNavigate?.('alerts')}>Risk alerts</Button>
-          <Button variant="secondary" onClick={() => onNavigate?.('placement')}>Placement review</Button>
-          <Button variant="secondary" onClick={() => onNavigate?.('corpus')}>Policy corpus</Button>
-          <Button variant="secondary" onClick={() => onNavigate?.('audit-logs')}>Audit trail</Button>
-          <Button variant="secondary" onClick={() => onNavigate?.('partners')}>Partner companies</Button>
-          <Button variant="secondary" onClick={() => onNavigate?.('staff')}>Staff accounts</Button>
-          <Button variant="secondary" onClick={() => onNavigate?.('settings')}>College settings</Button>
+          <Button onClick={() => onNavigate?.('alerts')}>Risk Alerts</Button>
+          <Button variant="secondary" onClick={() => onNavigate?.('placement')}>Placement Review</Button>
+          <Button variant="secondary" onClick={() => onNavigate?.('corpus')}>Policy Corpus</Button>
+          <Button variant="secondary" onClick={() => onNavigate?.('audit-logs')}>Audit Trail</Button>
+          <Button variant="secondary" onClick={() => onNavigate?.('partners')}>Partner Companies</Button>
+          <Button variant="secondary" onClick={() => onNavigate?.('staff')}>Staff Accounts</Button>
+          <Button variant="secondary" onClick={() => onNavigate?.('settings')}>College Settings</Button>
         </div>
       </section>
 
-      <section aria-labelledby="college-compliance-heading" className="space-y-3">
-        <div className="flex flex-wrap items-center justify-between gap-3">
+      <section aria-labelledby="college-compliance-heading">
+        <div className="admin-section-heading">
           <div>
-            <h2 id="college-compliance-heading" className="text-xl font-semibold text-ink">College compliance summary</h2>
-            <p className="text-sm text-muted">Academic progress and coordinator assignment per university college.</p>
+            <h2 id="college-compliance-heading">College Compliance Summary</h2>
+            <p>Academic progress and coordinator assignment per university college.</p>
           </div>
-          <Button variant="quiet" onClick={() => onNavigate?.('interns')}>View intern directory</Button>
+          <Button variant="quiet" onClick={() => onNavigate?.('interns')}>View Intern Directory</Button>
         </div>
 
         {model.collegeBreakdown.length > 0 ? (
@@ -116,12 +116,12 @@ export function AdminDashboard({ user, db = {}, onNavigate }) {
         ) : (
           <Card>
             <EmptyState
-              title="No college settings provisioned"
+              title="No College Settings Provisioned"
               description="Configure colleges in College Settings to view academic compliance breakdowns."
               icon="building"
               action={
                 <Button variant="secondary" onClick={() => onNavigate?.('settings')}>
-                  Configure college settings
+                  Configure College Settings
                 </Button>
               }
             />

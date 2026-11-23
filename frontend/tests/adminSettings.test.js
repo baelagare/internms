@@ -26,7 +26,7 @@ test('college settings selector lists catalog colleges and distinguishes those w
   assert.match(settingsSource, /Settings not configured/);
   assert.match(settingsSource, /approved settings not configured/i);
   assert.match(settingsSource, /no quotas or thresholds are assumed/);
-  assert.match(settingsSource, /No college settings have been provisioned/);
+  assert.match(settingsSource, /No College Settings Have Been Provisioned/i);
 });
 
 

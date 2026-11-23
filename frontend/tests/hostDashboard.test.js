@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import { hostDashboardModel } from '../src/services/hostDashboard.js';
 
 const supervisor = { id: 'rep-1', role: 'supervisor', company: 'Host A' };
@@ -37,4 +38,18 @@ test('missing or invalid credited hours stay unknown instead of being counted as
   const db = makeDb();
   db.logs = [{ studentId: 'student-a', status: 'Supervisor Verified', hours: null }];
   assert.equal(hostDashboardModel(db, supervisor).students[0].creditedHours, null);
+});
+
+test('host dashboard layout classes and landmarks match stylesheet and accessible heading ids', () => {
+  const source = readFileSync(new URL('../src/views/HostDashboard.jsx', import.meta.url), 'utf8');
+  const css = readFileSync(new URL('../src/views/hostDashboard.css', import.meta.url), 'utf8');
+  assert.doesNotMatch(source, /host-Dashboard/);
+  assert.match(source, /className="host-dashboard"/);
+  assert.match(css, /\.host-dashboard\s*\{[^}]*gap:\s*var\(--space-6\)/);
+  assert.match(css, /\.host-dashboard \.ds-page-header\s*\{\s*margin:\s*0;/);
+  assert.match(css, /\.host-section-heading\s*\{[^}]*margin-bottom:\s*var\(--space-3\)/);
+  assert.match(css, /\.host-section-heading p\s*\{[^}]*margin-top:\s*var\(--space-1\)/);
+  for (const [, id] of source.matchAll(/aria-labelledby="([^"]+)"/g)) {
+    assert.match(source, new RegExp(`id="${id}"`), `missing heading id for ${id}`);
+  }
 });

@@ -7,8 +7,8 @@ const css = readFileSync(new URL('../src/views/staff.css', import.meta.url), 'ut
 const staffSource = source.slice(source.indexOf('const STAFF_ROLE_LABELS'), source.indexOf('function SettingsForm'));
 
 test('staff directory shows human role labels and invitation status instead of raw tokens', () => {
-  assert.match(staffSource, /OJT coordinator/);
-  assert.match(staffSource, /Host company representative/);
+  assert.match(staffSource, /OJT Coordinator/);
+  assert.match(staffSource, /Host Company Representative/);
   assert.match(staffSource, /Token issued/);
   assert.doesNotMatch(staffSource, /label: 'Invitation token'/);
 });

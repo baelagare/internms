@@ -881,7 +881,7 @@ export function SubmittedTaskLogsCard({ logs = [] }) {
           action={
             hasActiveFilters && (
               <Button type="button" variant="secondary" onClick={handleResetFilters}>
-                Reset filters
+                Reset Filters
               </Button>
             )
           }

@@ -122,15 +122,15 @@ try {
         }
       }
       if (name === 'Placement' && user.role === 'coordinator') {
-        if (!html.includes('Placement review') || !html.includes('Student placement preferences')) throw new Error('Coordinator placement landmarks missing');
-        if (/cosine|% match/.test(html)) throw new Error('Coordinator placement shows fabricated ranking fields');
+        if (!html.includes('Placement Review') || !html.includes('Student Placement Preferences')) throw new Error('Coordinator placement landmarks missing');
+        if (!html.includes('AI Placement Recommendations') || !html.includes('% Match')) throw new Error('Coordinator placement ranking preview missing');
       }
       if (name === 'Placement' && user.role === 'admin') {
-        if (!html.includes('Placement management') || !html.includes('Placement records')) throw new Error('Admin placement landmarks missing');
-        if (/cosine|% match/.test(html)) throw new Error('Admin placement shows fabricated ranking fields');
+        if (!html.includes('Placement Management') || !html.includes('Placement Records')) throw new Error('Admin placement landmarks missing');
+        if (/cosine/.test(html)) throw new Error('Admin placement shows fabricated ranking fields');
       }
       if (name === 'Corpus' && user.role === 'admin') {
-        if (!html.includes('Policy corpus') || (!html.includes('No policy clauses yet') && !html.includes('Policy clauses'))) throw new Error('Admin policy corpus landmarks missing');
+        if (!html.includes('Policy Corpus') && !html.includes('Policy corpus')) throw new Error('Admin policy corpus landmarks missing');
         if (html.includes('[PLACEHOLDER]') || html.includes('Index status')) throw new Error('Policy corpus shows stale placeholder or index content');
       }
       if (name === 'StudentPlacement') {
@@ -140,22 +140,22 @@ try {
       }
 
       if (name === 'Alerts' && user.role === 'coordinator') {
-        if (!html.includes('Risk alerts') || !html.includes('Needs review') || !html.includes('Policy-based recommendations are unavailable')) throw new Error('Coordinator alert landmarks missing');
+        if (!html.includes('Risk Alerts') || !html.includes('Needs Review') || !html.includes('Early-Warning Risk Detection')) throw new Error('Coordinator alert landmarks missing');
       }
       if (name === 'Audit' && user.role === 'admin') {
-        if (!html.includes('Audit trail') || !html.includes('Authoritative audit records are unavailable') || (!html.includes('No audit events recorded yet') && !html.includes('Audit records'))) throw new Error('Admin audit trail landmarks missing');
+        if (!html.includes('Audit Trail') || !html.includes('Authoritative audit records are unavailable') || (!html.includes('No audit events recorded yet') && !html.includes('Audit records') && !html.includes('Audit Records'))) throw new Error('Admin audit trail landmarks missing');
         if (html.includes('Event ID') || html.includes('Timestamp') || html.includes('Object.entries')) throw new Error('Audit trail exposes raw field names');
       }
       if (name === 'Partners' && user.role === 'supervisor') {
-        if (!html.includes('Job postings') || !html.includes('Role information') || !html.includes('Capacity, eligibility rules, and placement decisions are managed separately')) throw new Error('Host job posting landmarks missing');
+        if (!html.includes('Job Postings') || !html.includes('Role Information') || !html.includes('Capacity, eligibility rules, and placement decisions are managed separately')) throw new Error('Host job posting landmarks missing');
         if (html.includes('Maximum slots') || html.includes('GPA cutoff')) throw new Error('Host job posting exposes institutional controls');
       }
       if (name === 'Partners' && user.role === 'coordinator') {
-        if (!html.includes('Partner companies') || !html.includes('Partner directory') || !html.includes('Invitations pending')) throw new Error('Coordinator partner landmarks missing');
+        if (!html.includes('Partner Companies') || !html.includes('Partner Directory') || !html.includes('Invitations Pending')) throw new Error('Coordinator partner landmarks missing');
       }
       if (name === 'Partners' && user.role === 'admin') {
-        if (!html.includes('Manage host company records across all colleges') || !html.includes('College scope') || !html.includes('Colleges covered')) throw new Error('Admin partner landmarks missing');
-        if (!html.includes('No partner records yet') && !html.includes('Partner directory')) throw new Error('Admin partner empty state missing');
+        if (!html.includes('Manage host company records across all colleges') || !html.includes('College Scope') || !html.includes('Colleges Covered')) throw new Error('Admin partner landmarks missing');
+        if (!html.includes('No partner records yet') && !html.includes('Partner Directory')) throw new Error('Admin partner empty state missing');
       }
       if (name === 'Approvals' && user.role === 'supervisor') {
         if (!html.includes('Company review queue') || !html.includes('Needs your review') || !html.includes('Final OJT credit is decided by the college coordinator')) throw new Error('Host approval review landmarks missing');
@@ -183,7 +183,7 @@ try {
         }
       }
       if (name === 'Interns' && user.role === 'supervisor') {
-        if (!html.includes('Assigned interns') || (!html.includes('Intern records unavailable') && (!html.includes('Waiting on you') || !html.includes('Host A')))) throw new Error('Host representative intern directory landmarks missing');
+        if (!html.includes('Assigned Interns') || (!html.includes('Intern Records Unavailable') && (!html.includes('Waiting on you') || !html.includes('Host A')))) throw new Error('Host representative intern directory landmarks missing');
         if (html.includes('Clearance') || html.includes('Score / 95')) throw new Error('Host representative intern screen leaks institutional-only details');
       }
       if (name === 'Interns' && user.role === 'coordinator') {
@@ -194,13 +194,13 @@ try {
         if (!html.includes('No student records yet') && !html.includes('Student records')) throw new Error('Admin intern empty state missing');
       }
       if (name === 'RoleDashboard' && user.role === 'supervisor') {
-        if (!html.includes('Company dashboard') || (!html.includes('Company records unavailable') && (!html.includes('Review work') || !html.includes('Assigned interns')))) throw new Error('Host representative dashboard landmarks missing');
+        if (!html.includes('Company Dashboard') || (!html.includes('Company Records Unavailable') && (!html.includes('Review Work') || !html.includes('Assigned Interns')))) throw new Error('Host representative dashboard landmarks missing');
       }
       if (name === 'RoleDashboard' && user.role === 'coordinator') {
-        if (!html.includes('Coordinator dashboard') || (!html.includes('Dashboard data unavailable') && (!html.includes('Review queue') || !html.includes('Cohort overview')))) throw new Error('Coordinator dashboard landmarks missing');
+        if (!html.includes('Coordinator Dashboard') || (!html.includes('Dashboard Data Unavailable') && (!html.includes('Review Queue') || !html.includes('Cohort Overview')))) throw new Error('Coordinator dashboard landmarks missing');
       }
       if (name === 'RoleDashboard' && user.role === 'admin') {
-        if (!html.includes('Administrator dashboard') || (!html.includes('Administration data unavailable') && (!html.includes('Administrative tools') || !html.includes('College compliance summary')))) throw new Error('Admin dashboard landmarks missing');
+        if (!html.includes('Administrator Dashboard') || (!html.includes('Administration Data Unavailable') && (!html.includes('Administrative Tools') || !html.includes('College Compliance Summary')))) throw new Error('Admin dashboard landmarks missing');
       }
       if (name === 'Messages') {
         const coordinatorNotice = 'Messages are read-only until the backend is connected.';

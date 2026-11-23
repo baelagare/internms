@@ -1,4 +1,10 @@
 // Boundary adapter: preserve recorded values; never infer eligibility or clearance.
+export function workspaceUser(user, users = []) {
+  if (!user) return user;
+  const record = users.find(candidate => String(candidate.id) === String(user.id));
+  return record ? { ...user, ...record, role: user.role } : user;
+}
+
 export function normalizeWorkspace(data) {
   if (!data || !Array.isArray(data.users) || !Array.isArray(data.htes)) {
     throw new Error('The API returned an invalid workspace response.');
@@ -36,7 +42,11 @@ export function normalizeWorkspace(data) {
       submittedAt: row.submittedAt ?? row.createdAt,
       maxScore: 95
     })),
-    alerts: data.alerts || [], policyCorpus: data.policyCorpus || [],
+    alerts: (data.alerts || []).map(row => ({
+      ...row,
+      finalDispatchedText: row.finalDispatchedText ?? row.dispatchedMessage ?? null
+    })),
+    policyCorpus: data.policyCorpus || [],
     messages: data.messages || [], auditLogs: data.auditLogs || [], documents: data.documents || []
   };
 }

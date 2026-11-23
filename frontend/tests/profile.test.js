@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { academicStandings, formatProfileDate, profileValues, validatePortfolioEntry, validateProfile } from '../src/services/studentProfile.js';
+import { academicStandings, formatProfileDate, profileValues, refreshedProfileValues, validatePortfolioEntry, validateProfile } from '../src/services/studentProfile.js';
 
 test('profileValues safely extracts student values without leaking null or undefined into form state', () => {
   const empty = profileValues({});
@@ -28,6 +28,60 @@ test('profileValues safely extracts student values without leaking null or undef
   assert.equal(populated.portfolioUrl, 'https://github.com/nemsu-student');
   assert.equal(populated.bio, 'Aspiring software engineer');
 });
+test('workspace profile records override stale session details without changing session-only fields', async () => {
+  const { workspaceUser } = await import('../src/services/workspaceAdapter.js');
+  const sessionUser = { id: 5, role: 'student', name: 'Gerrald Juntilla', email: 'jcjuntilla@nemsu.edu.ph', oldSessionField: true };
+  const seeded = {
+    id: 5,
+    role: 'student',
+    gpa: 1.75,
+    studentNumber: '27-02004',
+    program: 'BS in Computer Science',
+    college: 'CITE',
+    portfolioData: {
+      bio: 'Computer Science senior focusing on algorithm engineering, data structures, backend pipelines, and applied intelligence.',
+      skills: ['Algorithm Design', 'Python', 'React'],
+      coursework: ['Data Structures and Algorithms', 'Artificial Intelligence']
+    }
+  };
+
+  const current = workspaceUser(sessionUser, [seeded]);
+  assert.equal(current.email, sessionUser.email);
+  assert.equal(current.role, 'student');
+  assert.equal(current.oldSessionField, true);
+  assert.equal(current.gpa, 1.75);
+  assert.equal(current.studentNumber, '27-02004');
+  assert.equal(current.portfolioData.bio, seeded.portfolioData.bio);
+  assert.deepEqual(current.portfolioData.skills, seeded.portfolioData.skills);
+  assert.deepEqual(current.portfolioData.coursework, seeded.portfolioData.coursework);
+  assert.equal(workspaceUser(sessionUser, []), sessionUser);
+});
+
+test('async workspace profile data hydrates pristine forms but never replaces unsaved edits', () => {
+  const initial = profileValues({ email: 'jcjuntilla@nemsu.edu.ph' });
+  const seeded = {
+    name: 'Gerrald Juntilla',
+    email: 'jcjuntilla@nemsu.edu.ph',
+    gpa: 1.75,
+    portfolioData: {
+      bio: 'Computer Science senior focusing on algorithm engineering, data structures, backend pipelines, and applied intelligence.',
+      skills: ['Algorithm Design', 'Python', 'React'],
+      coursework: ['Data Structures and Algorithms', 'Artificial Intelligence']
+    }
+  };
+
+  const hydrated = refreshedProfileValues(initial, initial, seeded);
+  assert.equal(hydrated.gpa, '1.75');
+  assert.equal(hydrated.bio, seeded.portfolioData.bio);
+  assert.deepEqual(seeded.portfolioData.skills, ['Algorithm Design', 'Python', 'React']);
+  assert.deepEqual(seeded.portfolioData.coursework, ['Data Structures and Algorithms', 'Artificial Intelligence']);
+
+  const edited = { ...initial, bio: 'My unsaved changes' };
+  assert.equal(refreshedProfileValues(edited, initial, seeded), null);
+  assert.equal(refreshedProfileValues(hydrated, hydrated, seeded), null);
+});
+
+
 
 test('validateProfile enforces Philippine university grading bounds (1.00 - 5.00) and required contact fields', () => {
   const valid = {
@@ -39,6 +93,8 @@ test('validateProfile enforces Philippine university grading bounds (1.00 - 5.00
     bio: 'Fourth year student specializing in computing systems'
   };
   assert.deepEqual(validateProfile(valid), {});
+  // Read-only API-managed fields don't block saving editable profile fields.
+  assert.deepEqual(validateProfile({ ...valid, academicStanding: '', email: '', portfolioUrl: 'not-a-url' }), {});
 
   // Invalid GPA
   assert.ok(validateProfile({ ...valid, gpa: '0.90' }).gpa);
@@ -46,15 +102,8 @@ test('validateProfile enforces Philippine university grading bounds (1.00 - 5.00
   assert.ok(validateProfile({ ...valid, gpa: 'not-a-number' }).gpa);
   assert.ok(validateProfile({ ...valid, gpa: '1.755' }).gpa); // > 2 decimal places
 
-  // Invalid standing
-  assert.ok(validateProfile({ ...valid, academicStanding: 'Invalid Standing' }).academicStanding);
-
-  // Invalid email
-  assert.ok(validateProfile({ ...valid, email: 'not-an-email' }).email);
-
-  // Invalid portfolio URL (disallows javascript: or unparseable schemes)
-  assert.ok(validateProfile({ ...valid, portfolioUrl: 'javascript:alert(1)' }).portfolioUrl);
-  assert.ok(validateProfile({ ...valid, portfolioUrl: 'ftp://files.example.com' }).portfolioUrl);
+  assert.ok(validateProfile({ ...valid, phone: '' }).phone);
+  assert.ok(validateProfile({ ...valid, bio: '' }).bio);
 });
 
 test('validatePortfolioEntry rejects duplicate and blank entries', () => {

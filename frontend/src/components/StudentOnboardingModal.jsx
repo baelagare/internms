@@ -13,7 +13,7 @@ export function StudentOnboardingModal({ user, onClose, onChange }) {
   const { run, busy, notice } = useMutation(onChange);
 
   const collegeOptions = [
-    { value: '', label: 'Select your college…' },
+    { value: '', label: 'Select Your College…' },
     ...Object.entries(NEMSU_COLLEGES).map(([code, meta]) => ({
       value: code,
       label: `${code} · ${meta.name}`
@@ -22,7 +22,7 @@ export function StudentOnboardingModal({ user, onClose, onChange }) {
 
   const availablePrograms = college ? NEMSU_COLLEGE_PROGRAMS[college] || [] : [];
   const programOptions = [
-    { value: '', label: college ? 'Select your degree program…' : 'Choose a college first…' },
+    { value: '', label: college ? 'Select Your Degree Program…' : 'Choose A College First…' },
     ...availablePrograms.map(prog => ({ value: prog, label: prog }))
   ];
 

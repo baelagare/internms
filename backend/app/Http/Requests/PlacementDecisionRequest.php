@@ -13,9 +13,12 @@ class PlacementDecisionRequest extends FormRequest
 
     public function rules(): array
     {
+        $isStudent = $this->user()?->isStudent() ?? false;
+
         return [
             'company_id' => ['required', 'integer', 'exists:companies,id'],
-            'assigned_role' => ['nullable', 'string', 'max:150'],
+            'preferred_role' => $isStudent ? ['nullable', 'string', 'max:150'] : ['prohibited'],
+            'assigned_role' => $isStudent ? ['prohibited'] : ['nullable', 'string', 'max:150'],
             'reason' => ['nullable', 'string', 'max:1000'],
         ];
     }

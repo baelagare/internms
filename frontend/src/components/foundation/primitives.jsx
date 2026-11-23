@@ -39,7 +39,7 @@ export function Skeleton({ className = '', lines = 1, label = 'Loading' }) {
 export function Notice({ tone = 'info', title, children, onDismiss, action }) {
   return <div role={tone === 'danger' || tone === 'error' ? 'alert' : 'status'} className={`ds-notice ds-tone--${tone}`}>
     <div className="min-w-0 flex-1">{title && <p className="font-semibold">{title}</p>}{children && <div className={title ? 'mt-1' : ''}>{children}</div>}{action && <div className="mt-3">{action}</div>}</div>
-    {onDismiss && <IconButton label="Dismiss message" icon="close" variant="quiet" onClick={onDismiss} />}
+    {onDismiss && <IconButton label="Dismiss Message" icon="close" variant="quiet" onClick={onDismiss} />}
   </div>;
 }
 

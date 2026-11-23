@@ -1,12 +1,14 @@
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { placementRankings, placementEligibility } from '../src/services/placementAvailability.js';
 import {
   assignedCompany,
   eligibilityRows,
   eligibilitySummary,
   hostCapacity,
   placementAction,
+  placementRecommendations,
   validMatchPercent,
   visibleRecommendations
 } from '../src/services/studentPlacement.js';
@@ -106,12 +108,78 @@ test('visibleRecommendations filters and sorts opportunities accurately', () => 
   assert.equal(sortedByName[1].company, 'Beta Corp');
 });
 
-test('coordinator and admin placement views keep recommendations unavailable instead of inventing rankings', () => {
+test('placement ranking creates explainable ordered matches and preserves eligibility gates', () => {
+  const student = { college: 'CITE', gpa: 1.75, disciplinaryClearance: 'Cleared & Certified', portfolioData: { skills: ['React', 'JavaScript', 'UI Design'], coursework: ['Web Development'] }, preDeploymentDocs: [{ status: 'Verified' }] };
+  const hosts = [
+    { id: 2, name: 'Data Team', college: 'CITE', requiredSkills: ['SQL', 'Python'], maxSlots: 4, filledSlots: 1, minGpa: 2.5 },
+    { id: 1, name: 'Web Team', college: 'CITE', requiredSkills: ['React', 'JavaScript', 'UI Design'], maxSlots: 5, filledSlots: 2, minGpa: 2.5 }
+  ];
+  const ranked = placementRankings(student, hosts, { CITE: { maxGpaCutoff: 2.5 } });
+  assert.equal(ranked[0].company, 'Web Team');
+  assert.equal(ranked[0].matchPercent > ranked[1].matchPercent, true);
+  assert.deepEqual(ranked[0].matchingSkills, ['React', 'JavaScript', 'UI Design']);
+  assert.deepEqual(ranked[0].skillsGap, []);
+  assert.equal(ranked[0].eligibility.hardEligible, true);
+  assert.equal(placementEligibility({ ...student, gpa: 3.5 }, hosts[1], {}).gates.gpaCutoff.pass, false);
+});
+
+test('coordinator placement review renders AI placement recommendations from recorded host data', () => {
   const source = readFileSync(new URL('../src/views/Placement.jsx', import.meta.url), 'utf8');
   assert.match(source, /user\.role === 'coordinator'\) return <CoordinatorPlacement/);
-  assert.match(source, /Placement recommendations and eligibility verification are unavailable until the backend is connected/);
-  assert.match(source, /Recommendations unavailable/);
-  assert.match(source, /Pending preferences/);
-  assert.doesNotMatch(source, /cosine|% match/i);
+  assert.match(source, /AI Placement Recommendations/);
+  assert.match(source, /rankings\.map/);
+  assert.match(source, /Pending Preferences/);
+});
+
+test('coordinator can select an eligible recommendation and submit its assignment confirmation', () => {
+  const source = readFileSync(new URL('../src/views/Placement.jsx', import.meta.url), 'utf8');
+  assert.match(source, /disabled=\{busy \|\| match\.eligibility\.hardEligible !== true\}/);
+  assert.match(source, /onClick=\{\(\) => \{ setReason\(''\); setAssignedRole\(match\.roleTitle \|\| ''\); setConfirmation\(match\); \}\}/);
+  assert.match(source, /title="Confirm Placement Assignment"/);
+  assert.match(source, /savePlacement\(user, student\.id, confirmation\.hteId, reason, assignedRole\)/);
+  assert.match(source, /label="Assigned Role"/);
+  assert.match(source, /'Placement decision recorded and partner capacity updated\.'/);
+  assert.match(source, /savePlacement\(user, student\.id, confirmation\.hteId, reason, assignedRole\)[\s\S]*?setConfirmation\(null\); setSelected\(null\); setReason\(''\); setAssignedRole\(''\);/);
+});
+
+test('student preference dialog accepts and persists a preferred role distinct from assignment', () => {
+  const view = readFileSync(new URL('../src/views/StudentPlacement.jsx', import.meta.url), 'utf8');
+  const service = readFileSync(new URL('../src/services/applicationService.js', import.meta.url), 'utf8');
+  assert.match(view, /label="Preferred Role"/);
+  assert.match(view, /savePlacement\(student, student\.id, match\.hteId, undefined, preferredRole\)/);
+  assert.match(service, /user\.role === 'student' \? 'preferred_role' : 'assigned_role'/);
+});
+
+test('coordinator placement review exposes the return-for-revision decision and reason form', () => {
+  const source = readFileSync(new URL('../src/views/Placement.jsx', import.meta.url), 'utf8');
+  const service = readFileSync(new URL('../src/services/applicationService.js', import.meta.url), 'utf8');
+  assert.match(source, /student\.placementStatus === 'Pending Coordinator Endorsement'/);
+  assert.match(source, /Return preference for revision/);
+  assert.match(source, /Reason for returning preference/);
+  assert.match(source, /returnPlacementPreference\(user, student\.id, returnReason\)/);
+  assert.match(service, /placement\/return/);
+});
+
+test('student placement recommendations show returned preference feedback and permit revision', () => {
+  const view = readFileSync(new URL('../src/views/StudentPlacement.jsx', import.meta.url), 'utf8');
+  assert.match(view, /Returned for Revision/);
+  assert.match(view, /student\.preferenceFeedback/);
+  assert.match(view, /submit an updated preference/);
+});
+
+test('student placement recommendations use supplied workspace hosts and provide AI recommendations', () => {
+  const result = placementRecommendations({ college: 'CITE', gpa: 1.75, portfolioData: { skills: ['React'], coursework: ['Web Development'] } }, {
+    htes: [{ id: 1, name: 'Web Studio', college: 'CITE', requiredSkills: ['React'], minGpa: 2.5, maxSlots: 2, filledSlots: 1 }], collegeSettings: { CITE: { maxGpaCutoff: 2.5 } }
+  });
+  assert.equal(result.error, null);
+  assert.equal(result.matches[0].company, 'Web Studio');
+  const view = readFileSync(new URL('../src/views/StudentPlacement.jsx', import.meta.url), 'utf8');
+  assert.match(view, /AI Placement Recommendations/);
+});
+
+test('coordinator placement review shows Current placement and Already Assigned for currently deployed host', () => {
+  const source = readFileSync(new URL('../src/views/Placement.jsx', import.meta.url), 'utf8');
+  assert.match(source, /isCurrent \? \(\s*<Button variant="secondary" disabled>Already Assigned<\/Button>/);
+  assert.match(source, /Current placement/);
 });
 

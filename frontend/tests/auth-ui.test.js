@@ -16,8 +16,8 @@ test('Google sign-in button fits its slot, adapts to resize, and is not clipped 
 });
 
 test('login page clearly separates supervisor password login from university Google sign-in', () => {
-  assert.match(auth, /aria-label="Choose account type"/);
-  assert.match(auth, />Supervisor<\/button>/);
+  assert.match(auth, /aria-label="Choose Account Type"/);
+  assert.match(auth, />Company<\/button>/);
   assert.match(auth, />University<\/button>/);
   assert.match(auth, /onLogin\?\.\(form\.email, form\.password, rememberMe\)/);
   assert.match(auth, /Host company supervisors sign in with the email and password/);

@@ -557,7 +557,7 @@ export function StudentAttendance({ user, db, onChange }) {
                               setDtrStatus('ALL');
                             }}
                           >
-                            Reset filters
+                            Reset Filters
                           </Button>
                         )
                       }

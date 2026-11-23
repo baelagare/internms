@@ -57,6 +57,7 @@ Route::prefix('v1')->group(function (): void {
         // Decision Support & Evaluations
         Route::post('/evaluations', [\App\Http\Controllers\Api\V1\EvaluationController::class, 'store']);
         Route::post('/students/{id}/placement', [\App\Http\Controllers\Api\V1\PlacementController::class, 'store']);
+        Route::post('/students/{id}/placement/return', [\App\Http\Controllers\Api\V1\PlacementController::class, 'returnPreference']);
         Route::post('/students/{id}/clearance', [\App\Http\Controllers\Api\V1\ClearanceController::class, 'certify']);
         Route::post('/alerts/{id}/review', [\App\Http\Controllers\Api\V1\AlertController::class, 'review']);
 
