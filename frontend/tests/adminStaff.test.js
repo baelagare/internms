@@ -27,3 +27,12 @@ test('staff directory guards missing collections and offers guided scope options
   assert.match(css, /@media \(min-width: 640px\)/);
   assert.match(css, /staff-summary/);
 });
+
+test('staff creation modal defines collegeOptions, initializes scope, and resets scope on role switch', () => {
+  assert.match(staffSource, /const collegeOptions = colleges\.map/);
+  assert.match(staffSource, /const defaultCollege = collegeOptions\[0\]\?\.value/);
+  assert.match(staffSource, /scope: nextRole === 'supervisor' \? defaultPartner : defaultCollege/);
+  assert.match(staffSource, /@nemsu\.edu\.ph/);
+  assert.match(staffSource, /minLength=\{8\}/);
+});
+

@@ -32,3 +32,16 @@ test('supervisor invitation registration submits required details through the ap
   assert.match(app, /onSupervisorRegister=\{handleSupervisor\}/);
   assert.match(app, /onboardSupervisor\(form\)/);
 });
+
+test('login page opens accessible Privacy Notice and Terms of Use modals with institutional disclosures', () => {
+  const legal = readFileSync(new URL('../src/components/LegalModals.jsx', import.meta.url), 'utf8');
+  assert.match(auth, /openLegal\('privacy'\)/);
+  assert.match(auth, /openLegal\('terms'\)/);
+  assert.match(auth, /<PrivacyNoticeModal onClose=\{\(\) => setLegalModal\(null\)\}/);
+  assert.match(auth, /<TermsOfUseModal onClose=\{\(\) => setLegalModal\(null\)\}/);
+  assert.match(legal, /Republic Act No\. 10173/);
+  assert.match(legal, /Data Privacy Act of 2012/);
+  assert.match(legal, /CHED CMO No\. 104/);
+  assert.match(legal, /NEMSU Student Internship Policy Manual/);
+});
+

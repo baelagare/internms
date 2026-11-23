@@ -108,6 +108,21 @@ test('visibleRecommendations filters and sorts opportunities accurately', () => 
   assert.equal(sortedByName[1].company, 'Beta Corp');
 });
 
+test('deployment readiness requires every configured required document to be verified', () => {
+  const student = { college: 'CITE', gpa: 1.75, disciplinaryClearance: 'Cleared & Certified', preDeploymentDocs: [
+    { docCode: 'MOA', status: 'Verified' },
+    { docCode: 'INSURANCE', status: 'Pending Verification' }
+  ] };
+  const settings = { CITE: { maxGpaCutoff: 2.5, documentRequirements: [
+    { docCode: 'MOA', isRequired: true, isActive: true },
+    { docCode: 'INSURANCE', isRequired: true, isActive: true }
+  ] } };
+  const eligibility = placementEligibility(student, { college: 'CITE', maxSlots: 3, filledSlots: 0 }, settings);
+  assert.equal(eligibility.deploymentReady, false);
+  assert.match(eligibility.gates.preDeploymentDocs.detail, /1 of 2 required documents verified/);
+  assert.equal(placementEligibility({ ...student, preDeploymentDocs: student.preDeploymentDocs.map(doc => ({ ...doc, status: 'Verified' })) }, { college: 'CITE', maxSlots: 3, filledSlots: 0 }, settings).deploymentReady, true);
+});
+
 test('placement ranking creates explainable ordered matches and preserves eligibility gates', () => {
   const student = { college: 'CITE', gpa: 1.75, disciplinaryClearance: 'Cleared & Certified', portfolioData: { skills: ['React', 'JavaScript', 'UI Design'], coursework: ['Web Development'] }, preDeploymentDocs: [{ status: 'Verified' }] };
   const hosts = [
@@ -133,7 +148,9 @@ test('coordinator placement review renders AI placement recommendations from rec
 
 test('coordinator can select an eligible recommendation and submit its assignment confirmation', () => {
   const source = readFileSync(new URL('../src/views/Placement.jsx', import.meta.url), 'utf8');
-  assert.match(source, /disabled=\{busy \|\| match\.eligibility\.hardEligible !== true\}/);
+  assert.match(source, /disabled=\{busy \|\| match\.eligibility\.hardEligible !== true \|\| match\.eligibility\.deploymentReady !== true\}/);
+  assert.match(source, /Documents Incomplete/);
+  assert.match(source, /Deployment blocked: documents incomplete/);
   assert.match(source, /onClick=\{\(\) => \{ setReason\(''\); setAssignedRole\(match\.roleTitle \|\| ''\); setConfirmation\(match\); \}\}/);
   assert.match(source, /title="Confirm Placement Assignment"/);
   assert.match(source, /savePlacement\(user, student\.id, confirmation\.hteId, reason, assignedRole\)/);

@@ -79,7 +79,7 @@ export default function App() {
     if (route.route === 'attendance' || route.route === 'tasks') return <Training key={`${user.id}-${route.route}`} user={user} db={db} onChange={updateData} route={route.route}/>;
     if (route.route === 'approvals') return <Approvals key={`${user.id}-${route.query?.category || ''}-${route.query?.id || ''}`} user={user} db={db} onChange={updateData} initialQuery={route.query}/>;
     if (route.route === 'evaluations') return <Evaluations key={user.id} user={user} db={db} onChange={updateData}/>;
-    if (route.route === 'interns') return <Interns key={user.id} user={user} db={db} onChange={updateData}/>;
+    if (route.route === 'interns') return <Interns key={user.id} user={user} db={db} onChange={updateData} onNavigate={navigate}/>;
     if (route.route === 'alerts') return <Alerts key={user.id} user={user} db={db} onChange={updateData}/>;
     if (route.route === 'audit-logs') return <Audit db={db}/>;
     if (['partners', 'postings', 'staff', 'settings', 'corpus'].includes(route.route)) { const View = { partners: Partners, postings: Partners, staff: Staff, settings: Settings, corpus: Corpus }[route.route]; return <View key={`${user.id}-${route.route}`} user={user} db={db} onChange={updateData} connectionStatus={connectionStatus}/>; }

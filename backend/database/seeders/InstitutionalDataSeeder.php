@@ -86,8 +86,8 @@ class InstitutionalDataSeeder extends Seeder
 
         $now = now();
         $userEmails = array_column($studentsRaw, 'email');
-        $existingUsers = User::whereIn('email', $userEmails)->orWhereIn('id', [2, 5])->get()->keyBy(function ($u) {
-            return $u->id === 2 ? 'rabglinogo@nemsu.edu.ph' : ($u->id === 5 ? 'jcjuntilla@nemsu.edu.ph' : $u->email);
+        $existingUsers = User::whereIn('email', $userEmails)->orWhere('id', 5)->get()->keyBy(function ($u) {
+            return $u->id === 5 ? 'jcjuntilla@nemsu.edu.ph' : $u->email;
         });
 
         // Batch insert new users
@@ -113,16 +113,13 @@ class InstitutionalDataSeeder extends Seeder
         }
 
         // Re-query all student users
-        $allStudentUsers = User::whereIn('email', $userEmails)->orWhereIn('id', [2, 5])->get()->keyBy(function ($u) {
-            return $u->id === 2 ? 'rabglinogo@nemsu.edu.ph' : ($u->id === 5 ? 'jcjuntilla@nemsu.edu.ph' : $u->email);
+        $allStudentUsers = User::whereIn('email', $userEmails)->orWhere('id', 5)->get()->keyBy(function ($u) {
+            return $u->id === 5 ? 'jcjuntilla@nemsu.edu.ph' : $u->email;
         });
 
-        // Update User 2 (Racel Ann Glinogo) & User 5 (Gerrald Juntilla)
-        if ($u2 = $allStudentUsers->get('rabglinogo@nemsu.edu.ph')) {
-            $u2->update(['name' => 'Racel Ann Glinogo', 'college_code' => 'CBM']);
-        }
+        // Update User 5 (Gerrald Juntilla)
         if ($u5 = $allStudentUsers->get('jcjuntilla@nemsu.edu.ph')) {
-            $citeComp = $seededCompanies['Caraga Digital Solutions Inc.'] ?? null;
+            $citeComp = $seededCompanies['DICT - Caraga Office'] ?? Company::where('name', 'DICT - Caraga Office')->first();
             $u5->update([
                 'name' => 'Gerrald Juntilla',
                 'college_code' => 'CITE',
@@ -276,8 +273,8 @@ class InstitutionalDataSeeder extends Seeder
         // Gerrald Juntilla (CITE CS - User 5): 35 days attendance (280 hrs), 4 task reports, midterm evaluation
         $gjStudent = Student::where('user_id', 5)->first();
         if ($gjStudent) {
-            $citeComp = $seededCompanies['Caraga Digital Solutions Inc.'] ?? null;
-            $sup = User::where('email', 'rsantos@caragadigital.ph')->first();
+            $citeComp = $seededCompanies['DICT - Caraga Office'] ?? Company::where('name', 'DICT - Caraga Office')->first();
+            $sup = User::where('email', 'celumancas210@nemsu.edu.ph')->first();
             $citeCoord = $coordinators['CITE'];
 
             for ($d = 1; $d <= 35; $d++) {

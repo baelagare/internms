@@ -36,4 +36,9 @@ class CollegeSetting extends Model
     {
         return $this->belongsTo(College::class, 'college_code', 'code');
     }
+
+    public function documentRequirements(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(CollegeDocumentRequirement::class, 'college_code', 'college_code');
+    }
 }

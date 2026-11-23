@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\V1\AttendanceController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\CollegeSettingController;
+use App\Http\Controllers\Api\V1\CollegeDocumentRequirementController;
 use App\Http\Controllers\Api\V1\CompanyController;
 use App\Http\Controllers\Api\V1\DocumentController;
 use App\Http\Controllers\Api\V1\MessageController;
@@ -66,6 +67,10 @@ Route::prefix('v1')->group(function (): void {
         Route::patch('/partners/{id}', [CompanyController::class, 'update']);
         Route::post('/staff', [StaffController::class, 'store']);
         Route::put('/colleges/{code}/settings', [CollegeSettingController::class, 'update']);
+        Route::get('/colleges/{code}/document-requirements', [CollegeDocumentRequirementController::class, 'index']);
+        Route::post('/colleges/{code}/document-requirements', [CollegeDocumentRequirementController::class, 'store']);
+        Route::patch('/college-document-requirements/{id}', [CollegeDocumentRequirementController::class, 'update']);
+        Route::delete('/college-document-requirements/{id}', [CollegeDocumentRequirementController::class, 'deactivate']);
         Route::post('/policy-corpus', [PolicyController::class, 'store']);
         Route::get('/messages', [MessageController::class, 'index']);
         Route::post('/messages', [MessageController::class, 'store']);

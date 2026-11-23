@@ -27,6 +27,9 @@ export function savePartner(user, id, values) {
 }
 export const createStaff = (user, values) => mutate('/staff', 'POST', values);
 export const saveSettings = (user, college, values) => mutate(`/colleges/${encodeURIComponent(college)}/settings`, 'PUT', values);
+export const createDocumentRequirement = (user, college, values) => mutate(`/colleges/${encodeURIComponent(college)}/document-requirements`, 'POST', values);
+export const updateDocumentRequirement = (user, id, values) => mutate(`/college-document-requirements/${id}`, 'PATCH', values);
+export const deactivateDocumentRequirement = (user, id) => mutate(`/college-document-requirements/${id}`, 'DELETE');
 export const createPolicy = (user, values) => mutate('/policy-corpus', 'POST', values);
 export async function saveEvaluation(user, id, values) {
   const student = await studentRecord(id);
@@ -92,7 +95,7 @@ export const postMessage = (user, id, body) => mutate('/messages', 'POST', { rec
 
 export async function saveStudentFile(user, id, file) {
   if (!file) throw new Error('Choose a file first.');
-  const doc = user.preDeploymentDocs?.find(row => String(row.id) === String(id));
+  const doc = user.preDeploymentDocs?.find(row => String(row.id) === String(id) || String(row.docCode || row.code) === String(id) || `requirement:${row.docCode || row.code}` === String(id));
   if (id !== 'resume' && !doc) throw new Error('The document requirement is no longer available. Reload the workspace.');
   if (doc?.fileName) unsupported('Replacing a submitted document');
   const body = new FormData();

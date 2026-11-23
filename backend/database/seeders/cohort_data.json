@@ -3836,32 +3836,6 @@
     "status": "Pending Coordinator Endorsement"
   },
   {
-    "existingUserId": 2,
-    "name": "Racel Ann Glinogo",
-    "email": "rabglinogo@nemsu.edu.ph",
-    "number": "23-02364",
-    "college": "CBM",
-    "program": "Marketing Management",
-    "gpa": 1.8,
-    "skills": [
-      "Digital Marketing",
-      "Market Research",
-      "Social Media Analytics",
-      "Brand Strategy",
-      "Content Strategy"
-    ],
-    "coursework": [
-      "Marketing Research",
-      "Strategic Marketing Management",
-      "Consumer Behavior"
-    ],
-    "bio": "Marketing Management major specializing in digital market analytics, customer engagement campaigns, and data-driven brand strategies.",
-    "preferred_company": "Department of Trade and Industry (DTI) — Surigao del Sur",
-    "assigned_company": null,
-    "role": null,
-    "status": "Pending Coordinator Endorsement"
-  },
-  {
     "name": "Iris D. Mendoza",
     "email": "idmendoza158@nemsu.edu.ph",
     "number": "2023-10158",
@@ -6272,8 +6246,8 @@
     ],
     "bio": "Computer Science senior focusing on algorithm engineering, data structures, backend pipelines, and applied intelligence.",
     "preferred_company": null,
-    "assigned_company": "Caraga Digital Solutions Inc.",
-    "role": "Software Systems Intern",
+    "assigned_company": "DICT - Caraga Office",
+    "role": "Web Systems & Technical Support Intern",
     "status": "Approved & Deployed"
   },
   {

@@ -35,6 +35,12 @@ export function placementEligibility(student = {}, host = null, settings = {}) {
   const cutoff = number(host?.minGpa) ?? number(settings?.[student.college || student.college_code]?.maxGpaCutoff);
   const clearance = student.disciplinaryClearance || student.disciplinary_clearance;
   const docs = Array.isArray(student.preDeploymentDocs) ? student.preDeploymentDocs : null;
+  const configuredRequirements = settings?.[student.college || student.college_code]?.documentRequirements;
+  const requiredRequirements = Array.isArray(configuredRequirements) ? configuredRequirements.filter(item => item?.isActive !== false && item?.isRequired !== false) : null;
+  const verifiedCodes = new Set((docs || []).filter(doc => doc.status === 'Verified').map(doc => doc.docCode || doc.code));
+  const deploymentReady = requiredRequirements === null || requiredRequirements.length === 0
+    ? null
+    : requiredRequirements.every(requirement => verifiedCodes.has(requirement.docCode));
   const capacity = host ? capacityFor(host, student) : null;
   const gates = {
     collegeMatch: {
@@ -53,9 +59,13 @@ export function placementEligibility(student = {}, host = null, settings = {}) {
       detail: clearance || 'Clearance is not recorded.'
     },
     preDeploymentDocs: {
-      pass: docs === null ? null : docs.length === 0 ? null : docs.every(doc => doc.status === 'Verified'),
+      pass: deploymentReady,
       label: 'Document Checklist',
-      detail: docs === null ? 'Document requirements are unavailable.' : `${docs.filter(doc => doc.status === 'Verified').length} of ${docs.length} documents verified.`
+      detail: requiredRequirements === null
+        ? 'Required document rules are unavailable.'
+        : requiredRequirements.length === 0
+          ? 'No required document rules are configured; deployment is blocked until the coordinator configures them.'
+          : `${requiredRequirements.filter(requirement => verifiedCodes.has(requirement.docCode)).length} of ${requiredRequirements.length} required documents verified.`
     },
     slotAvailability: {
       pass: capacity?.pass ?? null,
@@ -65,7 +75,11 @@ export function placementEligibility(student = {}, host = null, settings = {}) {
   };
   const hardGates = ['collegeMatch', 'gpaCutoff', 'disciplinaryClearance', 'slotAvailability'];
   const hardEligible = hardGates.every(key => gates[key].pass === true);
-  return { hardEligible: hardGates.some(key => gates[key].pass === null) ? null : hardEligible, gates };
+  return {
+    hardEligible: hardGates.some(key => gates[key].pass === null) ? null : hardEligible,
+    deploymentReady,
+    gates
+  };
 }
 
 export function placementRankings(student = {}, hosts = [], settings = {}) {

@@ -9,7 +9,7 @@ const css = readFileSync(new URL('../src/views/settings.css', import.meta.url), 
 test('settings screen exposes the existing institutional fields without inserting defaults', () => {
   for (const [key] of settingsFields) assert.ok(readFileSync(new URL('../src/services/management.js', import.meta.url), 'utf8').includes(key));
   assert.match(view, /No saved policy settings exist for \{college\}/);
-  assert.match(view, /Approved settings not configured|approved settings not configured/i);
+  assert.match(view, /Academic settings unavailable/);
   assert.match(view, /settings\?\.ruleBClericalKeywords/);
 });
 
@@ -26,3 +26,14 @@ test('settings form groups are responsive and warn that changes require approved
   assert.match(view, /Confirm values against approved institutional policy/);
   assert.match(css, /@media \(min-width: 768px\)/);
 });
+
+test('college settings expose configurable pre-deployment requirement management', () => {
+  assert.match(view, /Pre-deployment document requirements/);
+  assert.match(view, /Add requirement/);
+  assert.match(view, /createDocumentRequirement\(user, college, payload\)/);
+  assert.match(view, /deactivateDocumentRequirement\(user, requirement\.id\)/);
+  assert.match(view, /Reactivate/);
+  assert.match(view, /updateDocumentRequirement\(user, requirement\.id, \{ isActive: true \}\)/);
+  assert.match(view, /Deployment remains blocked until at least one active required document is configured/);
+});
+

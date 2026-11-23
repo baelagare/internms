@@ -41,3 +41,14 @@ test('host intern view avoids institutional clearance and evaluation score detai
   assert.match(view, /Evaluation/);
   assert.doesNotMatch(view, /Clearance|totalScore|averageRating/);
 });
+
+test('host intern directory action buttons use title case and wire navigation', () => {
+  const view = readFileSync(new URL('../src/views/HostInternDirectory.jsx', import.meta.url), 'utf8');
+  const app = readFileSync(new URL('../src/App.jsx', import.meta.url), 'utf8');
+  assert.match(view, />Review Submissions</);
+  assert.match(view, />Open Evaluations</);
+  assert.match(view, /handleNavigate\('approvals'\)/);
+  assert.match(view, /handleNavigate\('evaluations'\)/);
+  assert.match(app, /<Interns[^>]*onNavigate=\{navigate\}/);
+});
+

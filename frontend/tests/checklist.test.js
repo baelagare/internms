@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import {
   checklistPage,
   checklistSummary,
@@ -76,6 +77,18 @@ test('checklistSummary handles empty or missing document collections safely', ()
   assert.equal(empty.percent, 0);
 });
 
+test('checklist summary counts only configured required requirements', () => {
+  const summary = checklistSummary({ preDeploymentDocs: [
+    { docCode: 'MOA', required: true, isConfigured: true, status: 'Verified' },
+    { docCode: 'INSURANCE', required: true, isConfigured: true, status: 'Not Uploaded' },
+    { docCode: 'OLD_FORM', required: false, isConfigured: false, status: 'Verified' }
+  ] });
+  assert.equal(summary.total, 2);
+  assert.equal(summary.verified, 1);
+  assert.equal(summary.percent, 50);
+});
+
+
 test('checklistPage filters documents by search query, status, and paginates correctly', () => {
   const docs = [
     { id: '1', code: 'DOC-01', title: 'Medical Clearance', issuer: 'Infirmary', status: 'Verified' },
@@ -94,6 +107,13 @@ test('checklistPage filters documents by search query, status, and paginates cor
   assert.equal(titleResult.rows[0].id, '1');
 
   // Filter by status
+
+test('upload boundary resolves requirement-only checklist rows by synthetic id and configured code', () => {
+  const source = readFileSync(new URL('../src/services/applicationService.js', import.meta.url), 'utf8');
+  assert.match(source, /requirement:\$\{row\.docCode \|\| row\.code\}/);
+  assert.match(source, /body\.set\('docCode', id === 'resume' \? 'RESUME' : doc\.docCode \|\| doc\.code\)/);
+});
+
   const statusResult = checklistPage(docs, '', 'Returned for Revision');
   assert.equal(statusResult.count, 1);
   assert.equal(statusResult.rows[0].code, 'DOC-03');

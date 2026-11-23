@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\PlacementDecisionRequest;
+use App\Models\CollegeDocumentRequirement;
 use App\Models\CollegeSetting;
+use App\Models\Document;
 use App\Models\Company;
 use App\Models\Placement;
 use App\Models\Student;
@@ -137,6 +139,7 @@ class PlacementController extends Controller
             }
 
             $this->ensurePlacementEligibility($lockedStudent, $lockedCompany);
+            $this->ensureRequiredDocumentsVerified($lockedStudent);
 
             $role = $request->validated('assigned_role') ?? $lockedCompany->role_title;
             $matchingDeployment = $deployedPlacements->firstWhere('company_id', $lockedCompany->id);
@@ -191,6 +194,38 @@ class PlacementController extends Controller
             'message' => 'Student placement approved and deployed.',
             'placement' => $placement,
         ]);
+    }
+
+    private function ensureRequiredDocumentsVerified(Student $student): void
+    {
+        $requirements = CollegeDocumentRequirement::where('college_code', $student->college_code)
+            ->where('is_active', true)
+            ->where('is_required', true)
+            ->orderBy('sort_order')->orderBy('id')->get();
+
+        if ($requirements->isEmpty()) {
+            throw ValidationException::withMessages([
+                'documents' => ['Pre-deployment requirements are not configured for this college. Ask an administrator to configure them before deployment.'],
+            ]);
+        }
+
+        $documents = Document::where('student_id', $student->id)
+            ->whereIn('doc_code', $requirements->pluck('doc_code'))
+            ->get()->keyBy('doc_code');
+
+        $incomplete = $requirements->filter(function (CollegeDocumentRequirement $requirement) use ($documents) {
+            return $documents->get($requirement->doc_code)?->status !== 'Verified';
+        })->map(function (CollegeDocumentRequirement $requirement) use ($documents) {
+            $document = $documents->get($requirement->doc_code);
+            $state = $document?->status ?? 'Not Uploaded';
+            return "{$requirement->title} ({$state})";
+        })->values()->all();
+
+        if ($incomplete !== []) {
+            throw ValidationException::withMessages([
+                'documents' => ['Deployment is blocked until every required pre-deployment document is verified: '.implode('; ', $incomplete).'.'],
+            ]);
+        }
     }
 
     private function ensurePlacementEligibility(Student $student, Company $company): void

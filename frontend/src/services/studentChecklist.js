@@ -1,4 +1,3 @@
-import { dashboardSummary } from './studentDashboard.js';
 import { resolveStatus } from '../components/foundation/status.js';
 
 export const documentAccept = '.pdf,.png,.jpg,.jpeg';
@@ -24,8 +23,10 @@ export function documentStatus(document) {
 
 export function checklistSummary(user = {}) {
   const documents = Array.isArray(user.preDeploymentDocs) ? user.preDeploymentDocs : [];
-  const { verified, required } = dashboardSummary(user, {});
-  const remaining = documents.filter(item => item.status !== 'Verified');
+  const requiredDocuments = documents.filter(item => item.required !== false && item.isConfigured !== false);
+  const verified = requiredDocuments.filter(item => item.status === 'Verified').length;
+  const required = Array.isArray(user.preDeploymentDocs) ? requiredDocuments.length : null;
+  const remaining = requiredDocuments.filter(item => item.status !== 'Verified');
   const attention = remaining.filter(item => documentStatus(item).attention).length;
   const missing = remaining.filter(item => !documentStatus(item).attention && !item.fileName).length;
   const pending = remaining.filter(

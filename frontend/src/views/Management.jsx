@@ -6,7 +6,7 @@ import { StatusBadge, Notice, SummaryMetrics } from '../components/ui.jsx';
 import './partners.css';
 import { Button, Card } from '../components/ui.jsx';
 import { DataTable, Field, Modal, SearchField, WorkspacePage, useMutation } from '../components/workflow.jsx';
-import { createPolicy, createStaff, savePartner, saveSettings } from '../services/applicationService.js';
+import { createDocumentRequirement, deactivateDocumentRequirement, createPolicy, createStaff, savePartner, saveSettings, updateDocumentRequirement } from '../services/applicationService.js';
 import { settingsFields } from '../services/management.js';
 import { NEMSU_COLLEGES, collegeCodesForWorkspace } from '../config/institution.js';
 
@@ -61,7 +61,10 @@ export function Staff({ user, db = {}, onChange }) {
   const [college, setCollege] = useState('ALL');
   const users = Array.isArray(db.users) ? db.users : [];
   const colleges = collegeCodesForWorkspace(db);
-  const partnerCompanies = (Array.isArray(db.htes) ? db.htes : []).map(item => item.name).filter(Boolean);
+  const collegeOptions = colleges.map(code => ({ value: code, label: `${code}${NEMSU_COLLEGES[code]?.name ? ` · ${NEMSU_COLLEGES[code].name}` : ''}` }));
+  const partnerOptions = (Array.isArray(db.htes) ? db.htes : [])
+    .filter(item => item?.name)
+    .map(item => ({ value: item.name, label: `${item.name}${item.college ? ` (${item.college})` : ''}` }));
   const staff = users.filter(item => item.role !== 'student' && (college === 'ALL' || item.college === college || item.role === 'supervisor'));
   return <WorkspacePage title="Staff Accounts" subtitle="Review coordinator and host representative accounts." action={<Button onClick={() => setOpen(true)} disabled={colleges.length === 0}>Add Staff Account</Button>}>
     {colleges.length === 0 && <Notice tone="warning" title="College Catalog Unavailable">Staff accounts require a verified college scope. Configure the institution college catalog before creating accounts.</Notice>}
@@ -69,7 +72,7 @@ export function Staff({ user, db = {}, onChange }) {
       { label: 'OJT Coordinators', value: staff.filter(item => item.role === 'coordinator').length },
       { label: 'Host Representatives', value: staff.filter(item => item.role === 'supervisor').length }
     ]} />
-    {colleges.length > 0 && <Field label="College Scope" options={[{ value: 'ALL', label: 'All colleges' }, ...colleges.map(code => ({ value: code, label: `${code}${NEMSU_COLLEGES[code]?.name ? ` · ${NEMSU_COLLEGES[code].name}` : ''}` }))]} value={college} onChange={event => setCollege(event.target.value)} />}
+    {colleges.length > 0 && <Field label="College Scope" options={[{ value: 'ALL', label: 'All colleges' }, ...collegeOptions]} value={college} onChange={event => setCollege(event.target.value)} />}
     <DataTable title="Staff Directory" rows={staff} emptyTitle="No staff accounts" emptyDescription={college === 'ALL' ? 'Add the first coordinator or host representative account.' : 'No staff accounts in this college scope.'} emptyIcon="users" columns={[
       { key: 'name', label: 'Name' },
       { key: 'role', label: 'Role', render: item => STAFF_ROLE_LABELS[item.role] || item.role || 'Not recorded' },
@@ -77,28 +80,42 @@ export function Staff({ user, db = {}, onChange }) {
       { key: 'scope', label: 'Scope', render: item => item.college || item.company || 'Not recorded' },
       { key: 'inviteToken', label: 'Invitation', render: item => item.inviteToken ? 'Token issued' : 'Not issued' }
     ]} />
-    {open && <Modal title="Create staff account" onClose={() => setOpen(false)}><StaffAccountForm user={user} collegeOptions={collegeOptions} partnerOptions={partnerCompanies} onChange={onChange} onDone={() => setOpen(false)} /></Modal>}
+    {open && <Modal title="Add Staff Account" onClose={() => setOpen(false)}><StaffAccountForm user={user} collegeOptions={collegeOptions} partnerOptions={partnerOptions} onChange={onChange} onDone={() => setOpen(false)} /></Modal>}
   </WorkspacePage>;
 }
 
 function StaffAccountForm({ user, collegeOptions, partnerOptions, onChange, onDone }) {
   const [role, setRole] = useState('coordinator');
-  const [values, setValues] = useState({ name: '', id: '', pass: '', scope: '' });
+  const defaultCollege = collegeOptions[0]?.value ?? collegeOptions[0] ?? '';
+  const defaultPartner = partnerOptions[0]?.value ?? partnerOptions[0] ?? '';
+  const [values, setValues] = useState({ name: '', id: '', pass: '', scope: defaultCollege });
   const supervisor = role === 'supervisor';
   const { run, busy, notice } = useMutation(onChange);
   const setField = key => event => setValues(previous => ({ ...previous, [key]: event.target.value }));
-  return <form className="space-y-4" onSubmit={async event => { event.preventDefault(); if (await run(() => createStaff(user, { role, ...values }))) onDone?.(); }}>
+  const handleRoleChange = event => {
+    const nextRole = event.target.value;
+    setRole(nextRole);
+    setValues(previous => ({
+      ...previous,
+      pass: '',
+      scope: nextRole === 'supervisor' ? defaultPartner : defaultCollege
+    }));
+  };
+  return <form className="space-y-4" onSubmit={async event => { event.preventDefault(); if (await run(() => createStaff(user, { role, ...values }), 'Staff account provisioned successfully.')) onDone?.(); }}>
     {notice}
-    <Field label="Role" options={[{ value: 'coordinator', label: 'OJT Coordinator' }, { value: 'supervisor', label: 'Host Company Representative' }]} value={role} onChange={event => setRole(event.target.value)} />
+    <Field label="Role" options={[{ value: 'coordinator', label: 'OJT Coordinator' }, { value: 'supervisor', label: 'Host Company Representative' }]} value={role} onChange={handleRoleChange} />
     <p className="text-sm text-muted">{supervisor ? 'Host representatives sign in with email and password.' : 'Coordinators sign in with their institutional Google account. No password is required when creating the account.'}</p>
-    <Field required label="Full name" value={values.name} onChange={setField('name')} />
-    <Field required label="Login ID / email" value={values.id} onChange={setField('id')} />
-    {supervisor && <Field required label="Initial password" type="password" value={values.pass} onChange={setField('pass')} />}
+    <Field required label="Full name" value={values.name} onChange={setField('name')} placeholder={supervisor ? 'e.g. Engr. Juan Dela Cruz' : 'e.g. Prof. Maria A. Santos'} />
+    <Field required type="email" label="Login ID / email" value={values.id} onChange={setField('id')} placeholder={supervisor ? 'supervisor@company.ph' : 'coordinator@nemsu.edu.ph'} hint={supervisor ? 'Business email used for email and password sign-in.' : 'Institutional email required (@nemsu.edu.ph).'} />
+    {supervisor && <Field required label="Initial password" type="password" minLength={8} value={values.pass} onChange={setField('pass')} placeholder="At least 8 characters" hint="Minimum 8 characters for initial sign-in." />}
     <div className="space-y-1.5">
       <Field required label={supervisor ? 'Partner company' : 'College'} options={supervisor ? partnerOptions : collegeOptions} value={values.scope} onChange={setField('scope')} />
       {supervisor && partnerOptions.length === 0 && <p className="text-sm text-muted">No partner companies are recorded yet. Add a partner company first.</p>}
     </div>
-    <Button type="submit" disabled={busy}>{busy ? 'Saving…' : 'Create account'}</Button>
+    <div className="flex justify-end gap-2 pt-2">
+      <Button type="button" variant="secondary" disabled={busy} onClick={onDone}>Cancel</Button>
+      <Button type="submit" disabled={busy || (supervisor && partnerOptions.length === 0)}>{busy ? 'Saving…' : 'Add Staff Account'}</Button>
+    </div>
   </form>;
 }
 function SettingsForm({ user, college, settings, onChange, groups }) {
@@ -122,12 +139,59 @@ function SettingsForm({ user, college, settings, onChange, groups }) {
   </form>;
 }
 
+function DocumentRequirementsSettings({ user, college, requirements = [], onChange, connectionStatus }) {
+  const [editing, setEditing] = useState(null);
+  const [values, setValues] = useState({ docCode: '', title: '', description: '', issuer: '', sortOrder: '', isRequired: true });
+  const [error, setError] = useState('');
+  const { run, busy, notice } = useMutation(onChange);
+  const openNew = () => {
+    setError('');
+    setValues({ docCode: '', title: '', description: '', issuer: '', sortOrder: String(requirements.length + 1), isRequired: true });
+    setEditing({ mode: 'create' });
+  };
+  const openEdit = requirement => {
+    setError('');
+    setValues({ docCode: requirement.docCode, title: requirement.title, description: requirement.description || '', issuer: requirement.issuer || '', sortOrder: String(requirement.sortOrder ?? 0), isRequired: requirement.isRequired !== false });
+    setEditing({ mode: 'edit', requirement });
+  };
+  const save = async event => {
+    event.preventDefault();
+    const docCode = values.docCode.trim().toUpperCase().replace(/[^A-Z0-9_-]/g, '_');
+    if (!docCode || !values.title.trim()) { setError('A document code and requirement title are required.'); return; }
+    const payload = { ...values, docCode, title: values.title.trim(), sortOrder: Number(values.sortOrder) || 0 };
+    const operation = editing.mode === 'create'
+      ? () => createDocumentRequirement(user, college, payload)
+      : () => updateDocumentRequirement(user, editing.requirement.id, payload);
+    if (await run(operation, 'Document requirement saved.')) setEditing(null);
+  };
+  return <section className="settings-group document-requirements-settings">
+    <div className="flex flex-wrap items-start justify-between gap-3"><div><h3>Pre-deployment document requirements</h3><p>All active required documents must be uploaded and verified before an intern can be deployed.</p></div><Button type="button" onClick={openNew} disabled={connectionStatus !== 'connected'}>Add requirement</Button></div>
+    {notice}
+    {connectionStatus !== 'connected' && <Notice tone="warning" title="Backend unavailable">Requirements cannot be changed until the backend is connected.</Notice>}
+    {!requirements.length ? <p className="text-sm text-muted">No document requirements are configured for this college. Deployment remains blocked until at least one active required document is configured.</p> : <ul className="divide-y divide-line">{requirements.map(requirement => <li key={requirement.id} className="flex flex-wrap items-center justify-between gap-3 py-3">
+      <div><p className="font-semibold text-ink">{requirement.title}</p><p className="text-xs text-muted">{requirement.docCode}{requirement.issuer ? ` · ${requirement.issuer}` : ''} · {requirement.isRequired ? 'Required' : 'Optional'} · {requirement.isActive ? 'Active' : 'Inactive'}</p>{requirement.description && <p className="mt-1 text-sm text-muted">{requirement.description}</p>}</div>
+      <div className="flex gap-2"><Button type="button" variant="secondary" disabled={connectionStatus !== 'connected'} onClick={() => openEdit(requirement)}>Edit</Button>{requirement.isActive ? <Button type="button" variant="danger" disabled={busy || connectionStatus !== 'connected'} onClick={() => run(() => deactivateDocumentRequirement(user, requirement.id), 'Requirement deactivated. Existing document history is retained.')}>Deactivate</Button> : <Button type="button" variant="secondary" disabled={busy || connectionStatus !== 'connected'} onClick={() => run(() => updateDocumentRequirement(user, requirement.id, { isActive: true }), 'Requirement reactivated.')}>Reactivate</Button>}</div>
+    </li>)}</ul>}
+    {editing && <Modal title={editing.mode === 'create' ? 'Add document requirement' : 'Edit document requirement'} onClose={() => { if (!busy) setEditing(null); }}><form className="space-y-4" onSubmit={save}>
+      {error && <Notice tone="danger" title="Check requirement details">{error}</Notice>}
+      <Field label="Document code" required value={values.docCode} onChange={event => setValues(previous => ({ ...previous, docCode: event.target.value }))} disabled={editing.mode === 'edit'} hint="Use letters, numbers, hyphens, or underscores. Codes identify uploads and are fixed after creation." />
+      <Field label="Requirement title" required value={values.title} onChange={event => setValues(previous => ({ ...previous, title: event.target.value }))} />
+      <Field label="Description / guidance" multiline value={values.description} onChange={event => setValues(previous => ({ ...previous, description: event.target.value }))} />
+      <Field label="Issuer" value={values.issuer} onChange={event => setValues(previous => ({ ...previous, issuer: event.target.value }))} />
+      <Field label="Display order" type="number" min={0} max={1000} value={values.sortOrder} onChange={event => setValues(previous => ({ ...previous, sortOrder: event.target.value }))} />
+      <Field label="Required for deployment" options={[{ value: 'true', label: 'Required' }, { value: 'false', label: 'Optional' }]} value={String(values.isRequired)} onChange={event => setValues(previous => ({ ...previous, isRequired: event.target.value === 'true' }))} />
+      <div className="flex justify-end gap-2"><Button type="button" variant="secondary" disabled={busy} onClick={() => setEditing(null)}>Cancel</Button><Button type="submit" disabled={busy}>{busy ? 'Saving…' : 'Save requirement'}</Button></div>
+    </form></Modal>}
+  </section>;
+}
+
 export function Settings({ user, db = {}, onChange, connectionStatus = 'offline' }) {
   const admin = user.role === 'admin';
   const availableColleges = collegeCodesForWorkspace(db);
   const savedColleges = Object.keys(db.collegeSettings || {});
   const [college, setCollege] = useState(user.role === 'coordinator' ? user.college : savedColleges[0] || availableColleges[0] || '');
   const settings = db.collegeSettings?.[college];
+  const documentRequirements = settings?.documentRequirements || [];
   const initial = { ...(settings || {}), ruleBClericalKeywords: Array.isArray(settings?.ruleBClericalKeywords) ? settings.ruleBClericalKeywords.join(', ') : settings?.ruleBClericalKeywords || '' };
   const fields = settingsFields.map(([key, label, min, max, step]) => ({ key, label, min, max, step, type: 'number' }));
   const fieldGroups = [
@@ -144,10 +208,9 @@ export function Settings({ user, db = {}, onChange, connectionStatus = 'offline'
     {admin && savedColleges.length === 0 && <Notice tone="info" title="No College Settings Have Been Provisioned">College options are available, but no approved quotas or policy thresholds are saved yet. Select a college to see its setup status; values are not assumed.</Notice>}
     {admin && availableColleges.length > 0 && <Field label="College" options={availableColleges.map(code => ({ value: code, label: `${code}${NEMSU_COLLEGES[code]?.name ? ` · ${NEMSU_COLLEGES[code].name}` : ''}${db.collegeSettings?.[code] ? '' : ' · Settings not configured'}` }))} value={college} onChange={event => setCollege(event.target.value)} />}
     <div className="settings-context"><h2>{NEMSU_COLLEGES[college]?.name || college}</h2><p>Changes affect records and indicators for this college. Confirm values against approved institutional policy.</p></div>
-    {!settings ? <Notice tone="warning" title="Settings unavailable · approved settings not configured">No saved policy settings exist for {college}. The settings form is unavailable until the institution approves and provisions values; no quotas or thresholds are assumed. {admin ? 'Provision approved values once they are confirmed by the institution.' : 'Ask an administrator to confirm and provision approved values.'}</Notice> : <>
-      {connectionStatus !== 'connected' && <Notice tone="warning" title="Backend unavailable">Settings changes cannot be saved yet. Values shown come from the records currently available in this frontend.</Notice>}
-      <SettingsForm key={college} user={user} college={college} settings={settings} onChange={onChange} groups={fieldGroups} />
-    </>}
+    {connectionStatus !== 'connected' && <Notice tone="warning" title="Backend unavailable">Settings changes cannot be saved until the backend is connected.</Notice>}
+    <DocumentRequirementsSettings key={`${college}-document-requirements`} user={user} college={college} requirements={documentRequirements} onChange={onChange} connectionStatus={connectionStatus} />
+    {!settings ? <Notice tone="warning" title="Academic settings unavailable · approved values not configured">No saved policy settings exist for {college}; approved settings not configured, and no quotas or thresholds are assumed. {admin ? 'Provision approved values once they are confirmed by the institution.' : 'Ask an administrator to confirm and provision approved values.'} Document requirements can still be managed above.</Notice> : <SettingsForm key={college} user={user} college={college} settings={settings} onChange={onChange} groups={fieldGroups} />}
   </WorkspacePage>;
 }
 const POLICY_CATEGORY_LABELS = {

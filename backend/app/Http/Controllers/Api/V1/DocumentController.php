@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ReviewDocumentRequest;
 use App\Http\Requests\UploadDocumentRequest;
+use App\Models\CollegeDocumentRequirement;
 use App\Models\Document;
 use App\Models\Student;
 use Illuminate\Http\JsonResponse;
@@ -21,6 +22,14 @@ class DocumentController extends Controller
             ['user_id' => $user->id],
             ['college_code' => $user->college_code]
         );
+
+        $requirement = CollegeDocumentRequirement::where('college_code', $student->college_code)
+            ->where('doc_code', $request->validated('docCode'))
+            ->where('is_active', true)
+            ->first();
+        if (! $requirement) {
+            abort(422, 'This document is not an active requirement for your college. Contact your coordinator.');
+        }
 
         $file = $request->file('file');
         $path = $file->store("documents/{$student->id}", 'local');

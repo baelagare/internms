@@ -53,3 +53,12 @@ test('host dashboard layout classes and landmarks match stylesheet and accessibl
     assert.match(source, new RegExp(`id="${id}"`), `missing heading id for ${id}`);
   }
 });
+
+test('host dashboard action buttons use title case and wire navigation', () => {
+  const source = readFileSync(new URL('../src/views/HostDashboard.jsx', import.meta.url), 'utf8');
+  assert.match(source, />Review Submissions</);
+  assert.match(source, />Open Evaluations</);
+  assert.match(source, /handleNavigate\('approvals'\)/);
+  assert.match(source, /handleNavigate\('evaluations'\)/);
+});
+

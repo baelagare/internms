@@ -8,9 +8,9 @@ export const belongsToStudent = (item, user, nameKey = 'student') => Boolean(ite
 
 export function dashboardSummary(user, db) {
   const docs = Array.isArray(user.preDeploymentDocs) ? user.preDeploymentDocs : [];
-  // The checklist is provisioned on registration; absent requirements are not zero requirements.
-  const required = docs.length || null;
-  const verified = docs.filter(item => item.status === 'Verified').length;
+  const requiredDocs = docs.filter(item => item?.required !== false && item?.isConfigured !== false);
+  const required = Array.isArray(user.preDeploymentDocs) ? requiredDocs.length || null : null;
+  const verified = requiredDocs.filter(item => item.status === 'Verified').length;
   const hours = Array.isArray(db.logs) ? approvedHours(db, user) : null;
   const configuredQuota = Number(db.collegeSettings?.[user.college]?.requiredHours);
   const quota = Number.isFinite(configuredQuota) && configuredQuota > 0 ? configuredQuota : null;
@@ -33,10 +33,11 @@ export function studentDashboardModel(user, db) {
   const hours = hoursValid ? creditedLogs.reduce((sum, item) => sum + Number(item.hours), 0) : null;
   const rawQuota = db.collegeSettings?.[user.college]?.requiredHours;
   const quota = recordedNumber(rawQuota) && Number(rawQuota) > 0 ? Number(rawQuota) : null;
-  const required = documents?.length || null;
-  const verified = documents ? documents.filter(item => item.status === 'Verified').length : null;
-  const revisions = documents?.filter(item => /returned|revision|rejected|resubmission/i.test(item.status || '')) || [];
-  const missing = documents?.filter(item => item.status === 'Not Uploaded') || [];
+  const requiredDocuments = documents?.filter(item => item.required !== false && item.isConfigured !== false) || null;
+  const required = requiredDocuments ? requiredDocuments.length || null : null;
+  const verified = requiredDocuments ? requiredDocuments.filter(item => item.status === 'Verified').length : null;
+  const revisions = requiredDocuments?.filter(item => /returned|revision|rejected|resubmission/i.test(item.status || '')) || [];
+  const missing = requiredDocuments?.filter(item => item.status === 'Not Uploaded') || [];
   const company = typeof user.company === 'string' && !/^unassigned/i.test(user.company.trim()) ? user.company.trim() : '';
   const evaluations = Array.isArray(db.evaluations) ? db.evaluations.filter(item => belongsToStudent(item, user, 'studentName')) : null;
   const evaluation = evaluations?.[0] || null;

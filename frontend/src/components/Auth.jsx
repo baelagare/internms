@@ -2,6 +2,7 @@ import { useEffect, useId, useRef, useState } from 'react';
 import { Button, Card, Notice } from './ui.jsx';
 import { Field, Input } from './workflow.jsx';
 import { GoogleIcon, Icon } from './Icons.jsx';
+import { PrivacyNoticeModal, TermsOfUseModal } from './LegalModals.jsx';
 
 
 export function AuthScreen({ onLogin, onGoogleSignIn, busy, error }) {
@@ -9,6 +10,7 @@ export function AuthScreen({ onLogin, onGoogleSignIn, busy, error }) {
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [loginType, setLoginType] = useState('supervisor');
+  const [legalModal, setLegalModal] = useState(null);
   const googleButtonRef = useRef(null);
   const [form, setForm] = useState({ email: '', password: '' });
   const emailId = useId();
@@ -57,7 +59,10 @@ export function AuthScreen({ onLogin, onGoogleSignIn, busy, error }) {
     setForm(prev => ({ ...prev, [key]: event.target.value }));
   };
 
-  const staticLink = event => event.preventDefault();
+  const openLegal = type => event => {
+    event.preventDefault();
+    setLegalModal(type);
+  };
 
   function handleSubmit(event) {
     event.preventDefault();
@@ -156,14 +161,16 @@ export function AuthScreen({ onLogin, onGoogleSignIn, busy, error }) {
           <footer className="mt-8 border-t border-line pt-5 text-center text-xs text-muted">
             <p>© {new Date().getFullYear()} NEMSU · InternMS</p>
             <div className="mt-2 flex flex-wrap items-center justify-center gap-3">
-              <a href="#privacy" onClick={staticLink} className="text-accent hover:underline">Privacy Notice</a>
+              <a href="#privacy" onClick={openLegal('privacy')} className="text-accent hover:underline">Privacy Notice</a>
               <span aria-hidden="true" className="text-line">·</span>
-              <a href="#terms" onClick={staticLink} className="text-accent hover:underline">Terms of Use</a>
+              <a href="#terms" onClick={openLegal('terms')} className="text-accent hover:underline">Terms of Use</a>
             </div>
             <p className="mt-1">Main Campus · OJT Management System</p>
           </footer>
         </Card>
       </div>
+      {legalModal === 'privacy' && <PrivacyNoticeModal onClose={() => setLegalModal(null)} />}
+      {legalModal === 'terms' && <TermsOfUseModal onClose={() => setLegalModal(null)} />}
     </main>
   );
 }

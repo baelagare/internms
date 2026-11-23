@@ -3,7 +3,9 @@
 namespace Tests\Feature\Api\V1;
 
 use App\Models\College;
+use App\Models\CollegeDocumentRequirement;
 use App\Models\CollegeSetting;
+use App\Models\Document;
 use App\Models\Company;
 use App\Models\Evaluation;
 use App\Models\Placement;
@@ -48,6 +50,13 @@ class DecisionSupportTest extends TestCase
             'gpa' => 1.75,
             'disciplinary_clearance' => 'Cleared & Certified',
         ]);
+        foreach (CollegeDocumentRequirement::where('college_code', 'CITE')->where('is_active', true)->where('is_required', true)->get() as $requirement) {
+            Document::create([
+                'student_id' => $this->student->id, 'doc_code' => $requirement->doc_code, 'title' => $requirement->title,
+                'original_name' => strtolower($requirement->doc_code).'.pdf', 'file_path' => 'documents/'.$requirement->doc_code.'.pdf',
+                'file_size_bytes' => 100, 'mime_type' => 'application/pdf', 'status' => 'Verified',
+            ]);
+        }
 
         $this->coordinatorUser = User::create([
             'name' => 'Dean Coordinator',
@@ -331,6 +340,20 @@ class DecisionSupportTest extends TestCase
         $this->assertNull($this->student->preferred_company_id);
         $this->assertNull($this->student->preferred_role);
     }
+
+    public function test_coordinator_cannot_deploy_until_every_required_document_is_verified(): void
+    {
+        Document::where('student_id', $this->student->id)->where('doc_code', 'INSURANCE')->delete();
+        $response = $this->actingAs($this->coordinatorUser, 'sanctum')->postJson("/api/v1/students/{$this->student->id}/placement", [
+            'company_id' => $this->company->id,
+            'assigned_role' => 'Fullstack Developer Intern',
+        ]);
+
+        $response->assertUnprocessable()->assertJsonValidationErrors(['documents']);
+        $this->assertDatabaseCount('placements', 0);
+        $this->assertSame(0, $this->company->fresh()->filled_slots);
+    }
+
 
     public function test_repeating_assignment_to_same_company_updates_existing_placement_and_does_not_consume_another_slot(): void
     {

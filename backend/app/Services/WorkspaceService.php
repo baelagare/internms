@@ -6,6 +6,7 @@ use App\Models\AttendanceAdjustment;
 use App\Models\AttendanceLog;
 use App\Models\College;
 use App\Models\CollegeSetting;
+use App\Models\CollegeDocumentRequirement;
 use App\Models\Company;
 use App\Models\AuditLog;
 use App\Models\Document;
@@ -108,7 +109,10 @@ class WorkspaceService
             });
         }
 
-        return $query->get()->map(function (User $u) {
+        $requirementsByCollege = CollegeDocumentRequirement::where('is_active', true)
+            ->orderBy('sort_order')->orderBy('id')->get()->groupBy('college_code');
+
+        return $query->get()->map(function (User $u) use ($requirementsByCollege) {
             $data = [
                 'id' => $u->id,
                 'studentProfileId' => $u->student?->id,
@@ -174,17 +178,7 @@ class WorkspaceService
                         'coursework' => $student?->coursework ?? [],
                         'achievements' => $student?->achievements ?? [],
                     ],
-                    'preDeploymentDocs' => ($student?->documents ?? collect())->map(fn (Document $d) => [
-                        'id' => $d->id,
-                        'docCode' => $d->doc_code,
-                        'title' => $d->title,
-                        'issuer' => $d->issuer,
-                        'fileName' => $d->original_name,
-                        'fileSize' => $d->file_size_bytes,
-                        'status' => $d->status,
-                        'reviewer' => $d->reviewer?->name,
-                        'remarks' => $d->remarks,
-                    ])->values()->all(),
+                    'preDeploymentDocs' => $this->buildStudentDocumentChecklist($student, $requirementsByCollege->get($student?->college_code, collect())), 
                 ]);
             }
 
@@ -230,28 +224,75 @@ class WorkspaceService
     }
 
     /**
+     * @return array<int, array<string, mixed>>
+     */
+    protected function buildStudentDocumentChecklist(?Student $student, $requirements): array
+    {
+        if (! $student) return [];
+        $documents = $student->documents ?? collect();
+        $byCode = $documents->keyBy('doc_code');
+        $rows = $requirements->map(function (CollegeDocumentRequirement $requirement) use ($byCode) {
+            $document = $byCode->get($requirement->doc_code);
+            return [
+                'id' => $document?->id ?? 'requirement:'.$requirement->doc_code,
+                'documentId' => $document?->id,
+                'requirementId' => $requirement->id,
+                'docCode' => $requirement->doc_code,
+                'title' => $requirement->title,
+                'description' => $requirement->description,
+                'issuer' => $requirement->issuer ?? $document?->issuer,
+                'fileName' => $document?->original_name,
+                'fileSize' => $document?->file_size_bytes,
+                'status' => $document?->status ?? 'Not Uploaded',
+                'reviewer' => $document?->reviewer?->name,
+                'remarks' => $document?->remarks,
+                'required' => $requirement->is_required,
+                'isConfigured' => true,
+            ];
+        });
+        $configuredCodes = $requirements->pluck('doc_code')->all();
+        $historical = $documents->reject(fn (Document $document) => in_array($document->doc_code, $configuredCodes, true))
+            ->map(fn (Document $document) => [
+                'id' => $document->id, 'documentId' => $document->id, 'requirementId' => null,
+                'docCode' => $document->doc_code, 'title' => $document->title, 'description' => null,
+                'issuer' => $document->issuer, 'fileName' => $document->original_name,
+                'fileSize' => $document->file_size_bytes, 'status' => $document->status,
+                'reviewer' => $document->reviewer?->name, 'remarks' => $document->remarks,
+                'required' => false, 'isConfigured' => false,
+            ]);
+        return $rows->concat($historical)->values()->all();
+    }
+
+    /**
      * @return array<string, array<string, mixed>>
      */
     protected function buildCollegeSettings(User $currentUser): array
     {
         $query = CollegeSetting::query();
-
-        if ($currentUser->isCoordinator() && $currentUser->college_code) {
+        $requirementsQuery = CollegeDocumentRequirement::query();
+        if (($currentUser->isCoordinator() || $currentUser->isStudent()) && $currentUser->college_code) {
             $query->where('college_code', $currentUser->college_code);
+            $requirementsQuery->where('college_code', $currentUser->college_code);
         }
 
         $result = [];
+        foreach ($requirementsQuery->orderBy('sort_order')->orderBy('id')->get()->groupBy('college_code') as $code => $requirements) {
+            $result[$code] = ['documentRequirements' => $requirements->map(fn (CollegeDocumentRequirement $r) => [
+                'id' => $r->id, 'docCode' => $r->doc_code, 'title' => $r->title,
+                'description' => $r->description, 'issuer' => $r->issuer,
+                'sortOrder' => $r->sort_order, 'isRequired' => $r->is_required, 'isActive' => $r->is_active,
+            ])->values()->all()];
+        }
         foreach ($query->get() as $s) {
-            $result[$s->college_code] = [
+            $result[$s->college_code] = array_merge($result[$s->college_code] ?? [], [
                 'requiredHours' => $s->required_hours,
                 'maxGpaCutoff' => $s->max_gpa_cutoff,
                 'ruleAMaxConsecutiveAbsences' => $s->rule_a_max_consecutive_absences,
                 'ruleAMaxDeficitPct' => $s->rule_a_max_deficit_pct,
                 'ruleBConsecutiveWeeks' => $s->rule_b_consecutive_weeks,
                 'ruleBClericalKeywords' => $s->rule_b_clerical_keywords ?? [],
-            ];
+            ]);
         }
-
         return $result;
     }
 

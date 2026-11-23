@@ -4,6 +4,7 @@ import './hostInterns.css';
 
 export function HostInternDirectory({ user, db = {}, onNavigate }) {
   const model = hostInternsModel(db, user);
+  const handleNavigate = onNavigate || (key => { window.location.hash = `#/${user?.role || 'supervisor'}/${key}`; });
   if (!model.available) return <div className="host-interns"><PageHeader title="Assigned Interns" subtitle="Student records for your host company." /><Card><EmptyState title="Intern Records Unavailable" description="Company-scoped student records are not connected yet." /></Card></div>;
   return <div className="host-interns">
     <PageHeader title="Assigned Interns" subtitle={`Students assigned to ${model.company}.`} />
@@ -24,8 +25,8 @@ export function HostInternDirectory({ user, db = {}, onNavigate }) {
       </table>
     </div> : <Card><EmptyState title="No Interns Assigned" description="Students will appear when they are assigned to your company." icon="users" /></Card>}
     <section className="host-intern-actions" aria-label="Intern actions">
-      <Button onClick={() => onNavigate?.('approvals')}>Review submissions</Button>
-      <Button variant="secondary" onClick={() => onNavigate?.('evaluations')}>Open evaluations</Button>
+      <Button onClick={() => handleNavigate('approvals')}>Review Submissions</Button>
+      <Button variant="secondary" onClick={() => handleNavigate('evaluations')}>Open Evaluations</Button>
     </section>
   </div>;
 }

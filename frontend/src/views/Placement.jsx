@@ -65,6 +65,7 @@ function CoordinatorPlacement({ user, db = {}, onChange, initialQuery }) {
                   </div>
                   <p className="mt-1 text-sm text-muted">{match.roleTitle || 'Role Not Recorded'} · {match.matchingSkills.length} of {match.matchingSkills.length + match.skillsGap.length} Required Skills Matched · {match.eligibility.hardEligible === true ? 'Eligible' : match.eligibility.hardEligible === false ? 'Requirements Not Met' : 'Eligibility Unconfirmed'}</p>
                   <p className="mt-2 text-xs text-muted">Matched: {match.matchingSkills.join(', ') || 'None'} · Skills To Build: {match.skillsGap.join(', ') || 'None'}</p>
+                  {match.eligibility.deploymentReady !== true && <Notice tone="warning" title={match.eligibility.deploymentReady === false ? 'Deployment blocked: documents incomplete' : 'Deployment blocked: requirements unavailable'}>{match.eligibility.gates.preDeploymentDocs.detail}{match.eligibility.deploymentReady === false ? ' Upload and verify every required document before deployment.' : ' Ask an administrator to configure the college document requirements.'}</Notice>}
                   <div className="mt-3 flex items-center justify-between gap-2">
                     <p className="text-xs text-muted">{isCurrent ? 'Student is currently assigned to this host.' : ''}</p>
                     {isCurrent ? (
@@ -72,10 +73,10 @@ function CoordinatorPlacement({ user, db = {}, onChange, initialQuery }) {
                     ) : (
                       <Button
                         variant="primary"
-                        disabled={busy || match.eligibility.hardEligible !== true}
+                        disabled={busy || match.eligibility.hardEligible !== true || match.eligibility.deploymentReady !== true}
                         onClick={() => { setReason(''); setAssignedRole(match.roleTitle || ''); setConfirmation(match); }}
                       >
-                        Assign to this host
+                        {match.eligibility.deploymentReady === false ? 'Documents Incomplete' : match.eligibility.deploymentReady !== true ? 'Requirements Unavailable' : 'Assign to this host'}
                       </Button>
                     )}
                   </div>
@@ -142,12 +143,13 @@ function StaffPlacement({ user, db, onChange, initialQuery }) {
     </div>
     <p className="mt-1 text-sm text-muted">{match.roleTitle || 'Role Not Recorded'} · {match.matchingSkills.length} of {match.matchingSkills.length + match.skillsGap.length} Required Skills Matched · {match.eligibility.hardEligible === true ? 'Eligible' : match.eligibility.hardEligible === false ? 'Requirements Not Met' : 'Eligibility Unconfirmed'}</p>
     <p className="mt-2 text-xs text-muted">Matched Skills: {match.matchingSkills.join(', ') || 'None'} · Skills To Build: {match.skillsGap.join(', ') || 'None'}</p>
+    {match.eligibility.deploymentReady !== true && <Notice tone="warning" title={match.eligibility.deploymentReady === false ? 'Deployment blocked: documents incomplete' : 'Deployment blocked: requirements unavailable'}>{match.eligibility.gates.preDeploymentDocs.detail}{match.eligibility.deploymentReady === false ? ' Upload and verify every required document before deployment.' : ' Ask an administrator to configure the college document requirements.'}</Notice>}
     <div className="mt-3 flex items-center justify-between gap-2">
       <p className="text-xs text-muted">{isCurrent ? 'Student is currently assigned to this host.' : ''}</p>
       {isCurrent ? (
         <Button variant="secondary" disabled>Already Assigned</Button>
       ) : (
-        <Button variant="secondary" onClick={() => { setReason(''); setAssignedRole(match.roleTitle || ''); setConfirmation(match); }}>Assign to this host</Button>
+        <Button variant="secondary" disabled={busy || match.eligibility.hardEligible !== true || match.eligibility.deploymentReady !== true} onClick={() => { setReason(''); setAssignedRole(match.roleTitle || ''); setConfirmation(match); }}>{match.eligibility.deploymentReady === false ? 'Documents Incomplete' : match.eligibility.deploymentReady !== true ? 'Requirements Unavailable' : 'Assign to this host'}</Button>
       )}
     </div>
   </article>;
