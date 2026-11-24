@@ -257,7 +257,7 @@ export function StudentAttendance({ user, db, onChange }) {
           <>
             <Button variant="secondary" onClick={() => setIsAdjustmentModalOpen(true)}>
               <Icon name="clock" size={16} />
-              Fix missed time
+              Fix Missed Time
             </Button>
             <Button variant="secondary" onClick={() => setIsExportOpen(true)}>
               <Icon name="download" size={16} />
@@ -723,12 +723,12 @@ export function StudentAttendance({ user, db, onChange }) {
       <Card className="p-5 space-y-4" aria-labelledby={`${id}-adj-history-title`}>
         <SectionHeading
           id={`${id}-adj-history-title`}
-          title="Time fix requests"
+          title="Time Fix Requests"
           description="Requests for missed time-in/out or off-site work."
           action={
             <Button variant="secondary" size="sm" onClick={() => setIsAdjustmentModalOpen(true)}>
               <Icon name="plus" size={15} />
-              New request
+              New Request
             </Button>
           }
         />
@@ -759,7 +759,7 @@ export function StudentAttendance({ user, db, onChange }) {
 
         {filteredAdjustments.length === 0 ? (
           <EmptyState
-            title="No time fix requests"
+            title="No Time Fix Requests"
             description="Missed a time-in or worked off-site? Request a time fix above."
             icon="calendar"
           />
@@ -825,7 +825,7 @@ export function StudentAttendance({ user, db, onChange }) {
 
       {/* 5. FIX MISSED TIME MODAL */}
       {isAdjustmentModalOpen && (
-        <Modal title="Request a time fix" onClose={() => setIsAdjustmentModalOpen(false)}>
+        <Modal title="Request a Time Fix" onClose={() => setIsAdjustmentModalOpen(false)}>
           <form onSubmit={handleAdjustmentSubmit} className="space-y-4">
             <div className="grid gap-3 sm:grid-cols-3">
               <Field

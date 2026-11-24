@@ -1,0 +1,21 @@
+{
+    "id": 78,
+    "student_id": 4,
+    "date": "2026-11-24",
+    "am_in": "02:55:27",
+    "am_out": "11:17:05",
+    "pm_in": "12:15:43",
+    "pm_out": null,
+    "hours": 4,
+    "status": "Returned for Revision",
+    "supervisor_id": 6,
+    "coordinator_id": null,
+    "created_at": "2026-11-24T02:55:27.000000Z",
+    "updated_at": "2026-11-24T12:15:43.000000Z",
+    "am_in_photo_path": "attendance/4/2026-11-24/J2PZlxooK9NRjCboha0TTIZs3FHLftm3O1Pm0x7y.jpg",
+    "am_out_photo_path": null,
+    "pm_in_photo_path": "attendance/4/2026-11-24/ILott9bryrdAUf9aWUYuS5kCY45Cztg4YEJv2kfJ.jpg",
+    "pm_out_photo_path": null,
+    "supervisor_notes": null,
+    "coordinator_notes": null
+}

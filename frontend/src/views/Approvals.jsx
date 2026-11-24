@@ -137,10 +137,10 @@ export function Approvals({ user, db, onChange, initialQuery }) {
           label="Submission Category"
           options={[
             ...(user.role !== 'supervisor'
-              ? [{ value: 'document', label: 'Checklist documents' }]
+              ? [{ value: 'document', label: 'Checklist Documents' }]
               : []),
-            { value: 'log', label: 'Attendance and weekly reports' },
-            { value: 'adjustment', label: 'Attendance adjustments' }
+            { value: 'log', label: 'Attendance & Weekly Reports' },
+            { value: 'adjustment', label: 'Attendance Adjustments' }
           ]}
           value={category}
           onChange={event => {
@@ -183,14 +183,14 @@ export function Approvals({ user, db, onChange, initialQuery }) {
                   setRemarks('');
                 }}
               >
-                {canReview(row) ? 'Review' : 'View details'}
+                {canReview(row) ? 'Review' : 'View Details'}
               </Button>
             )
           }
         ]}
       />
       {selected && (
-        <Modal title={`${selected.student} · Review submission`} onClose={() => setSelected(null)}>
+        <Modal title={`${selected.student} · Review Submission`} onClose={() => setSelected(null)}>
           <div className="space-y-3">
             <div className="flex flex-wrap items-start justify-between gap-2">
               <h3 className="font-bold text-slate-900">{selected.title}</h3>
@@ -272,7 +272,7 @@ export function Approvals({ user, db, onChange, initialQuery }) {
             )}
             {category === 'document' && selected.fileName && selected.documentId && (
               <a className="inline-flex font-semibold underline underline-offset-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2" href={`${getApiBaseUrl()}/documents/${selected.documentId}/download`} target="_blank" rel="noreferrer">
-                Download submitted document
+                Download Submitted Document
               </a>
             )}
             {category === 'document' && selected.fileName && !selected.documentId && (
@@ -281,7 +281,7 @@ export function Approvals({ user, db, onChange, initialQuery }) {
             {canReview(selected) && (
               <>
                 <Field
-                  label="Remarks / revision instructions"
+                  label="Remarks / Revision Instructions"
                   multiline
                   value={remarks}
                   onChange={event => setRemarks(event.target.value)}
@@ -313,8 +313,8 @@ export function Approvals({ user, db, onChange, initialQuery }) {
                       {approve
                         ? user.role === 'supervisor' || category === 'document'
                           ? 'Verify'
-                          : 'Approve & credit'
-                        : 'Return for revision'}
+                          : 'Approve & Credit'
+                        : 'Return for Revision'}
                     </Button>
                   ))}
                 </div>

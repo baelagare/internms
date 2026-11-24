@@ -25,7 +25,7 @@ test('approval review eligibility remains stage and category specific', () => {
   assert.match(source, /user\.role === 'supervisor' \? 'Pending Supervisor Verification' : 'Supervisor Verified'/);
   assert.match(source, /category === 'document' \? Boolean\(row\.fileName\) : row\.status === expected/);
   assert.match(source, /reviewSubmission\(/);
-  assert.match(source, /Download submitted document/);
+  assert.match(source, /Download Submitted Document/);
   assert.match(source, /getApiBaseUrl\(\).*documents.*download/);
 });
 
