@@ -6,11 +6,16 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\AttendancePunchRequest;
 use App\Http\Requests\ReviewAdjustmentRequest;
 use App\Http\Requests\SubmitAdjustmentRequest;
+use App\Http\Requests\VerifyAttendanceLogRequest;
+use App\Http\Requests\ReviewAttendanceLogRequest;
 use App\Models\AttendanceAdjustment;
 use App\Models\AttendanceLog;
 use App\Models\Student;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class AttendanceController extends Controller
 {
@@ -66,6 +71,12 @@ class AttendanceController extends Controller
 
         $log->$type = $time;
 
+        // Store the timestamped camera snapshot as audit evidence for this punch.
+        if ($request->hasFile('photo')) {
+            $path = $request->file('photo')->store("attendance/{$student->id}/{$date}", 'local');
+            $log->{$type.'_photo_path'} = $path;
+        }
+
         // Recalculate daily hours with 4.0h per session cap (max 8.0h daily total)
         $amHours = $this->calculateSessionHours($log->am_in, $log->am_out);
         $pmHours = $this->calculateSessionHours($log->pm_in, $log->pm_out);
@@ -77,6 +88,93 @@ class AttendanceController extends Controller
             'message' => 'Attendance punch recorded.',
             'log' => $log,
         ]);
+    }
+
+    /**
+     * Supervisor stage: verify the daily punch record (records verification only, no credit).
+     */
+    public function verifyLog(int $id, VerifyAttendanceLogRequest $request): JsonResponse
+    {
+        $log = AttendanceLog::with(['student.user'])->findOrFail($id);
+        $user = $request->user();
+
+        if ($user->isSupervisor()) {
+            $internCompanyId = $log->student->user->company_id;
+            $internCompany = $log->student->user->company;
+            if ($internCompanyId !== $user->company_id && $internCompany !== $user->company) {
+                abort(403, 'You cannot verify attendance records for interns of another company.');
+            }
+        }
+
+        $log->update([
+            'status' => $request->validated('status'),
+            'supervisor_id' => $user->id,
+            'supervisor_notes' => $request->validated('supervisor_notes'),
+        ]);
+
+        return response()->json([
+            'message' => 'Supervisor DTR verification recorded.',
+            'log' => $log->fresh(),
+        ]);
+    }
+
+    /**
+     * Coordinator stage: approve the DTR for official OJT credit.
+     */
+    public function reviewLog(int $id, ReviewAttendanceLogRequest $request): JsonResponse
+    {
+        $log = AttendanceLog::with(['student.user'])->findOrFail($id);
+        $user = $request->user();
+
+        if ($user->isCoordinator() && $log->student->college_code !== $user->college_code) {
+            abort(403, 'You cannot approve attendance records for another college.');
+        }
+
+        $log->update([
+            'status' => $request->validated('status'),
+            'coordinator_id' => $user->id,
+            'coordinator_notes' => $request->validated('coordinator_notes'),
+        ]);
+
+        return response()->json([
+            'message' => 'Coordinator DTR approval recorded.',
+            'log' => $log->fresh(),
+        ]);
+    }
+
+    /**
+     * Stream a captured punch photo to an authorized student, host supervisor, or college coordinator.
+     */
+    public function photo(int $id, string $type, Request $request): StreamedResponse
+    {
+        $log = AttendanceLog::with(['student.user'])->findOrFail($id);
+        $user = $request->user();
+
+        $column = $type.'_photo_path';
+        $path = $log->{$column} ?? null;
+        if (! $path) {
+            abort(404, 'This punch photo is not available.');
+        }
+
+        if ($user->isStudent() && $log->student->user_id !== $user->id) {
+            abort(403, 'You are not authorized to view this attendance photo.');
+        }
+        if ($user->isSupervisor()) {
+            $internCompanyId = $log->student->user->company_id;
+            $internCompany = $log->student->user->company;
+            if ($internCompanyId !== $user->company_id && $internCompany !== $user->company) {
+                abort(403, 'You are not authorized to view this attendance photo.');
+            }
+        }
+        if ($user->isCoordinator() && $log->student->college_code !== $user->college_code) {
+            abort(403, 'You are not authorized to view this attendance photo.');
+        }
+
+        if (! Storage::disk('local')->exists($path)) {
+            abort(404, 'This punch photo file could not be found.');
+        }
+
+        return Storage::disk('local')->download($path, "attendance-{$log->date}-{$type}.jpg");
     }
 
     public function adjust(SubmitAdjustmentRequest $request): JsonResponse

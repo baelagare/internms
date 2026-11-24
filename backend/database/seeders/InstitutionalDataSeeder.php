@@ -269,6 +269,8 @@ class InstitutionalDataSeeder extends Seeder
             DB::table('documents')->insertOrIgnore($chunk);
         }
 
+        $this->call(GerraldDemoDocumentsSeeder::class);
+
         // 4. Specific Scenarios
         // Gerrald Juntilla (CITE CS - User 5): 35 days attendance (280 hrs), 4 task reports, midterm evaluation
         $gjStudent = Student::where('user_id', 5)->first();

@@ -5,6 +5,12 @@ import { DataTable, Field, Modal, WorkspacePage, useMutation } from '../componen
 import { scopedStudents } from '../services/records.js';
 import { reviewSubmission } from '../services/applicationService.js';
 import { taskStatusTone } from '../services/studentTaskLogs.js';
+import { getApiBaseUrl, fetchAttendancePhoto } from '../services/apiClient.js';
+
+const PUNCH_TYPES = ['am_in', 'am_out', 'pm_in', 'pm_out'];
+const PUNCH_LABELS = { am_in: 'AM In', am_out: 'AM Out', pm_in: 'PM In', pm_out: 'PM Out' };
+const PUNCH_TIME_FIELDS = { am_in: 'amIn', am_out: 'amOut', pm_in: 'pmIn', pm_out: 'pmOut' };
+const PUNCH_PHOTO_FIELDS = { am_in: 'amInPhoto', am_out: 'amOutPhoto', pm_in: 'pmInPhoto', pm_out: 'pmOutPhoto' };
 
 export function Approvals({ user, db, onChange, initialQuery }) {
   const defaultCategory = initialQuery?.category || (user.role === 'supervisor' ? 'log' : 'document');
@@ -12,7 +18,11 @@ export function Approvals({ user, db, onChange, initialQuery }) {
   const [status, setStatus] = useState('ALL');
   const [selected, setSelected] = useState(null);
   const [remarks, setRemarks] = useState('');
+  const [punchPhotos, setPunchPhotos] = useState({});
+  const [punchPhotoLoading, setPunchPhotoLoading] = useState(false);
+  const [punchPhotoMissing, setPunchPhotoMissing] = useState({});
   const initialHandled = useRef(false);
+  const photoUrlsRef = useRef([]);
   const { run, busy, notice } = useMutation(onChange);
   const safeDb = { ...db, logs: Array.isArray(db?.logs) ? db.logs : [], dtrDisputes: Array.isArray(db?.dtrDisputes) ? db.dtrDisputes : [], users: Array.isArray(db?.users) ? db.users : [] };
   const students = scopedStudents(safeDb, user);
@@ -63,6 +73,34 @@ export function Approvals({ user, db, onChange, initialQuery }) {
       }
     }
   }, [initialQuery, records]);
+
+  // Load captured punch photos for the selected DTR record.
+  useEffect(() => {
+    photoUrlsRef.current.forEach(url => URL.revokeObjectURL(url));
+    photoUrlsRef.current = [];
+    setPunchPhotos({});
+    setPunchPhotoMissing({});
+    setPunchPhotoLoading(false);
+    if (!selected || selected.kind !== 'attendance' || !selected.apiId) return undefined;
+    const available = PUNCH_TYPES.filter(type => selected[PUNCH_PHOTO_FIELDS[type]]);
+    if (available.length === 0) return undefined;
+    let cancelled = false;
+    setPunchPhotoLoading(true);
+    (async () => {
+      for (const type of available) {
+        try {
+          const url = await fetchAttendancePhoto(selected.apiId, type);
+          photoUrlsRef.current.push(url);
+          if (cancelled) { URL.revokeObjectURL(url); return; }
+          setPunchPhotos(prev => ({ ...prev, [type]: url }));
+        } catch {
+          if (!cancelled) setPunchPhotoMissing(prev => ({ ...prev, [type]: true }));
+        }
+      }
+      if (!cancelled) setPunchPhotoLoading(false);
+    })();
+    return () => { cancelled = true; };
+  }, [selected]);
   const expected =
     user.role === 'supervisor' ? 'Pending Supervisor Verification' : 'Supervisor Verified';
   const canReview = row => category === 'document' ? Boolean(row.fileName) : row.status === expected;
@@ -167,6 +205,38 @@ export function Approvals({ user, db, onChange, initialQuery }) {
                 ? ` (${selected.dtrReferenceHours} hrs Week DTR reference)`
                 : ''}
             </p>
+            {selected.kind === 'attendance' && (
+              <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 space-y-3">
+                <p className="text-xs font-bold text-slate-700">Daily punch record</p>
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                  {PUNCH_TYPES.map(type => (
+                    <div key={type} className="rounded-md border border-slate-200 bg-white p-2 text-xs">
+                      <span className="block font-semibold text-slate-600">{PUNCH_LABELS[type]}</span>
+                      <span className="tabular-nums font-bold text-slate-900">{selected[PUNCH_TIME_FIELDS[type]] || '—'}</span>
+                    </div>
+                  ))}
+                </div>
+                {PUNCH_TYPES.filter(type => selected[PUNCH_PHOTO_FIELDS[type]]).map(type => (
+                  <figure key={type} className="space-y-1">
+                    <figcaption className="text-xs font-semibold text-slate-600">{PUNCH_LABELS[type]} camera evidence</figcaption>
+                    {punchPhotos[type]
+                      ? <img src={punchPhotos[type]} alt={`${selected.student} ${PUNCH_LABELS[type]} punch verification photo`} width="640" height="480" className="max-h-56 w-full rounded-md border border-slate-300 bg-slate-900 object-contain" />
+                      : punchPhotoMissing[type]
+                        ? <p className="text-xs text-slate-500">Photo unavailable. The record still shows its recorded punch times.</p>
+                        : <p className="text-xs text-slate-500">Loading photo…</p>}
+                  </figure>
+                ))}
+                {PUNCH_TYPES.every(type => !selected[PUNCH_PHOTO_FIELDS[type]]) && (
+                  <p className="text-xs text-slate-500">No camera photos were captured for this record.</p>
+                )}
+              </div>
+            )}
+            {(selected.supervisorNotes || selected.coordinatorNotes) && (
+              <div className="space-y-1 text-xs text-slate-600">
+                {selected.supervisorNotes && <p><strong>Supervisor remarks:</strong> {selected.supervisorNotes}</p>}
+                {selected.coordinatorNotes && <p><strong>Coordinator remarks:</strong> {selected.coordinatorNotes}</p>}
+              </div>
+            )}
             {selected.competencyTag && (
               <p className="text-xs font-semibold text-blue-900">
                 Competency Outcome: {selected.competencyTag}
@@ -200,10 +270,13 @@ export function Approvals({ user, db, onChange, initialQuery }) {
                 <strong>Review Remarks:</strong> {selected.remarks || selected.supervisorRemarks}
               </p>
             )}
-            {selected.fileName && (
-              <p className="text-xs text-slate-500">
-                Metadata only: {selected.fileName}. Original document bytes are not stored.
-              </p>
+            {category === 'document' && selected.fileName && selected.documentId && (
+              <a className="inline-flex font-semibold underline underline-offset-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2" href={`${getApiBaseUrl()}/documents/${selected.documentId}/download`} target="_blank" rel="noreferrer">
+                Download submitted document
+              </a>
+            )}
+            {category === 'document' && selected.fileName && !selected.documentId && (
+              <p className="text-xs text-slate-500">Original document bytes are unavailable.</p>
             )}
             {canReview(selected) && (
               <>

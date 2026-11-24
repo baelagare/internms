@@ -135,6 +135,15 @@ export function StudentAttendance({ user, db, onChange }) {
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
         await videoRef.current.play().catch(() => {});
+        // Wait for a decodable frame so the punch snapshot is never blank.
+        if (!videoRef.current.videoWidth) {
+          await new Promise(resolve => {
+            const video = videoRef.current;
+            const onReady = () => { video.removeEventListener('loadedmetadata', onReady); resolve(); };
+            video.addEventListener('loadedmetadata', onReady);
+            setTimeout(onReady, 1000);
+          });
+        }
       }
       setCameraActive(true);
       setCameraLoading(false);
@@ -184,10 +193,8 @@ export function StudentAttendance({ user, db, onChange }) {
 
   async function handleRecordPunch(punchType) {
     if (busy) return;
-    let snapshot = null;
-    if (cameraActive) {
-      snapshot = captureSnapshot();
-    }
+    // captureSnapshot returns null when no frame is ready, so a record still works without a photo.
+    const snapshot = captureSnapshot();
 
     const targetPunch = punchType || dailyState.nextPunch;
     if (!targetPunch) return;

@@ -54,6 +54,9 @@ Route::prefix('v1')->group(function (): void {
         Route::post('/attendance/punches', [AttendanceController::class, 'punch']);
         Route::post('/attendance/adjustments', [AttendanceController::class, 'adjust']);
         Route::post('/attendance/adjustments/{id}/review', [AttendanceController::class, 'reviewAdjustment']);
+        Route::post('/attendance-logs/{id}/verify', [AttendanceController::class, 'verifyLog']);
+        Route::post('/attendance-logs/{id}/review', [AttendanceController::class, 'reviewLog']);
+        Route::get('/attendance-logs/{id}/photo/{type}', [AttendanceController::class, 'photo'])->where('type', 'am_in|am_out|pm_in|pm_out');
 
         // Decision Support & Evaluations
         Route::post('/evaluations', [\App\Http\Controllers\Api\V1\EvaluationController::class, 'store']);

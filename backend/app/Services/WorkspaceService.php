@@ -302,7 +302,7 @@ class WorkspaceService
     protected function buildLogs(User $currentUser): array
     {
         $taskReportsQuery = TaskReport::with(['student.user']);
-        $attendanceLogsQuery = AttendanceLog::with(['student.user']);
+        $attendanceLogsQuery = AttendanceLog::with(['student.user', 'supervisor', 'coordinator']);
 
         if ($currentUser->isStudent()) {
             $studentId = $currentUser->student?->id;
@@ -349,6 +349,7 @@ class WorkspaceService
         foreach ($attendanceLogsQuery->get() as $al) {
             $items[] = [
                 'id' => 'dtr-'.$al->id,
+                'apiId' => $al->id,
                 'studentId' => $al->student->user_id,
                 'student' => $al->student->user->name,
                 'date' => $al->date->format('Y-m-d'),
@@ -356,8 +357,16 @@ class WorkspaceService
                 'amOut' => $al->am_out,
                 'pmIn' => $al->pm_in,
                 'pmOut' => $al->pm_out,
+                'amInPhoto' => (bool) $al->am_in_photo_path,
+                'amOutPhoto' => (bool) $al->am_out_photo_path,
+                'pmInPhoto' => (bool) $al->pm_in_photo_path,
+                'pmOutPhoto' => (bool) $al->pm_out_photo_path,
                 'hours' => $al->hours,
                 'status' => $al->status,
+                'supervisorNotes' => $al->supervisor_notes,
+                'coordinatorNotes' => $al->coordinator_notes,
+                'supervisorVerifiedBy' => $al->supervisor?->name,
+                'coordinatorApprovedBy' => $al->coordinator?->name,
                 'type' => 'daily_punch',
             ];
         }

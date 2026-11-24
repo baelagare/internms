@@ -25,6 +25,8 @@ test('approval review eligibility remains stage and category specific', () => {
   assert.match(source, /user\.role === 'supervisor' \? 'Pending Supervisor Verification' : 'Supervisor Verified'/);
   assert.match(source, /category === 'document' \? Boolean\(row\.fileName\) : row\.status === expected/);
   assert.match(source, /reviewSubmission\(/);
+  assert.match(source, /Download submitted document/);
+  assert.match(source, /getApiBaseUrl\(\).*documents.*download/);
 });
 
 test('host approvals explain supervisor verification and separate coordinator credit', () => {
@@ -63,4 +65,24 @@ test('approvals screen supports initialQuery deep linking to auto-select and ope
   assert.match(source, /initialQuery\?\.category/);
   assert.match(source, /setSelected\(match\)/);
 });
+
+test('approvals DTR review shows captured punch photos and two-stage notes', () => {
+  const source = readFileSync(new URL('../src/views/Approvals.jsx', import.meta.url), 'utf8');
+  assert.match(source, /Daily punch record/);
+  assert.match(source, /fetchAttendancePhoto\(selected\.apiId, type\)/);
+  assert.match(source, /camera evidence/);
+  assert.match(source, /Supervisor remarks/);
+  assert.match(source, /Coordinator remarks/);
+  assert.match(source, /No camera photos were captured for this record/);
+});
+
+test('application service routes DTR logs to the two-stage attendance endpoints', () => {
+  const source = readFileSync(new URL('../src/services/applicationService.js', import.meta.url), 'utf8');
+  assert.match(source, /log\.kind === 'attendance'/);
+  assert.match(source, /attendance-logs\/\$\{log\.apiId\}\/verify/);
+  assert.match(source, /attendance-logs\/\$\{log\.apiId\}\/review/);
+  assert.match(source, /Supervisor Verified/);
+  assert.match(source, /Coordinator Approved/);
+});
+
 

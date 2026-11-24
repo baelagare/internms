@@ -105,9 +105,17 @@ export async function saveStudentFile(user, id, file) {
   body.set('file', file);
   return mutate('/students/me/documents', 'POST', body);
 }
-export function recordAttendancePunch(user, values) {
+export async function recordAttendancePunch(user, values) {
   // Date/time come from the API clock, not the editable client clock.
-  return mutate('/attendance/punches', 'POST', { type: values.punchType.toLowerCase() });
+  const body = new FormData();
+  body.set('type', values.punchType.toLowerCase());
+  if (values.snapshot) {
+    const match = values.snapshot.match(/^data:(image\/(?:jpeg|png));base64,(.+)$/);
+    if (!match) throw new Error('Capture a valid punch verification photo.');
+    const bytes = Uint8Array.from(atob(match[2]), char => char.charCodeAt(0));
+    body.set('photo', new Blob([bytes], { type: match[1] }), match[1] === 'image/png' ? 'punch.png' : 'punch.jpg');
+  }
+  return mutate('/attendance/punches', 'POST', body);
 }
 export const submitAttendanceAdjustment = (user, values) => mutate('/attendance/adjustments', 'POST', {
   date: values.targetDate, requested_hours: Number(values.requestedHours),
@@ -140,8 +148,21 @@ export async function reviewSubmission(user, category, id, studentId, approve, r
   }
   const db = await getDatabase();
   const log = db.logs.find(row => String(row.id) === String(id));
-  if (!log || log.kind !== 'weekly_task') unsupported('Daily attendance verification');
+  if (!log) unsupported('Reviewing this submission');
   const host = user.role === 'supervisor';
+  if (log.kind === 'attendance') {
+    if (host) {
+      return mutate(`/attendance-logs/${log.apiId}/verify`, 'POST', {
+        status: approve ? 'Supervisor Verified' : 'Returned for Revision',
+        supervisor_notes: remarks || null,
+      });
+    }
+    return mutate(`/attendance-logs/${log.apiId}/review`, 'POST', {
+      status: approve ? 'Coordinator Approved' : 'Returned for Revision',
+      coordinator_notes: remarks || null,
+    });
+  }
+  if (log.kind !== 'weekly_task') unsupported('Reviewing this submission');
   return mutate(`/task-reports/${log.apiId}/${host ? 'verify' : 'review'}`, 'POST', {
     status: approve ? (host ? 'Supervisor Verified' : 'Coordinator Approved') : 'Returned for Revision',
     [host ? 'supervisor_notes' : 'coordinator_notes']: remarks

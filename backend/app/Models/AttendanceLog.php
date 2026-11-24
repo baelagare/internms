@@ -18,10 +18,16 @@ class AttendanceLog extends Model
         'am_out',
         'pm_in',
         'pm_out',
+        'am_in_photo_path',
+        'am_out_photo_path',
+        'pm_in_photo_path',
+        'pm_out_photo_path',
         'hours',
         'status',
         'supervisor_id',
+        'supervisor_notes',
         'coordinator_id',
+        'coordinator_notes',
     ];
 
     protected function casts(): array

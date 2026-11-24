@@ -91,7 +91,7 @@ test('missing or invalid attendance times never manufacture credited hours', () 
 test('role route boundaries remain intact', () => {
   assert.equal(allowedRoutes.student.includes('staff'), false);
   assert.equal(allowedRoutes.supervisor.includes('settings'), false);
-  assert.equal(Object.values(allowedRoutes).reduce((sum, routes) => sum + routes.length, 0), 31);
+  assert.equal(Object.values(allowedRoutes).reduce((sum, routes) => sum + routes.length, 0), 32);
 });
 
 

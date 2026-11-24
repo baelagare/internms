@@ -150,7 +150,10 @@ test('coordinator can select an eligible recommendation and submit its assignmen
   const source = readFileSync(new URL('../src/views/Placement.jsx', import.meta.url), 'utf8');
   assert.match(source, /disabled=\{busy \|\| match\.eligibility\.hardEligible !== true \|\| match\.eligibility\.deploymentReady !== true\}/);
   assert.match(source, /Documents Incomplete/);
-  assert.match(source, /Deployment blocked: documents incomplete/);
+  assert.match(source, /Awaiting document clearance/);
+  assert.match(source, /Review Documents/);
+  assert.match(source, /Required document rules are unavailable/);
+  assert.match(source, /deploymentReady !== true/);
   assert.match(source, /onClick=\{\(\) => \{ setReason\(''\); setAssignedRole\(match\.roleTitle \|\| ''\); setConfirmation\(match\); \}\}/);
   assert.match(source, /title="Confirm Placement Assignment"/);
   assert.match(source, /savePlacement\(user, student\.id, confirmation\.hteId, reason, assignedRole\)/);
@@ -196,7 +199,8 @@ test('student placement recommendations use supplied workspace hosts and provide
 
 test('coordinator placement review shows Current placement and Already Assigned for currently deployed host', () => {
   const source = readFileSync(new URL('../src/views/Placement.jsx', import.meta.url), 'utf8');
-  assert.match(source, /isCurrent \? \(\s*<Button variant="secondary" disabled>Already Assigned<\/Button>/);
+  assert.match(source, /isCurrent && <StatusBadge tone="info">Current placement<\/StatusBadge>/);
   assert.match(source, /Current placement/);
+  assert.match(source, /student\.company \? 'Reassign to this host' : 'Assign to this host'/);
 });
 

@@ -14,6 +14,29 @@ export function Placement({ user, db, onChange, initialQuery }) {
   return <StaffPlacement user={user} db={db} onChange={onChange} initialQuery={initialQuery} />;
 }
 
+function DocumentReadiness({ student, settings, role }) {
+  const college = student.college || student.college_code;
+  const requirements = settings?.[college]?.documentRequirements;
+  const required = Array.isArray(requirements) ? requirements.filter(item => item?.isActive !== false && item?.isRequired !== false) : null;
+  const docs = student.preDeploymentDocs || [];
+  const verified = new Set(docs.filter(doc => doc.status === 'Verified').map(doc => doc.docCode || doc.code));
+  const count = required?.filter(item => verified.has(item.docCode)).length ?? 0;
+  const complete = required?.length > 0 && count === required.length;
+  const deployed = student.placementStatus === 'Approved & Deployed' || Boolean(student.company && !/^unassigned/i.test(student.company.trim()));
+  const message = required === null || required.length === 0
+    ? 'Required document rules are unavailable. Ask an administrator to configure them before deployment.'
+    : complete
+      ? `${count} of ${required.length} required documents verified.`
+      : `${count} of ${required.length} required documents verified. ${deployed ? 'The existing placement is recorded, but current document requirements are incomplete. Resolve the checklist before reassignment.' : 'Complete the checklist before deployment.'}`;
+  const tone = required === null || required.length === 0 || !complete ? 'warning' : 'success';
+  const title = required === null || required.length === 0
+    ? 'Document readiness unavailable'
+    : complete
+      ? deployed ? 'Deployed · documents verified' : 'Required documents verified'
+      : deployed ? 'Existing placement · document compliance needs attention' : 'Awaiting document clearance';
+  return <Notice tone={tone} title={title} action={<a className="font-semibold underline underline-offset-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2" href={role === 'student' ? '#/student/checklist' : `#/${role}/approvals?category=document&student=${encodeURIComponent(student.name)}`}>Review Documents</a>}>{message}</Notice>;
+}
+
 function CoordinatorPlacement({ user, db = {}, onChange, initialQuery }) {
   const [status, setStatus] = useState('ALL');
   const targetId = initialQuery?.studentId != null ? (Number(initialQuery.studentId) || initialQuery.studentId) : (initialQuery?.id != null ? (Number(initialQuery.id) || initialQuery.id) : null);
@@ -46,6 +69,7 @@ function CoordinatorPlacement({ user, db = {}, onChange, initialQuery }) {
     ]} />
     {student && <Modal title={`${student.name} · Placement Review`} onClose={() => { if (!busy) { setSelected(null); setConfirmation(null); setReturningPreference(false); } }}>
       <div className="space-y-4"><section><h3 className="text-lg font-semibold">Student Placement Status</h3><p>{student.program || 'Program Not Recorded'} · {student.placementStatus || 'Unplaced'}</p><p>Preferred Host: {student.preferredHte || 'No Preference Recorded'} · Preferred Role: {student.preferredRole || 'Not recorded'} · Assigned Host: {student.company || 'Not Assigned'}</p>{student.preferenceStatus === 'Returned for Revision' && <Notice tone="warning" title="Preference returned to student">{student.preferenceFeedback || 'The student should revise and resubmit this preference.'}</Notice>}</section>
+        <DocumentReadiness student={student} settings={db.collegeSettings || {}} role={user.role} />
         <Notice tone="info" title="AI Placement Recommendations">
           Host training organizations are evaluated by the AI Placement Recommendation Engine using candidate skill overlap, degree program requirements, GPA standing, and partner slot quotas. Final deployment requires coordinator endorsement.
         </Notice>
@@ -63,22 +87,17 @@ function CoordinatorPlacement({ user, db = {}, onChange, initialQuery }) {
                     </div>
                     <span className="font-bold tabular-nums">{match.matchPercent}% Match</span>
                   </div>
-                  <p className="mt-1 text-sm text-muted">{match.roleTitle || 'Role Not Recorded'} · {match.matchingSkills.length} of {match.matchingSkills.length + match.skillsGap.length} Required Skills Matched · {match.eligibility.hardEligible === true ? 'Eligible' : match.eligibility.hardEligible === false ? 'Requirements Not Met' : 'Eligibility Unconfirmed'}</p>
+                  <p className="mt-1 text-sm text-muted">{match.roleTitle || 'Role Not Recorded'} · {match.matchingSkills.length} of {match.matchingSkills.length + match.skillsGap.length} Required Skills Matched · {match.eligibility.hardEligible === true ? 'Host criteria met' : match.eligibility.hardEligible === false ? 'Requirements Not Met' : 'Eligibility Unconfirmed'}</p>
                   <p className="mt-2 text-xs text-muted">Matched: {match.matchingSkills.join(', ') || 'None'} · Skills To Build: {match.skillsGap.join(', ') || 'None'}</p>
-                  {match.eligibility.deploymentReady !== true && <Notice tone="warning" title={match.eligibility.deploymentReady === false ? 'Deployment blocked: documents incomplete' : 'Deployment blocked: requirements unavailable'}>{match.eligibility.gates.preDeploymentDocs.detail}{match.eligibility.deploymentReady === false ? ' Upload and verify every required document before deployment.' : ' Ask an administrator to configure the college document requirements.'}</Notice>}
                   <div className="mt-3 flex items-center justify-between gap-2">
-                    <p className="text-xs text-muted">{isCurrent ? 'Student is currently assigned to this host.' : ''}</p>
-                    {isCurrent ? (
-                      <Button variant="secondary" disabled>Already Assigned</Button>
-                    ) : (
-                      <Button
-                        variant="primary"
-                        disabled={busy || match.eligibility.hardEligible !== true || match.eligibility.deploymentReady !== true}
-                        onClick={() => { setReason(''); setAssignedRole(match.roleTitle || ''); setConfirmation(match); }}
-                      >
-                        {match.eligibility.deploymentReady === false ? 'Documents Incomplete' : match.eligibility.deploymentReady !== true ? 'Requirements Unavailable' : 'Assign to this host'}
-                      </Button>
-                    )}
+                    <p className="text-xs text-muted">{isCurrent ? 'Current placement' : ''}</p>
+                    {!isCurrent && <Button
+                      variant="primary"
+                      disabled={busy || match.eligibility.hardEligible !== true || match.eligibility.deploymentReady !== true}
+                      onClick={() => { setReason(''); setAssignedRole(match.roleTitle || ''); setConfirmation(match); }}
+                    >
+                      {match.eligibility.deploymentReady === false ? 'Documents Incomplete' : match.eligibility.deploymentReady !== true ? 'Requirements Unavailable' : student.company ? 'Reassign to this host' : 'Assign to this host'}
+                    </Button>}
                   </div>
                 </article>
               );
@@ -131,7 +150,7 @@ function StaffPlacement({ user, db, onChange, initialQuery }) {
   const students = scopedStudents(db, user, college);
   const student = students.find(item => item.id === selected);
   const rankings = student ? placementRankings(student, db.htes, db.collegeSettings) : [];
-  const review = student && <div className="space-y-4"><h2 className="text-xl font-bold">{student.name} · Placement Review</h2><p>{student.program} · {student.placementStatus || 'Unplaced'}</p><p>Assigned Host: {student.company || 'Unassigned'} · Preferred Host: {student.preferredHte || 'None'}</p><div className="flex flex-wrap gap-2">{Object.entries(placementEligibility(student, null, db.collegeSettings).gates).map(([key, gate]) => <span key={key} title={gate.detail}><StatusBadge tone={gate.pass ? 'success' : 'warning'}>{gate.label}</StatusBadge></span>)}</div><Notice tone="info" title="AI Placement Recommendations">Rankings are computed by the AI Placement Recommendation Engine from candidate competency profiles, coursework alignment, academic standing, and host capacity. Final assignment decisions remain with the College OJT Coordinator.</Notice><div className="space-y-3">{rankings.map(match => {
+  const review = student && <div className="space-y-4"><h2 className="text-xl font-bold">{student.name} · Placement Review</h2><p>{student.program} · {student.placementStatus || 'Unplaced'}</p><p>Assigned Host: {student.company || 'Unassigned'} · Preferred Host: {student.preferredHte || 'None'}</p><DocumentReadiness student={student} settings={db.collegeSettings || {}} role={user.role} /><div className="flex flex-wrap gap-2">{Object.entries(placementEligibility(student, null, db.collegeSettings).gates).map(([key, gate]) => <span key={key} title={gate.detail}><StatusBadge tone={gate.pass ? 'success' : 'warning'}>{gate.label}</StatusBadge></span>)}</div><Notice tone="info" title="AI Placement Recommendations">Rankings are computed by the AI Placement Recommendation Engine from candidate competency profiles, coursework alignment, academic standing, and host capacity. Final assignment decisions remain with the College OJT Coordinator.</Notice><div className="space-y-3">{rankings.map(match => {
   const isCurrent = Boolean(student.company && !/^unassigned/i.test(student.company.trim()) && student.company.trim() === match.company);
   return <article key={match.hteId} className={`rounded-panel border border-line bg-subtle p-4 ${isCurrent ? 'border-accent' : ''}`}>
     <div className="flex flex-wrap items-center justify-between gap-2">
@@ -141,16 +160,11 @@ function StaffPlacement({ user, db, onChange, initialQuery }) {
       </div>
       <strong className="tabular-nums">{match.matchPercent}% Match</strong>
     </div>
-    <p className="mt-1 text-sm text-muted">{match.roleTitle || 'Role Not Recorded'} · {match.matchingSkills.length} of {match.matchingSkills.length + match.skillsGap.length} Required Skills Matched · {match.eligibility.hardEligible === true ? 'Eligible' : match.eligibility.hardEligible === false ? 'Requirements Not Met' : 'Eligibility Unconfirmed'}</p>
+    <p className="mt-1 text-sm text-muted">{match.roleTitle || 'Role Not Recorded'} · {match.matchingSkills.length} of {match.matchingSkills.length + match.skillsGap.length} Required Skills Matched · {match.eligibility.hardEligible === true ? 'Host criteria met' : match.eligibility.hardEligible === false ? 'Requirements Not Met' : 'Eligibility Unconfirmed'}</p>
     <p className="mt-2 text-xs text-muted">Matched Skills: {match.matchingSkills.join(', ') || 'None'} · Skills To Build: {match.skillsGap.join(', ') || 'None'}</p>
-    {match.eligibility.deploymentReady !== true && <Notice tone="warning" title={match.eligibility.deploymentReady === false ? 'Deployment blocked: documents incomplete' : 'Deployment blocked: requirements unavailable'}>{match.eligibility.gates.preDeploymentDocs.detail}{match.eligibility.deploymentReady === false ? ' Upload and verify every required document before deployment.' : ' Ask an administrator to configure the college document requirements.'}</Notice>}
     <div className="mt-3 flex items-center justify-between gap-2">
-      <p className="text-xs text-muted">{isCurrent ? 'Student is currently assigned to this host.' : ''}</p>
-      {isCurrent ? (
-        <Button variant="secondary" disabled>Already Assigned</Button>
-      ) : (
-        <Button variant="secondary" disabled={busy || match.eligibility.hardEligible !== true || match.eligibility.deploymentReady !== true} onClick={() => { setReason(''); setAssignedRole(match.roleTitle || ''); setConfirmation(match); }}>{match.eligibility.deploymentReady === false ? 'Documents Incomplete' : match.eligibility.deploymentReady !== true ? 'Requirements Unavailable' : 'Assign to this host'}</Button>
-      )}
+      <p className="text-xs text-muted">{isCurrent ? 'Current placement' : ''}</p>
+      {!isCurrent && <Button variant="secondary" disabled={busy || match.eligibility.hardEligible !== true || match.eligibility.deploymentReady !== true} onClick={() => { setReason(''); setAssignedRole(match.roleTitle || ''); setConfirmation(match); }}>{match.eligibility.deploymentReady === false ? 'Documents Incomplete' : match.eligibility.deploymentReady !== true ? 'Requirements Unavailable' : student.company ? 'Reassign to this host' : 'Assign to this host'}</Button>}
     </div>
   </article>;
 })}</div>{!rankings.length && <EmptyState title="No Placement Recommendations" description="No host organizations are available to rank for this student." icon="briefcase" />}</div>;

@@ -75,6 +75,16 @@ export async function apiRequest(path, options = {}) {
   return request(path, { ...options, body });
 }
 
+export async function fetchAttendancePhoto(logApiId, type) {
+  const token = getToken();
+  if (!token) throw new Error('Sign in before opening this attendance photo.');
+  const response = await fetch(`${API_BASE_URL}/attendance-logs/${logApiId}/photo/${type}`, {
+    headers: { Authorization: `Bearer ${token}`, Accept: 'image/*' }
+  });
+  if (!response.ok) throw new Error('This punch photo could not be loaded.');
+  return URL.createObjectURL(await response.blob());
+}
+
 export async function getDatabase() {
   if (!getToken()) return emptyDatabase();
   return normalizeWorkspace(await apiRequest('/workspace'));
